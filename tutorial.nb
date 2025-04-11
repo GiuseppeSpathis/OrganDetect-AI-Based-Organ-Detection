@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     25190,        580]
-NotebookOptionsPosition[     21199,        508]
-NotebookOutlinePosition[     21671,        526]
-CellTagsIndexPosition[     21628,        523]
+NotebookDataLength[     19581,        444]
+NotebookOptionsPosition[     18182,        406]
+NotebookOutlinePosition[     18648,        424]
+CellTagsIndexPosition[     18605,        421]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -78,439 +78,337 @@ Cell[TextData[StyleBox["(anno 1, curriculum C), (anno 1, curriculum A), (anno \
 0adf37b5827e"],
 
 Cell[BoxData[
- RowBox[{
-  RowBox[{"(*", 
-   RowBox[{"DynamicModule", "[", 
+ RowBox[{"DynamicModule", "[", 
+  RowBox[{
+   RowBox[{"{", "\n", "    ", 
     RowBox[{
-     RowBox[{"{", 
+     RowBox[{"file", " ", "=", " ", "\"\<\>\""}], ",", "\n", "    ", 
+     RowBox[{"result", " ", "=", " ", "\"\<\>\""}], ",", "\n", "    ", 
+     RowBox[{"fileSet", " ", "=", " ", "False"}], ",", "\n", "    ", 
+     RowBox[{"errorMsg", " ", "=", " ", "\"\<\>\""}], ",", "\n", "    ", 
+     RowBox[{"imgPreview", " ", "=", " ", "None"}], ",", "\n", "    ", 
+     "updateFileState"}], "\n", "  ", "}"}], ",", "\n", "\n", "  ", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Helper", " ", 
+     RowBox[{"function", ":", " ", 
+      RowBox[{"Accetta", " ", "solo", " ", 
+       RowBox[{
+        RowBox[{"PNG", "/", "JPG"}], "/", "JPEG"}]}]}]}], " ", "*)"}], "\n", 
+   "  ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"updateFileState", "[", "newFile_String", "]"}], " ", ":=", " ", 
+     
+     RowBox[{"(", "\n", "    ", 
       RowBox[{
-       RowBox[{"file", "=", "\"\<\>\""}], ",", 
-       RowBox[{"result", "=", "\"\<\>\""}]}], "}"}], ",", 
-     RowBox[{"CreateDialog", "[", 
-      RowBox[{"Column", "[", 
-       RowBox[{"{", 
+       RowBox[{"file", " ", "=", " ", "newFile"}], ";", "\n", "    ", 
+       RowBox[{"errorMsg", " ", "=", " ", "\"\<\>\""}], ";", "\n", "    ", 
+       RowBox[{"imgPreview", " ", "=", " ", "None"}], ";", " ", 
+       RowBox[{"(*", " ", 
+        RowBox[{"Reset", " ", "preview"}], " ", "*)"}], "\n", "    ", 
+       RowBox[{"fileSet", " ", "=", " ", "False"}], ";", " ", 
+       RowBox[{"(*", " ", 
+        RowBox[{"Reset", " ", "file", " ", "status"}], " ", "*)"}], "\n", 
+       "\n", "    ", 
+       RowBox[{"If", "[", 
         RowBox[{
-         RowBox[{"Style", "[", 
-          RowBox[{"\"\<Organ Detection Tool\>\"", ",", "18", ",", "Bold"}], 
-          "]"}], ",", "\"\<Select file:\>\"", ",", 
-         RowBox[{"InputField", "[", 
+         RowBox[{
+          RowBox[{"StringTrim", "[", "file", "]"}], " ", "==", 
+          " ", "\"\<\>\""}], ",", " ", 
+         RowBox[{"Return", "[", "]"}]}], "]"}], ";", " ", 
+       RowBox[{"(*", " ", 
+        RowBox[{
+        "Exit", " ", "if", " ", "file", " ", "path", " ", "is", " ", 
+         "empty"}], " ", "*)"}], "\n", "\n", "    ", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"FileExistsQ", "[", "file", "]"}], ",", "\n", "      ", 
+         RowBox[{"Module", "[", 
           RowBox[{
-           RowBox[{"Dynamic", "[", "file", "]"}], ",", "String", ",", 
-           RowBox[{"FieldHint", "->", "\"\<Enter path/to/file.m\>\""}]}], 
-          "]"}], ",", 
-         RowBox[{"Button", "[", 
-          RowBox[{"\"\<Run Detection\>\"", ",", 
-           RowBox[{
-            RowBox[{"result", "=", 
-             
-             RowBox[{"\"\<Running organ detection on file: \>\"", "<>", 
-              "file"}]}], ";"}]}], "\[IndentingNewLine]", 
-          RowBox[{"(*", 
-           RowBox[{
+           RowBox[{"{", 
             RowBox[{
-            "call", " ", "your", " ", "detection", " ", "function", " ", 
-             "here"}], ",", 
-            RowBox[{"e", ".", "g", "."}], ",", 
-            RowBox[{"organDetect", "[", "file", "]"}]}], "*)"}], "]"}], ",", 
-         RowBox[{"Dynamic", "[", "result", "]"}]}], "}"}], "]"}], "]"}]}], 
-    "]"}], "*)"}], "\n"}]], "Code",
+             RowBox[{"ext", " ", "=", " ", 
+              RowBox[{"ToLowerCase", "@", 
+               RowBox[{"FileExtension", "[", "file", "]"}]}]}], ",", " ", 
+             "importedContent"}], "}"}], ",", "\n", "        ", 
+           RowBox[{
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{"StringMatchQ", "[", 
+               RowBox[{"ext", ",", " ", 
+                
+                RowBox[{"\"\<png\>\"", " ", "|", " ", "\"\<jpg\>\"", " ", "|",
+                  " ", "\"\<jpeg\>\""}]}], "]"}], ",", "\n", "          ", 
+              RowBox[{
+               RowBox[{"Check", "[", "\n", "            ", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"importedContent", " ", "=", " ", 
+                   RowBox[{"Import", "[", "file", "]"}]}], ";", "\n", 
+                  "            ", 
+                  RowBox[{"If", "[", 
+                   RowBox[{
+                    RowBox[{"ImageQ", "[", "importedContent", "]"}], ",", 
+                    "\n", "              ", 
+                    RowBox[{
+                    RowBox[{"imgPreview", " ", "=", " ", "importedContent"}], 
+                    ";", "\n", "              ", 
+                    RowBox[{"fileSet", " ", "=", " ", "True"}], ";"}], ",", 
+                    "\n", "              ", 
+                    RowBox[{
+                    RowBox[{
+                    "errorMsg", " ", "=", 
+                    " ", "\"\<\:274c File non \[EGrave] un'immagine PNG/JPG \
+valida.\>\""}], ";"}]}], "\n", "            ", "]"}]}], ",", "\n", 
+                 "            ", 
+                 RowBox[{
+                  RowBox[{
+                  "errorMsg", " ", "=", 
+                   " ", "\"\<\:274c Errore durante l'importazione \
+dell'immagine.\>\""}], ";", "\n", "            ", 
+                  RowBox[{"imgPreview", " ", "=", " ", "None"}], ";"}]}], 
+                "\n", "          ", "]"}], ";"}], "\n", "        ", ",", "\n",
+               "          ", 
+              RowBox[{
+               RowBox[{
+               "errorMsg", " ", "=", 
+                " ", "\"\<\:274c Tipo file non supportato (solo .png, .jpg, \
+.jpeg).\>\""}], ";", "\n", "          ", 
+               RowBox[{"imgPreview", " ", "=", " ", "None"}], ";"}]}], "\n", 
+             "        ", "]"}], ";"}]}], "\n", "      ", "]"}], ",", "\n", 
+         "      ", 
+         RowBox[{
+          RowBox[{
+          "errorMsg", " ", "=", " ", "\"\<\:274c File non trovato.\>\""}], ";",
+           "\n", "      ", 
+          RowBox[{"imgPreview", " ", "=", " ", "None"}], ";"}]}], "\n", 
+        "    ", "]"}], ";", "\n", "    ", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"errorMsg", " ", "=!=", " ", "\"\<\>\""}], ",", " ", 
+         RowBox[{"fileSet", " ", "=", " ", "False"}]}], "]"}], ";"}], "\n", 
+      "  ", ")"}]}], ";", "\n", "  ", "\n", "  ", 
+    RowBox[{"(*", " ", 
+     RowBox[{
+      RowBox[{
+      "Implementazione", " ", "della", " ", "funzione", " ", "organDetect"}], 
+      " ", "-", " ", 
+      RowBox[{
+      "definita", " ", "localmente", " ", "per", " ", 
+       "semplicit\[AGrave]"}]}], " ", "*)"}], "\n", "  ", 
+    RowBox[{
+     RowBox[{"organDetect", "[", "imagePath_", "]"}], " ", ":=", " ", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"img", ",", " ", "detectionResult"}], "}"}], ",", "\n", 
+       "    ", 
+       RowBox[{
+        RowBox[{"img", " ", "=", " ", 
+         RowBox[{"Import", "[", "imagePath", "]"}]}], ";", "\n", "    ", "\n",
+         "    ", 
+        RowBox[{"(*", " ", 
+         RowBox[{
+         "Qui", " ", "inserire", " ", "il", " ", "codice", " ", "per", " ", 
+          "il", " ", "rilevamento", " ", "degli", " ", "organi"}], " ", 
+         "*)"}], "\n", "    ", 
+        RowBox[{"(*", " ", 
+         RowBox[{
+         "Per", " ", "ora", " ", "restituisce", " ", "un", " ", "messaggio", " ",
+           "di", " ", "esempio"}], " ", "*)"}], "\n", "    ", 
+        RowBox[{"detectionResult", " ", "=", " ", 
+         RowBox[{"\"\<\:2705 Rilevamento completato per: \>\"", " ", "<>", 
+          " ", 
+          RowBox[{"FileNameTake", "[", "imagePath", "]"}], " ", "<>", " ", 
+          "\n", "                     ", "\"\<\\n\\nOrgani rilevati:\\n- \
+Tiroide: 101%\>\""}]}], ";", "\n", "    ", "\n", "    ", 
+        RowBox[{"Return", "[", "detectionResult", "]"}], ";"}]}], "\n", "  ", 
+      "]"}]}], ";", "\n", "  ", "\n", "  ", 
+    RowBox[{"updateFileState", "[", "\"\<\>\"", "]"}], ";", " ", 
+    RowBox[{"(*", " ", 
+     RowBox[{"Initialize", " ", "state"}], " ", "*)"}], "\n", "\n", "  ", 
+    RowBox[{"(*", " ", 
+     RowBox[{"Create", " ", "the", " ", "Dialog", " ", "UI"}], " ", "*)"}], 
+    "\n", "  ", 
+    RowBox[{"CreateDialog", "[", "\n", "    ", 
+     RowBox[{
+      RowBox[{"Panel", "[", "\n", "      ", 
+       RowBox[{
+        RowBox[{"Column", "[", 
+         RowBox[{
+          RowBox[{"{", "\n", "          ", 
+           RowBox[{
+            RowBox[{"Style", "[", 
+             
+             RowBox[{"\"\<\|01f9e0 Organ Detection Tool\>\"", ",", " ", "26", 
+              ",", " ", "Bold", ",", " ", 
+              RowBox[{"FontFamily", " ", "->", " ", "\"\<Helvetica\>\""}]}], 
+             "]"}], ",", "\n", "          ", 
+            RowBox[{"Spacer", "[", "10", "]"}], ",", "\n", "          ", "\n",
+             "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+             "Selezione", " ", "file", " ", "con", " ", "FileNameSetter"}], 
+             " ", "*)"}], "\n", "          ", 
+            RowBox[{"Row", "[", 
+             RowBox[{"{", "\n", "            ", 
+              RowBox[{
+               RowBox[{"Style", "[", 
+                RowBox[{"\"\<Seleziona immagine: \>\"", ",", " ", "14"}], 
+                "]"}], ",", "\n", "            ", 
+               RowBox[{"FileNameSetter", "[", "\n", "              ", 
+                RowBox[{
+                 RowBox[{"Dynamic", "[", 
+                  RowBox[{"file", ",", " ", 
+                   RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"updateFileState", "[", "#", "]"}], ")"}], 
+                    "&"}]}], "]"}], ",", "\n", 
+                 "              ", "\"\<Open\>\"", ",", "\n", 
+                 "              ", 
+                 RowBox[{"{", 
+                  RowBox[{"\"\<Immagini\>\"", " ", "->", " ", 
+                   RowBox[{"{", 
+                    
+                    RowBox[{"\"\<*.png\>\"", ",", " ", "\"\<*.jpg\>\"", ",", 
+                    " ", "\"\<*.jpeg\>\""}], "}"}]}], "}"}], ",", "\n", 
+                 "              ", 
+                 RowBox[{"ButtonData", " ", "->", " ", "Automatic"}], ",", 
+                 "\n", "              ", 
+                 RowBox[{
+                 "ButtonNote", " ", "->", 
+                  " ", "\"\<Seleziona un'immagine (.png, .jpg, \
+.jpeg)\>\""}]}], "\n", "            ", "]"}]}], "\n", "          ", "}"}], 
+             "]"}], ",", "\n", "          ", "\n", "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{"Display", " ", "stato", " ", "file"}], " ", "*)"}], 
+            "\n", "          ", 
+            RowBox[{"Dynamic", "[", "\n", "            ", 
+             RowBox[{"If", "[", 
+              RowBox[{"fileSet", ",", "\n", "              ", 
+               RowBox[{"Style", "[", 
+                RowBox[{
+                 
+                 RowBox[{"\"\<\:2705 File selezionato: \>\"", " ", "<>", " ", 
+                  
+                  RowBox[{"FileNameTake", "[", "file", "]"}]}], ",", " ", 
+                 RowBox[{"Darker", "@", "Green"}]}], "]"}], ",", "\n", 
+               "              ", 
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{"errorMsg", " ", "!=", " ", "\"\<\>\""}], ",", " ", 
+                 RowBox[{"Style", "[", 
+                  RowBox[{"errorMsg", ",", " ", "Red"}], "]"}], ",", 
+                 " ", "\"\<\>\""}], "]"}]}], "\n", "            ", "]"}], 
+             "\n", "          ", "]"}], ",", "\n", "          ", "\n", 
+            "          ", 
+            RowBox[{"Spacer", "[", "10", "]"}], ",", "\n", "          ", "\n",
+             "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{"Image", " ", "Preview", " ", "Section"}], " ", "*)"}], 
+            "\n", "          ", 
+            RowBox[{"Dynamic", "[", "\n", "            ", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"ImageQ", "[", "imgPreview", "]"}], ",", "\n", 
+               "              ", 
+               RowBox[{"Column", "[", 
+                RowBox[{"{", "\n", "                ", 
+                 RowBox[{
+                  RowBox[{"Style", "[", 
+                   
+                   RowBox[{"\"\<Anteprima:\>\"", ",", " ", "Italic", ",", " ",
+                     "14"}], "]"}], ",", " ", "\n", "                ", 
+                  RowBox[{"Image", "[", 
+                   RowBox[{"imgPreview", ",", " ", 
+                    RowBox[{"ImageSize", " ", "->", " ", "300"}]}], "]"}]}], 
+                 "\n", "              ", "}"}], "]"}], ",", "\n", 
+               "              ", "\"\<\>\""}], "]"}], "\n", "          ", 
+             "]"}], ",", "\n", "\n", "          ", 
+            RowBox[{"Spacer", "[", "15", "]"}], ",", "\n", "          ", "\n",
+             "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+             "Bottone", " ", "per", " ", "eseguire", " ", "il", " ", 
+              "rilevamento"}], " ", "*)"}], "\n", "          ", 
+            RowBox[{"Button", "[", "\n", "            ", 
+             
+             RowBox[{"\"\<Esegui Organ Detection\>\"", ",", "\n", 
+              "            ", 
+              RowBox[{"If", "[", 
+               RowBox[{"fileSet", ",", "\n", "              ", 
+                RowBox[{"result", " ", "=", " ", 
+                 RowBox[{"organDetect", "[", "file", "]"}]}], ",", "\n", 
+                "              ", 
+                RowBox[{
+                "result", " ", "=", 
+                 " ", "\"\<\:26a0\:fe0f Seleziona prima un file .png, .jpg, \
+.jpeg valido.\>\""}]}], "\n", "            ", "]"}], ",", "\n", 
+              "            ", 
+              RowBox[{"ImageSize", " ", "->", " ", 
+               RowBox[{"{", 
+                RowBox[{"200", ",", " ", "40"}], "}"}]}], ",", "\n", 
+              "            ", 
+              RowBox[{"Enabled", " ", "->", " ", 
+               RowBox[{"Dynamic", "[", "fileSet", "]"}]}]}], "\n", 
+             "          ", "]"}], ",", "\n", "\n", "          ", 
+            RowBox[{"Spacer", "[", "15", "]"}], ",", "\n", "          ", "\n",
+             "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{"Result", " ", "Display", " ", "Panel"}], " ", "*)"}], 
+            "\n", "          ", 
+            RowBox[{"Dynamic", "[", "\n", "            ", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"StringTrim", "[", "result", "]"}], " ", "!=", 
+                " ", "\"\<\>\""}], ",", "\n", "              ", 
+               RowBox[{"Panel", "[", "\n", "                ", 
+                RowBox[{
+                 RowBox[{"Style", "[", 
+                  RowBox[{"result", ",", " ", "14"}], "]"}], ",", "\n", 
+                 "                ", 
+                 RowBox[{"ImageSize", " ", "->", " ", 
+                  RowBox[{"{", 
+                   RowBox[{"500", ",", " ", "Automatic"}], "}"}]}]}], "\n", 
+                "              ", "]"}], ",", "\n", 
+               "              ", "\"\<\>\""}], "]"}], "\n", "          ", 
+             "]"}]}], "\n", "        ", "}"}], ",", "\n", "        ", 
+          RowBox[{"Spacing", " ", "->", " ", "1.5"}], ",", "\n", "        ", 
+          RowBox[{"Alignment", " ", "->", " ", "Center"}]}], "\n", "      ", 
+         "]"}], ",", "\n", "      ", 
+        RowBox[{"Background", " ", "->", " ", "White"}]}], "\n", "    ", 
+       "]"}], ",", "\n", "    ", 
+      RowBox[{"WindowTitle", " ", "->", " ", "\"\<Organ Detection Tool\>\""}],
+       ",", "\n", "    ", 
+      RowBox[{"WindowSize", " ", "->", " ", 
+       RowBox[{"{", 
+        RowBox[{"600", ",", " ", "Automatic"}], "}"}]}]}], "\n", "  ", 
+     "]"}]}]}], "\n", "]"}]], "Code",
  InitializationCell->True,
  InitializationGroup->True,
  CellChangeTimes->{
-  3.953007083433497*^9, {3.953348942953766*^9, 3.9533489508350086`*^9}},
- CellLabel->"In[1]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"(*", 
-   RowBox[{"Export", "[", 
-    RowBox[{"\"\<MyInteractiveApp.cdf\>\"", ",", 
-     RowBox[{"EvaluationNotebook", "[", "]"}]}], "]"}], " ", "*)"}], 
-  "\n"}]], "Input",
- CellChangeTimes->{
-  3.9530091242310677`*^9, {3.9533489555243034`*^9, 3.9533489619877796`*^9}},
- CellLabel->"In[2]:=",ExpressionUUID->"ece7f112-7ea9-4ff8-9fae-4ff861aded85"],
-
-Cell[BoxData[{
- RowBox[{"SetDirectory", "[", 
-  RowBox[{"NotebookDirectory", "[", "]"}], "]"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"Get", "[", "\"\<OrganDetection.m\>\"", "]"}], "\n", 
-  "\[IndentingNewLine]"}], "\[IndentingNewLine]"}], "Input",
- CellChangeTimes->{
-  3.9530091901101103`*^9, {3.9533471322084713`*^9, 3.9533471399173813`*^9}, 
-   3.9533471715574627`*^9, {3.9533474237121334`*^9, 3.953347431380535*^9}, 
-   3.9533481254086456`*^9, {3.953348964524729*^9, 3.953348968466812*^9}, 
-   3.9533538421853256`*^9},ExpressionUUID->"91953795-212e-44a2-a890-\
-07e13fc0f169"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"(*", 
-   RowBox[{
-    RowBox[{"SetDirectory", "[", "\n", "  ", 
-     RowBox[{"NotebookDirectory", "[", "]"}], "\n", "]"}], ";", "\n", "\n", 
-    RowBox[{
-    "maskPath", " ", "=", 
-     " ", "\"\<dataset\\\\groundtruth01\\\\unogt90.jpg\>\""}], ";", "\n", 
-    RowBox[{
-     RowBox[{
-      RowBox[{"Import", "[", "maskPath", "]"}], "\[IndentingNewLine]", 
-      RowBox[{"(*", 
-       RowBox[{"Dovrebbe", " ", "mostrare", " ", 
-        RowBox[{"l", "'"}], "immagine", " ", "senza", " ", "errori"}], "*)"}],
-       "\n", "\[IndentingNewLine]", 
-      RowBox[{"Head", "[", "img", "]"}], "\[IndentingNewLine]", 
-      RowBox[{"(*", 
-       RowBox[{"Dovrebbe", " ", "restituire", " ", "Image"}], "*)"}], "\n", "\[IndentingNewLine]",
-       "grayImg"}], "=", 
-     RowBox[{
-      RowBox[{
-       RowBox[{"ColorConvert", "[", 
-        RowBox[{"img", ",", "\"\<Grayscale\>\""}], "]"}], 
-       "\[IndentingNewLine]", 
-       RowBox[{"(*", 
-        RowBox[{"Dovrebbe", " ", "mostrare", " ", 
-         RowBox[{"l", "'"}], "immagine", " ", "in", " ", "scala", " ", "di", " ",
-          "grigi"}], "*)"}], "\n", "\[IndentingNewLine]", 
-       RowBox[{"Head", "[", "grayImg", "]"}], "\[IndentingNewLine]", 
-       RowBox[{"(*", 
-        RowBox[{"Dovrebbe", " ", "restituire", " ", "Image"}], "*)"}], "\n", "\[IndentingNewLine]",
-        "binImg"}], "=", 
-      RowBox[{
-       RowBox[{"Binarize", "[", 
-        RowBox[{"grayImg", ",", "0.5"}], "]"}], "\[IndentingNewLine]", 
-       RowBox[{"(*", 
-        RowBox[{"Dovrebbe", " ", "mostrare", " ", 
-         RowBox[{"l", "'"}], "immagine", " ", "binarizzata"}], "*)"}], "\n", "\[IndentingNewLine]", 
-       RowBox[{"Head", "[", "binImg", "]"}]}]}]}]}], "\n", 
-   RowBox[{"(*", 
-    RowBox[{"Dovrebbe", " ", "restituire", " ", "Image"}], "*)"}], "\n", 
-   "*)"}], "\n"}]], "Code",
- CellChangeTimes->{{3.953347539745981*^9, 3.953347585629095*^9}, {
-   3.9533476274146786`*^9, 3.9533476280383377`*^9}, {3.95334778614538*^9, 
-   3.953347787668087*^9}, 3.953347931726263*^9, {3.9533479692819424`*^9, 
-   3.9533480418759117`*^9}, {3.9533489731296425`*^9, 3.953348978260187*^9}},
- CellLabel->"In[4]:=",ExpressionUUID->"1cd3bd4e-b48d-4d45-b6c4-7578ea5ac0f5"],
-
-Cell[BoxData[""], "Input",
- CellChangeTimes->{{3.9533489032325*^9, 3.9533489350148296`*^9}, {
-  3.953348983750616*^9, 3.9533490020873413`*^9}, {3.9533492560639896`*^9, 
-  3.9533492579990025`*^9}, {3.953349362667038*^9, 3.9533493646310635`*^9}, {
-  3.9533497179825897`*^9, 3.9533497185829544`*^9}, {3.9533505438134785`*^9, 
-  3.9533505740050373`*^9}, {3.953351258945694*^9, 3.953351275611618*^9}, {
-  3.9533522877486954`*^9, 3.9533523093397865`*^9}},
- CellLabel->"In[5]:=",ExpressionUUID->"5374a45f-8914-694f-a446-3e592aa40090"],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- RowBox[{"\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
-  RowBox[{
-   RowBox[{"MaskToXML", "[", 
-    RowBox[{"\"\<dataset\\\\groundtruth01\\\\unogt221.jpg\>\"", ",", 
-     " ", "\"\<pippo.xml\>\""}], "]"}], "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{"xmlInputPath", "=", "\"\<pippo.xml\>\""}], ";"}], " ", 
-   RowBox[{"(*", 
-    RowBox[{
-    "Cambia", " ", "con", " ", "il", " ", "percorso", " ", "del", " ", "tuo", 
-     " ", "file", " ", "XML"}], "*)"}], "\n", "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{"outputMaskPath", "=", "\"\<maschera_ricostruita.jpg\>\""}], 
-    ";"}], " ", 
-   RowBox[{"(*", 
-    RowBox[{
-    "Cambia", " ", "con", " ", "il", " ", "percorso", " ", "desiderato", " ", 
-     "per", " ", 
-     RowBox[{"l", "'"}], "output", " ", "JPG"}], "*)"}], "\n", 
-   RowBox[{
-    RowBox[{"targetWidth", "=", "353"}], ";"}], "\n", 
-   RowBox[{
-    RowBox[{"targetHeight", "=", "253"}], ";"}], "\n", "\n", "\n", 
-   RowBox[{
-    RowBox[{"XMLToMask", "[", 
-     RowBox[{
-     "xmlInputPath", ",", "targetWidth", ",", "targetHeight", ",", 
-      "outputMaskPath"}], "]"}], ";"}], "\[IndentingNewLine]"}]}]], "Input",
- CellChangeTimes->{
-  3.953008097056643*^9, 3.953009116429944*^9, 3.9533468930782185`*^9, 
-   3.9533470204020443`*^9, {3.9533480839170265`*^9, 3.953348095373337*^9}, {
-   3.953348134397173*^9, 3.9533481355855904`*^9}, 3.953348245561495*^9, {
-   3.9533482789917107`*^9, 3.9533483012000694`*^9}, {3.9533485277370167`*^9, 
-   3.9533485314498215`*^9}, {3.953348854844185*^9, 3.953348859513071*^9}, 
-   3.953348894382763*^9, {3.9533490981661625`*^9, 3.953349132253584*^9}, {
-   3.9533491645897503`*^9, 3.953349165949192*^9}, {3.953349207038307*^9, 
-   3.9533492146744423`*^9}, {3.953349271300106*^9, 3.9533492924054375`*^9}, {
-   3.953349552557152*^9, 3.9533495983446198`*^9}, {3.953352273165535*^9, 
-   3.9533522755102367`*^9}, {3.9533534668357887`*^9, 3.953353470603094*^9}, 
-   3.953353777163624*^9, {3.9533538290986366`*^9, 
-   3.9533538583918476`*^9}},ExpressionUUID->"58d5ecb2-4318-1046-ae73-\
-9e314129ae05"],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Attempting to import: \"\>", 
-   "\[InvisibleSpace]", "\<\"dataset\\\\groundtruth01\\\\unogt221.jpg\"\>"}],
-  SequenceForm[
-  "Attempting to import: ", "dataset\\groundtruth01\\unogt221.jpg"],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.95335347131876*^9, {3.9533535960448837`*^9, 3.953353613560829*^9}, 
-   3.953353722652275*^9, 3.9533537791948776`*^9, 3.95335385601458*^9},
- CellLabel->
-  "During evaluation of \
-In[115]:=",ExpressionUUID->"9f8f2b76-8740-634d-a628-611ead8c7dbe"],
-
-Cell[BoxData["\<\"Image imported successfully. Converting to \
-grayscale...\"\>"], "Print",
- CellChangeTimes->{
-  3.95335347131876*^9, {3.9533535960448837`*^9, 3.953353613560829*^9}, 
-   3.953353722652275*^9, 3.9533537791948776`*^9, 3.9533538560707016`*^9},
- CellLabel->
-  "During evaluation of \
-In[115]:=",ExpressionUUID->"5a753ad2-452f-5b4f-941c-5d21a3944467"],
-
-Cell[BoxData["\<\"Binarizing image...\"\>"], "Print",
- CellChangeTimes->{
-  3.95335347131876*^9, {3.9533535960448837`*^9, 3.953353613560829*^9}, 
-   3.953353722652275*^9, 3.9533537791948776`*^9, 3.953353856092165*^9},
- CellLabel->
-  "During evaluation of \
-In[115]:=",ExpressionUUID->"fb476fc9-6b83-924a-b20d-c2a30d973963"],
-
-Cell[BoxData["\<\"Finding white pixel coordinates (value = 1)...\"\>"], \
-"Print",
- CellChangeTimes->{
-  3.95335347131876*^9, {3.9533535960448837`*^9, 3.953353613560829*^9}, 
-   3.953353722652275*^9, 3.9533537791948776`*^9, 3.953353856097164*^9},
- CellLabel->
-  "During evaluation of \
-In[115]:=",ExpressionUUID->"fe981c23-c33b-9945-9756-631ab45a173d"],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"5199", "\[InvisibleSpace]", "\<\" white pixels found.\"\>"}],
-  SequenceForm[5199, " white pixels found."],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.95335347131876*^9, {3.9533535960448837`*^9, 3.953353613560829*^9}, 
-   3.953353722652275*^9, 3.9533537791948776`*^9, 3.953353856101164*^9},
- CellLabel->
-  "During evaluation of \
-In[115]:=",ExpressionUUID->"6b505fd2-bb57-a242-8548-cb172a0744ab"],
-
-Cell[BoxData["\<\"Generating XML structure for pixel coordinates...\"\>"], \
-"Print",
- CellChangeTimes->{
-  3.95335347131876*^9, {3.9533535960448837`*^9, 3.953353613560829*^9}, 
-   3.953353722652275*^9, 3.9533537791948776`*^9, 3.953353856108261*^9},
- CellLabel->
-  "During evaluation of \
-In[115]:=",ExpressionUUID->"63e37b0d-7fbc-2f41-97f3-832f469bb820"],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Exporting XML to: \"\>", 
-   "\[InvisibleSpace]", "\<\"pippo.xml\"\>"}],
-  SequenceForm["Exporting XML to: ", "pippo.xml"],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.95335347131876*^9, {3.9533535960448837`*^9, 3.953353613560829*^9}, 
-   3.953353722652275*^9, 3.9533537791948776`*^9, 3.953353856193548*^9},
- CellLabel->
-  "During evaluation of \
-In[115]:=",ExpressionUUID->"98e06d16-0cbf-ca4a-9259-3be5885c5c8d"],
-
-Cell[BoxData["\<\"XML Export complete.\"\>"], "Print",
- CellChangeTimes->{
-  3.95335347131876*^9, {3.9533535960448837`*^9, 3.953353613560829*^9}, 
-   3.953353722652275*^9, 3.9533537791948776`*^9, 3.953353856773834*^9},
- CellLabel->
-  "During evaluation of \
-In[115]:=",ExpressionUUID->"aa17f2e1-6430-d841-8bb7-3c8bf764cfcc"]
-}, Open  ]]
-}, Open  ]],
-
-Cell[BoxData[""], "Input",
- CellChangeTimes->{{3.9533497068654976`*^9, 3.9533497277335873`*^9}, {
-  3.9533520861356525`*^9, 3.9533521180476723`*^9}, {3.9533528500037384`*^9, 
-  3.953352867938507*^9}},
- CellLabel->"In[7]:=",ExpressionUUID->"33da9451-6741-284e-8788-ac1f312dd1f6"],
-
-Cell[CellGroupData[{
-
-Cell[BoxData["\[IndentingNewLine]"], "Input",
- CellChangeTimes->{{3.9533512243827324`*^9, 3.9533512424822216`*^9}, {
-   3.9533512802848587`*^9, 3.953351281004534*^9}, {3.9533514289256306`*^9, 
-   3.9533514439042187`*^9}, {3.953351897779379*^9, 3.953351901463478*^9}, 
-   3.953352154396759*^9, {3.953352248547306*^9, 3.95335224943359*^9}, {
-   3.9533523917774124`*^9, 3.9533524020715904`*^9}, {3.9533529647783623`*^9, 
-   3.953352982193428*^9}, {3.9533538504587536`*^9, 
-   3.953353854033537*^9}},ExpressionUUID->"084014d1-92de-6c43-b6d0-\
-ed3033c1aaaa"],
-
-Cell[BoxData["\<\"C:\\\\Users\\\\giuse\\\\Desktop\\\\cartella_informatica\\\\\
-magistrale\\\\matematica_computazionale\\\\OrganDetect-AI-Based-Organ-\
-Detection\"\>"], "Output",
- CellChangeTimes->{
-  3.9533521857656975`*^9, {3.9533522509685593`*^9, 3.953352280183584*^9}, {
-   3.953352314625166*^9, 3.9533523215170765`*^9}, {3.953352359090538*^9, 
-   3.9533524071310654`*^9}, 3.95335253800861*^9, {3.953352820233961*^9, 
-   3.953352838914282*^9}, {3.953352905138384*^9, 3.9533529252079678`*^9}, 
-   3.953352967016859*^9, 3.9533530935528507`*^9, 3.953353264190281*^9, 
-   3.953353478295435*^9, {3.9533535931989594`*^9, 3.9533536153393993`*^9}, 
-   3.953353724859001*^9, 3.953353781925297*^9},
- CellLabel->
-  "Out[108]=",ExpressionUUID->"7b2ce89a-4e48-2542-8a3c-5d14c4ea68a7"],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Checking file existence for: \"\>", 
-   "\[InvisibleSpace]", "\<\"pippo.xml\"\>"}],
-  SequenceForm["Checking file existence for: ", "pippo.xml"],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.9533524071433544`*^9, 3.9533525380167885`*^9, {3.953352820240963*^9, 
-   3.953352838922434*^9}, {3.953352905146845*^9, 3.9533529252161217`*^9}, 
-   3.953352967028988*^9, 3.9533530935659943`*^9, 3.9533532641983833`*^9, 
-   3.953353478302538*^9, {3.9533535932070847`*^9, 3.953353615348528*^9}, 
-   3.953353724869133*^9, 3.953353781932493*^9},
- CellLabel->
-  "During evaluation of \
-In[108]:=",ExpressionUUID->"5c1e3a00-9707-5f4f-b948-73af858e5efd"],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"File exists: \"\>", "\[InvisibleSpace]", "True"}],
-  SequenceForm["File exists: ", True],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.9533524071433544`*^9, 3.9533525380167885`*^9, {3.953352820240963*^9, 
-   3.953352838922434*^9}, {3.953352905146845*^9, 3.9533529252161217`*^9}, 
-   3.953352967028988*^9, 3.9533530935659943`*^9, 3.9533532641983833`*^9, 
-   3.953353478302538*^9, {3.9533535932070847`*^9, 3.953353615348528*^9}, 
-   3.953353724869133*^9, 3.9533537819374924`*^9},
- CellLabel->
-  "During evaluation of \
-In[108]:=",ExpressionUUID->"3385ca90-e598-f248-85b6-15593b4cdf86"],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Importing XML from: \"\>", 
-   "\[InvisibleSpace]", "\<\"pippo.xml\"\>"}],
-  SequenceForm["Importing XML from: ", "pippo.xml"],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.9533524071433544`*^9, 3.9533525380167885`*^9, {3.953352820240963*^9, 
-   3.953352838922434*^9}, {3.953352905146845*^9, 3.9533529252161217`*^9}, 
-   3.953352967028988*^9, 3.9533530935659943`*^9, 3.9533532641983833`*^9, 
-   3.953353478302538*^9, {3.9533535932070847`*^9, 3.953353615348528*^9}, 
-   3.953353724869133*^9, 3.9533537819506016`*^9},
- CellLabel->
-  "During evaluation of \
-In[108]:=",ExpressionUUID->"35de931f-4f5b-fb40-b8cb-3d155fa6de28"],
-
-Cell[BoxData["\<\"Extracting pixel coordinates from XML root \
-element...\"\>"], "Print",
- CellChangeTimes->{
-  3.9533524071433544`*^9, 3.9533525380167885`*^9, {3.953352820240963*^9, 
-   3.953352838922434*^9}, {3.953352905146845*^9, 3.9533529252161217`*^9}, 
-   3.953352967028988*^9, 3.9533530935659943`*^9, 3.9533532641983833`*^9, 
-   3.953353478302538*^9, {3.9533535932070847`*^9, 3.953353615348528*^9}, 
-   3.953353724869133*^9, 3.9533537820176487`*^9},
- CellLabel->
-  "During evaluation of \
-In[108]:=",ExpressionUUID->"cba708f3-16b2-494a-9694-d6b3576d1393"],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{
-  "5199", "\[InvisibleSpace]", "\<\" valid pixel coordinates extracted.\"\>"}],
-  SequenceForm[5199, " valid pixel coordinates extracted."],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.9533524071433544`*^9, 3.9533525380167885`*^9, {3.953352820240963*^9, 
-   3.953352838922434*^9}, {3.953352905146845*^9, 3.9533529252161217`*^9}, 
-   3.953352967028988*^9, 3.9533530935659943`*^9, 3.9533532641983833`*^9, 
-   3.953353478302538*^9, {3.9533535932070847`*^9, 3.953353615348528*^9}, 
-   3.953353724869133*^9, 3.9533537820675716`*^9},
- CellLabel->
-  "During evaluation of \
-In[108]:=",ExpressionUUID->"0d586380-7643-3148-b413-3d107ab04007"],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Creating image data (Width=\"\>", "\[InvisibleSpace]", "353", 
-   "\[InvisibleSpace]", "\<\", Height=\"\>", "\[InvisibleSpace]", "253", 
-   "\[InvisibleSpace]", "\<\")...\"\>"}],
-  SequenceForm["Creating image data (Width=", 353, ", Height=", 253, ")..."],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.9533524071433544`*^9, 3.9533525380167885`*^9, {3.953352820240963*^9, 
-   3.953352838922434*^9}, {3.953352905146845*^9, 3.9533529252161217`*^9}, 
-   3.953352967028988*^9, 3.9533530935659943`*^9, 3.9533532641983833`*^9, 
-   3.953353478302538*^9, {3.9533535932070847`*^9, 3.953353615348528*^9}, 
-   3.953353724869133*^9, 3.953353782072754*^9},
- CellLabel->
-  "During evaluation of \
-In[108]:=",ExpressionUUID->"a133da48-ce0f-6449-8cfb-dad3bd188f01"],
-
-Cell[BoxData["\<\"Converting data to Image object...\"\>"], "Print",
- CellChangeTimes->{
-  3.9533524071433544`*^9, 3.9533525380167885`*^9, {3.953352820240963*^9, 
-   3.953352838922434*^9}, {3.953352905146845*^9, 3.9533529252161217`*^9}, 
-   3.953352967028988*^9, 3.9533530935659943`*^9, 3.9533532641983833`*^9, 
-   3.953353478302538*^9, {3.9533535932070847`*^9, 3.953353615348528*^9}, 
-   3.953353724869133*^9, 3.9533537820787544`*^9},
- CellLabel->
-  "During evaluation of \
-In[108]:=",ExpressionUUID->"e31d9aac-b90f-d14f-ae84-01b08347323c"],
-
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"Exporting image to: \"\>", 
-   "\[InvisibleSpace]", "\<\"maschera_ricostruita.jpg\"\>"}],
-  SequenceForm["Exporting image to: ", "maschera_ricostruita.jpg"],
-  Editable->False]], "Print",
- CellChangeTimes->{
-  3.9533524071433544`*^9, 3.9533525380167885`*^9, {3.953352820240963*^9, 
-   3.953352838922434*^9}, {3.953352905146845*^9, 3.9533529252161217`*^9}, 
-   3.953352967028988*^9, 3.9533530935659943`*^9, 3.9533532641983833`*^9, 
-   3.953353478302538*^9, {3.9533535932070847`*^9, 3.953353615348528*^9}, 
-   3.953353724869133*^9, 3.9533537820838985`*^9},
- CellLabel->
-  "During evaluation of \
-In[108]:=",ExpressionUUID->"04e5da4d-3d2e-0043-a26a-3ce6783ec7e2"],
-
-Cell[BoxData["\<\"Image export complete.\"\>"], "Print",
- CellChangeTimes->{
-  3.9533524071433544`*^9, 3.9533525380167885`*^9, {3.953352820240963*^9, 
-   3.953352838922434*^9}, {3.953352905146845*^9, 3.9533529252161217`*^9}, 
-   3.953352967028988*^9, 3.9533530935659943`*^9, 3.9533532641983833`*^9, 
-   3.953353478302538*^9, {3.9533535932070847`*^9, 3.953353615348528*^9}, 
-   3.953353724869133*^9, 3.9533537820878983`*^9},
- CellLabel->
-  "During evaluation of \
-In[108]:=",ExpressionUUID->"f9ad8588-0418-4742-8f86-afac9d9d0583"]
-}, Open  ]]
-}, Open  ]],
-
-Cell[BoxData[""], "Input",
- CellChangeTimes->{3.953352427455593*^9, 
-  3.953352904605545*^9},ExpressionUUID->"e249c681-190d-ea4f-bf21-\
-975dd5b3b176"]
+  3.953007083433497*^9, {3.953346987018937*^9, 3.9533470227652607`*^9}, 
+   3.9533472666770353`*^9, {3.953347349800501*^9, 3.953347442440909*^9}, {
+   3.953347489446157*^9, 3.953347491084337*^9}, {3.953347602533642*^9, 
+   3.95334760289194*^9}, {3.953347685583802*^9, 3.953347686313628*^9}, {
+   3.953347796127501*^9, 3.953347796934599*^9}, 3.95334784904185*^9, {
+   3.9533480688506613`*^9, 3.9533480695970297`*^9}, 3.953348171582431*^9, {
+   3.953348275626021*^9, 3.953348332065818*^9}, {3.9533484002275553`*^9, 
+   3.9533484010106497`*^9}, 3.953348531701033*^9, {3.953348662124753*^9, 
+   3.953348663168285*^9}, 3.9533490165919123`*^9, {3.953349218342217*^9, 
+   3.9533492191611032`*^9}, {3.953349404958879*^9, 3.9533494054058027`*^9}, {
+   3.953349509631791*^9, 3.953349510326066*^9}, {3.953349591806386*^9, 
+   3.953349593574562*^9}, {3.953349648818902*^9, 3.953349659265308*^9}, {
+   3.953350653633376*^9, 3.953350653963974*^9}},
+ CellLabel->"In[78]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
 InitializationCellWarning->False,
-WindowSize->{Full, Full},
-WindowMargins->{{0, Automatic}, {Automatic, 0}},
-FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
+WindowSize->{889, 1020},
+WindowMargins->{{Automatic, 7}, {7, Automatic}},
+FrontEndVersion->"14.2 for Mac OS X ARM (64-bit) (December 26, 2024)",
 StyleDefinitions->"Default.nb",
 ExpressionUUID->"07f45638-d88c-4efd-919a-f5ca70f97309"
 ]
@@ -538,49 +436,15 @@ Cell[1176, 40, 352, 8, 52, "Subtitle",ExpressionUUID->"848a9044-d4e5-4e85-af1f-0
 Cell[1531, 50, 229, 5, 33, "Text",ExpressionUUID->"f4a9fc12-c802-4fd6-83ce-68766b8ecc86",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[1763, 57, 431, 9, 30, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-3816a8d4e9b1",
+Cell[1763, 57, 431, 9, 56, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-3816a8d4e9b1",
  InitializationCell->True,
  InitializationGroup->True],
 Cell[2197, 68, 552, 9, 33, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[2752, 79, 1634, 41, 85, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+Cell[2752, 79, 15414, 324, 2598, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
  InitializationCell->True,
- InitializationGroup->True],
-Cell[4389, 122, 382, 9, 47, "Input",ExpressionUUID->"ece7f112-7ea9-4ff8-9fae-4ff861aded85"],
-Cell[4774, 133, 586, 11, 104, "Input",ExpressionUUID->"91953795-212e-44a2-a890-07e13fc0f169"],
-Cell[5363, 146, 2220, 47, 454, "Code",ExpressionUUID->"1cd3bd4e-b48d-4d45-b6c4-7578ea5ac0f5"],
-Cell[7586, 195, 527, 7, 28, "Input",ExpressionUUID->"5374a45f-8914-694f-a446-3e592aa40090"],
-Cell[CellGroupData[{
-Cell[8138, 206, 2082, 42, 256, "Input",ExpressionUUID->"58d5ecb2-4318-1046-ae73-9e314129ae05"],
-Cell[CellGroupData[{
-Cell[10245, 252, 540, 12, 22, "Print",ExpressionUUID->"9f8f2b76-8740-634d-a628-611ead8c7dbe"],
-Cell[10788, 266, 363, 7, 22, "Print",ExpressionUUID->"5a753ad2-452f-5b4f-941c-5d21a3944467"],
-Cell[11154, 275, 323, 6, 22, "Print",ExpressionUUID->"fb476fc9-6b83-924a-b20d-c2a30d973963"],
-Cell[11480, 283, 352, 7, 22, "Print",ExpressionUUID->"fe981c23-c33b-9945-9756-631ab45a173d"],
-Cell[11835, 292, 452, 10, 22, "Print",ExpressionUUID->"6b505fd2-bb57-a242-8548-cb172a0744ab"],
-Cell[12290, 304, 355, 7, 22, "Print",ExpressionUUID->"63e37b0d-7fbc-2f41-97f3-832f469bb820"],
-Cell[12648, 313, 472, 11, 22, "Print",ExpressionUUID->"98e06d16-0cbf-ca4a-9259-3be5885c5c8d"],
-Cell[13123, 326, 324, 6, 22, "Print",ExpressionUUID->"aa17f2e1-6430-d841-8bb7-3c8bf764cfcc"]
-}, Open  ]]
-}, Open  ]],
-Cell[13474, 336, 278, 4, 28, "Input",ExpressionUUID->"33da9451-6741-284e-8788-ac1f312dd1f6"],
-Cell[CellGroupData[{
-Cell[13777, 344, 553, 8, 47, "Input",ExpressionUUID->"084014d1-92de-6c43-b6d0-ed3033c1aaaa"],
-Cell[14333, 354, 774, 12, 32, "Output",ExpressionUUID->"7b2ce89a-4e48-2542-8a3c-5d14c4ea68a7"],
-Cell[CellGroupData[{
-Cell[15132, 370, 695, 14, 22, "Print",ExpressionUUID->"5c1e3a00-9707-5f4f-b948-73af858e5efd"],
-Cell[15830, 386, 641, 13, 22, "Print",ExpressionUUID->"3385ca90-e598-f248-85b6-15593b4cdf86"],
-Cell[16474, 401, 679, 14, 22, "Print",ExpressionUUID->"35de931f-4f5b-fb40-b8cb-3d155fa6de28"],
-Cell[17156, 417, 562, 10, 22, "Print",ExpressionUUID->"cba708f3-16b2-494a-9694-d6b3576d1393"],
-Cell[17721, 429, 688, 14, 22, "Print",ExpressionUUID->"0d586380-7643-3148-b413-3d107ab04007"],
-Cell[18412, 445, 806, 15, 22, "Print",ExpressionUUID->"a133da48-ce0f-6449-8cfb-dad3bd188f01"],
-Cell[19221, 462, 541, 9, 22, "Print",ExpressionUUID->"e31d9aac-b90f-d14f-ae84-01b08347323c"],
-Cell[19765, 473, 709, 14, 22, "Print",ExpressionUUID->"04e5da4d-3d2e-0043-a26a-3ce6783ec7e2"],
-Cell[20477, 489, 529, 9, 22, "Print",ExpressionUUID->"f9ad8588-0418-4742-8f86-afac9d9d0583"]
-}, Open  ]]
-}, Open  ]],
-Cell[21033, 502, 150, 3, 28, "Input",ExpressionUUID->"e249c681-190d-ea4f-bf21-975dd5b3b176"]
+ InitializationGroup->True]
 }, Open  ]]
 }
 ]
