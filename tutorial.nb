@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[      7412,        202]
-NotebookOptionsPosition[      5483,        155]
-NotebookOutlinePosition[      5950,        173]
-CellTagsIndexPosition[      5907,        170]
+NotebookDataLength[     19581,        444]
+NotebookOptionsPosition[     18182,        406]
+NotebookOutlinePosition[     18648,        424]
+CellTagsIndexPosition[     18605,        421]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -78,85 +78,336 @@ Cell[TextData[StyleBox["(anno 1, curriculum C), (anno 1, curriculum A), (anno \
 0adf37b5827e"],
 
 Cell[BoxData[
- RowBox[{
-  RowBox[{"DynamicModule", "[", 
-   RowBox[{
-    RowBox[{"{", 
-     RowBox[{
-      RowBox[{"file", "=", "\"\<\>\""}], ",", 
-      RowBox[{"result", "=", "\"\<\>\""}]}], "}"}], ",", 
-    RowBox[{"CreateDialog", "[", 
-     RowBox[{"Column", "[", 
-      RowBox[{"{", 
+ RowBox[{"DynamicModule", "[", 
+  RowBox[{
+   RowBox[{"{", "\n", "    ", 
+    RowBox[{
+     RowBox[{"file", " ", "=", " ", "\"\<\>\""}], ",", "\n", "    ", 
+     RowBox[{"result", " ", "=", " ", "\"\<\>\""}], ",", "\n", "    ", 
+     RowBox[{"fileSet", " ", "=", " ", "False"}], ",", "\n", "    ", 
+     RowBox[{"errorMsg", " ", "=", " ", "\"\<\>\""}], ",", "\n", "    ", 
+     RowBox[{"imgPreview", " ", "=", " ", "None"}], ",", "\n", "    ", 
+     "updateFileState"}], "\n", "  ", "}"}], ",", "\n", "\n", "  ", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Helper", " ", 
+     RowBox[{"function", ":", " ", 
+      RowBox[{"Accetta", " ", "solo", " ", 
        RowBox[{
-        RowBox[{"Style", "[", 
-         RowBox[{"\"\<Organ Detection Tool\>\"", ",", "18", ",", "Bold"}], 
-         "]"}], ",", "\"\<Select file:\>\"", ",", 
-        RowBox[{"InputField", "[", 
+        RowBox[{"PNG", "/", "JPG"}], "/", "JPEG"}]}]}]}], " ", "*)"}], "\n", 
+   "  ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"updateFileState", "[", "newFile_String", "]"}], " ", ":=", " ", 
+     
+     RowBox[{"(", "\n", "    ", 
+      RowBox[{
+       RowBox[{"file", " ", "=", " ", "newFile"}], ";", "\n", "    ", 
+       RowBox[{"errorMsg", " ", "=", " ", "\"\<\>\""}], ";", "\n", "    ", 
+       RowBox[{"imgPreview", " ", "=", " ", "None"}], ";", " ", 
+       RowBox[{"(*", " ", 
+        RowBox[{"Reset", " ", "preview"}], " ", "*)"}], "\n", "    ", 
+       RowBox[{"fileSet", " ", "=", " ", "False"}], ";", " ", 
+       RowBox[{"(*", " ", 
+        RowBox[{"Reset", " ", "file", " ", "status"}], " ", "*)"}], "\n", 
+       "\n", "    ", 
+       RowBox[{"If", "[", 
+        RowBox[{
          RowBox[{
-          RowBox[{"Dynamic", "[", "file", "]"}], ",", "String", ",", 
-          RowBox[{"FieldHint", "->", "\"\<Enter path/to/file.m\>\""}]}], 
-         "]"}], ",", 
-        RowBox[{"Button", "[", 
-         RowBox[{"\"\<Run Detection\>\"", ",", 
+          RowBox[{"StringTrim", "[", "file", "]"}], " ", "==", 
+          " ", "\"\<\>\""}], ",", " ", 
+         RowBox[{"Return", "[", "]"}]}], "]"}], ";", " ", 
+       RowBox[{"(*", " ", 
+        RowBox[{
+        "Exit", " ", "if", " ", "file", " ", "path", " ", "is", " ", 
+         "empty"}], " ", "*)"}], "\n", "\n", "    ", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"FileExistsQ", "[", "file", "]"}], ",", "\n", "      ", 
+         RowBox[{"Module", "[", 
           RowBox[{
-           RowBox[{"result", "=", 
-            
-            RowBox[{"\"\<Running organ detection on file: \>\"", "<>", 
-             "file"}]}], ";"}]}], "\[IndentingNewLine]", 
-         RowBox[{"(*", 
-          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"ext", " ", "=", " ", 
+              RowBox[{"ToLowerCase", "@", 
+               RowBox[{"FileExtension", "[", "file", "]"}]}]}], ",", " ", 
+             "importedContent"}], "}"}], ",", "\n", "        ", 
            RowBox[{
-           "call", " ", "your", " ", "detection", " ", "function", " ", 
-            "here"}], ",", 
-           RowBox[{"e", ".", "g", "."}], ",", 
-           RowBox[{"organDetect", "[", "file", "]"}]}], "*)"}], "]"}], ",", 
-        RowBox[{"Dynamic", "[", "result", "]"}]}], "}"}], "]"}], "]"}]}], 
-   "]"}], "\n"}]], "Code",
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{"StringMatchQ", "[", 
+               RowBox[{"ext", ",", " ", 
+                
+                RowBox[{"\"\<png\>\"", " ", "|", " ", "\"\<jpg\>\"", " ", "|",
+                  " ", "\"\<jpeg\>\""}]}], "]"}], ",", "\n", "          ", 
+              RowBox[{
+               RowBox[{"Check", "[", "\n", "            ", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"importedContent", " ", "=", " ", 
+                   RowBox[{"Import", "[", "file", "]"}]}], ";", "\n", 
+                  "            ", 
+                  RowBox[{"If", "[", 
+                   RowBox[{
+                    RowBox[{"ImageQ", "[", "importedContent", "]"}], ",", 
+                    "\n", "              ", 
+                    RowBox[{
+                    RowBox[{"imgPreview", " ", "=", " ", "importedContent"}], 
+                    ";", "\n", "              ", 
+                    RowBox[{"fileSet", " ", "=", " ", "True"}], ";"}], ",", 
+                    "\n", "              ", 
+                    RowBox[{
+                    RowBox[{
+                    "errorMsg", " ", "=", 
+                    " ", "\"\<\:274c File non \[EGrave] un'immagine PNG/JPG \
+valida.\>\""}], ";"}]}], "\n", "            ", "]"}]}], ",", "\n", 
+                 "            ", 
+                 RowBox[{
+                  RowBox[{
+                  "errorMsg", " ", "=", 
+                   " ", "\"\<\:274c Errore durante l'importazione \
+dell'immagine.\>\""}], ";", "\n", "            ", 
+                  RowBox[{"imgPreview", " ", "=", " ", "None"}], ";"}]}], 
+                "\n", "          ", "]"}], ";"}], "\n", "        ", ",", "\n",
+               "          ", 
+              RowBox[{
+               RowBox[{
+               "errorMsg", " ", "=", 
+                " ", "\"\<\:274c Tipo file non supportato (solo .png, .jpg, \
+.jpeg).\>\""}], ";", "\n", "          ", 
+               RowBox[{"imgPreview", " ", "=", " ", "None"}], ";"}]}], "\n", 
+             "        ", "]"}], ";"}]}], "\n", "      ", "]"}], ",", "\n", 
+         "      ", 
+         RowBox[{
+          RowBox[{
+          "errorMsg", " ", "=", " ", "\"\<\:274c File non trovato.\>\""}], ";",
+           "\n", "      ", 
+          RowBox[{"imgPreview", " ", "=", " ", "None"}], ";"}]}], "\n", 
+        "    ", "]"}], ";", "\n", "    ", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"errorMsg", " ", "=!=", " ", "\"\<\>\""}], ",", " ", 
+         RowBox[{"fileSet", " ", "=", " ", "False"}]}], "]"}], ";"}], "\n", 
+      "  ", ")"}]}], ";", "\n", "  ", "\n", "  ", 
+    RowBox[{"(*", " ", 
+     RowBox[{
+      RowBox[{
+      "Implementazione", " ", "della", " ", "funzione", " ", "organDetect"}], 
+      " ", "-", " ", 
+      RowBox[{
+      "definita", " ", "localmente", " ", "per", " ", 
+       "semplicit\[AGrave]"}]}], " ", "*)"}], "\n", "  ", 
+    RowBox[{
+     RowBox[{"organDetect", "[", "imagePath_", "]"}], " ", ":=", " ", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"img", ",", " ", "detectionResult"}], "}"}], ",", "\n", 
+       "    ", 
+       RowBox[{
+        RowBox[{"img", " ", "=", " ", 
+         RowBox[{"Import", "[", "imagePath", "]"}]}], ";", "\n", "    ", "\n",
+         "    ", 
+        RowBox[{"(*", " ", 
+         RowBox[{
+         "Qui", " ", "inserire", " ", "il", " ", "codice", " ", "per", " ", 
+          "il", " ", "rilevamento", " ", "degli", " ", "organi"}], " ", 
+         "*)"}], "\n", "    ", 
+        RowBox[{"(*", " ", 
+         RowBox[{
+         "Per", " ", "ora", " ", "restituisce", " ", "un", " ", "messaggio", " ",
+           "di", " ", "esempio"}], " ", "*)"}], "\n", "    ", 
+        RowBox[{"detectionResult", " ", "=", " ", 
+         RowBox[{"\"\<\:2705 Rilevamento completato per: \>\"", " ", "<>", 
+          " ", 
+          RowBox[{"FileNameTake", "[", "imagePath", "]"}], " ", "<>", " ", 
+          "\n", "                     ", "\"\<\\n\\nOrgani rilevati:\\n- \
+Tiroide: 101%\>\""}]}], ";", "\n", "    ", "\n", "    ", 
+        RowBox[{"Return", "[", "detectionResult", "]"}], ";"}]}], "\n", "  ", 
+      "]"}]}], ";", "\n", "  ", "\n", "  ", 
+    RowBox[{"updateFileState", "[", "\"\<\>\"", "]"}], ";", " ", 
+    RowBox[{"(*", " ", 
+     RowBox[{"Initialize", " ", "state"}], " ", "*)"}], "\n", "\n", "  ", 
+    RowBox[{"(*", " ", 
+     RowBox[{"Create", " ", "the", " ", "Dialog", " ", "UI"}], " ", "*)"}], 
+    "\n", "  ", 
+    RowBox[{"CreateDialog", "[", "\n", "    ", 
+     RowBox[{
+      RowBox[{"Panel", "[", "\n", "      ", 
+       RowBox[{
+        RowBox[{"Column", "[", 
+         RowBox[{
+          RowBox[{"{", "\n", "          ", 
+           RowBox[{
+            RowBox[{"Style", "[", 
+             
+             RowBox[{"\"\<\|01f9e0 Organ Detection Tool\>\"", ",", " ", "26", 
+              ",", " ", "Bold", ",", " ", 
+              RowBox[{"FontFamily", " ", "->", " ", "\"\<Helvetica\>\""}]}], 
+             "]"}], ",", "\n", "          ", 
+            RowBox[{"Spacer", "[", "10", "]"}], ",", "\n", "          ", "\n",
+             "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+             "Selezione", " ", "file", " ", "con", " ", "FileNameSetter"}], 
+             " ", "*)"}], "\n", "          ", 
+            RowBox[{"Row", "[", 
+             RowBox[{"{", "\n", "            ", 
+              RowBox[{
+               RowBox[{"Style", "[", 
+                RowBox[{"\"\<Seleziona immagine: \>\"", ",", " ", "14"}], 
+                "]"}], ",", "\n", "            ", 
+               RowBox[{"FileNameSetter", "[", "\n", "              ", 
+                RowBox[{
+                 RowBox[{"Dynamic", "[", 
+                  RowBox[{"file", ",", " ", 
+                   RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"updateFileState", "[", "#", "]"}], ")"}], 
+                    "&"}]}], "]"}], ",", "\n", 
+                 "              ", "\"\<Open\>\"", ",", "\n", 
+                 "              ", 
+                 RowBox[{"{", 
+                  RowBox[{"\"\<Immagini\>\"", " ", "->", " ", 
+                   RowBox[{"{", 
+                    
+                    RowBox[{"\"\<*.png\>\"", ",", " ", "\"\<*.jpg\>\"", ",", 
+                    " ", "\"\<*.jpeg\>\""}], "}"}]}], "}"}], ",", "\n", 
+                 "              ", 
+                 RowBox[{"ButtonData", " ", "->", " ", "Automatic"}], ",", 
+                 "\n", "              ", 
+                 RowBox[{
+                 "ButtonNote", " ", "->", 
+                  " ", "\"\<Seleziona un'immagine (.png, .jpg, \
+.jpeg)\>\""}]}], "\n", "            ", "]"}]}], "\n", "          ", "}"}], 
+             "]"}], ",", "\n", "          ", "\n", "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{"Display", " ", "stato", " ", "file"}], " ", "*)"}], 
+            "\n", "          ", 
+            RowBox[{"Dynamic", "[", "\n", "            ", 
+             RowBox[{"If", "[", 
+              RowBox[{"fileSet", ",", "\n", "              ", 
+               RowBox[{"Style", "[", 
+                RowBox[{
+                 
+                 RowBox[{"\"\<\:2705 File selezionato: \>\"", " ", "<>", " ", 
+                  
+                  RowBox[{"FileNameTake", "[", "file", "]"}]}], ",", " ", 
+                 RowBox[{"Darker", "@", "Green"}]}], "]"}], ",", "\n", 
+               "              ", 
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{"errorMsg", " ", "!=", " ", "\"\<\>\""}], ",", " ", 
+                 RowBox[{"Style", "[", 
+                  RowBox[{"errorMsg", ",", " ", "Red"}], "]"}], ",", 
+                 " ", "\"\<\>\""}], "]"}]}], "\n", "            ", "]"}], 
+             "\n", "          ", "]"}], ",", "\n", "          ", "\n", 
+            "          ", 
+            RowBox[{"Spacer", "[", "10", "]"}], ",", "\n", "          ", "\n",
+             "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{"Image", " ", "Preview", " ", "Section"}], " ", "*)"}], 
+            "\n", "          ", 
+            RowBox[{"Dynamic", "[", "\n", "            ", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"ImageQ", "[", "imgPreview", "]"}], ",", "\n", 
+               "              ", 
+               RowBox[{"Column", "[", 
+                RowBox[{"{", "\n", "                ", 
+                 RowBox[{
+                  RowBox[{"Style", "[", 
+                   
+                   RowBox[{"\"\<Anteprima:\>\"", ",", " ", "Italic", ",", " ",
+                     "14"}], "]"}], ",", " ", "\n", "                ", 
+                  RowBox[{"Image", "[", 
+                   RowBox[{"imgPreview", ",", " ", 
+                    RowBox[{"ImageSize", " ", "->", " ", "300"}]}], "]"}]}], 
+                 "\n", "              ", "}"}], "]"}], ",", "\n", 
+               "              ", "\"\<\>\""}], "]"}], "\n", "          ", 
+             "]"}], ",", "\n", "\n", "          ", 
+            RowBox[{"Spacer", "[", "15", "]"}], ",", "\n", "          ", "\n",
+             "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+             "Bottone", " ", "per", " ", "eseguire", " ", "il", " ", 
+              "rilevamento"}], " ", "*)"}], "\n", "          ", 
+            RowBox[{"Button", "[", "\n", "            ", 
+             
+             RowBox[{"\"\<Esegui Organ Detection\>\"", ",", "\n", 
+              "            ", 
+              RowBox[{"If", "[", 
+               RowBox[{"fileSet", ",", "\n", "              ", 
+                RowBox[{"result", " ", "=", " ", 
+                 RowBox[{"organDetect", "[", "file", "]"}]}], ",", "\n", 
+                "              ", 
+                RowBox[{
+                "result", " ", "=", 
+                 " ", "\"\<\:26a0\:fe0f Seleziona prima un file .png, .jpg, \
+.jpeg valido.\>\""}]}], "\n", "            ", "]"}], ",", "\n", 
+              "            ", 
+              RowBox[{"ImageSize", " ", "->", " ", 
+               RowBox[{"{", 
+                RowBox[{"200", ",", " ", "40"}], "}"}]}], ",", "\n", 
+              "            ", 
+              RowBox[{"Enabled", " ", "->", " ", 
+               RowBox[{"Dynamic", "[", "fileSet", "]"}]}]}], "\n", 
+             "          ", "]"}], ",", "\n", "\n", "          ", 
+            RowBox[{"Spacer", "[", "15", "]"}], ",", "\n", "          ", "\n",
+             "          ", 
+            RowBox[{"(*", " ", 
+             RowBox[{"Result", " ", "Display", " ", "Panel"}], " ", "*)"}], 
+            "\n", "          ", 
+            RowBox[{"Dynamic", "[", "\n", "            ", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"StringTrim", "[", "result", "]"}], " ", "!=", 
+                " ", "\"\<\>\""}], ",", "\n", "              ", 
+               RowBox[{"Panel", "[", "\n", "                ", 
+                RowBox[{
+                 RowBox[{"Style", "[", 
+                  RowBox[{"result", ",", " ", "14"}], "]"}], ",", "\n", 
+                 "                ", 
+                 RowBox[{"ImageSize", " ", "->", " ", 
+                  RowBox[{"{", 
+                   RowBox[{"500", ",", " ", "Automatic"}], "}"}]}]}], "\n", 
+                "              ", "]"}], ",", "\n", 
+               "              ", "\"\<\>\""}], "]"}], "\n", "          ", 
+             "]"}]}], "\n", "        ", "}"}], ",", "\n", "        ", 
+          RowBox[{"Spacing", " ", "->", " ", "1.5"}], ",", "\n", "        ", 
+          RowBox[{"Alignment", " ", "->", " ", "Center"}]}], "\n", "      ", 
+         "]"}], ",", "\n", "      ", 
+        RowBox[{"Background", " ", "->", " ", "White"}]}], "\n", "    ", 
+       "]"}], ",", "\n", "    ", 
+      RowBox[{"WindowTitle", " ", "->", " ", "\"\<Organ Detection Tool\>\""}],
+       ",", "\n", "    ", 
+      RowBox[{"WindowSize", " ", "->", " ", 
+       RowBox[{"{", 
+        RowBox[{"600", ",", " ", "Automatic"}], "}"}]}]}], "\n", "  ", 
+     "]"}]}]}], "\n", "]"}]], "Code",
  InitializationCell->True,
  InitializationGroup->True,
- CellChangeTimes->{3.953007083433497*^9},
- CellLabel->"In[12]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"Export", "[", 
-   RowBox[{"\"\<MyInteractiveApp.cdf\>\"", ",", 
-    RowBox[{"EvaluationNotebook", "[", "]"}]}], "]"}], "\n"}]], "Input",
- CellChangeTimes->{3.9530091242310677`*^9},
- CellLabel->"In[16]:=",ExpressionUUID->"ece7f112-7ea9-4ff8-9fae-4ff861aded85"],
-
-Cell[BoxData["\<\"MyInteractiveApp.cdf\"\>"], "Output",
- CellChangeTimes->{{3.953009127210535*^9, 3.9530091519025908`*^9}},
- CellLabel->"Out[16]=",ExpressionUUID->"1b67c598-4021-4dbc-9c23-5ea36d9f53be"]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"NotebookDirectory", "[", "]"}], "\n"}]], "Input",
- CellChangeTimes->{3.9530091901101103`*^9},
- CellLabel->"In[17]:=",ExpressionUUID->"91953795-212e-44a2-a890-07e13fc0f169"],
-
-Cell[BoxData["\<\"/Users/ma3ti/Documents/Universita\:0300/Magistrale/matComp/\
-OrganDetect-AI-Based-Organ-Detection/\"\>"], "Output",
- CellChangeTimes->{3.953009192245232*^9},
- CellLabel->"Out[17]=",ExpressionUUID->"4a494ce9-fc8e-4dbf-b971-1a28f28ab2a9"]
-}, Open  ]],
-
-Cell[BoxData[""], "Input",
- CellChangeTimes->{3.953008097056643*^9, 
-  3.953009116429944*^9},ExpressionUUID->"b169ffc1-fec2-410c-887c-\
-fce429a32219"]
+ CellChangeTimes->{
+  3.953007083433497*^9, {3.953346987018937*^9, 3.9533470227652607`*^9}, 
+   3.9533472666770353`*^9, {3.953347349800501*^9, 3.953347442440909*^9}, {
+   3.953347489446157*^9, 3.953347491084337*^9}, {3.953347602533642*^9, 
+   3.95334760289194*^9}, {3.953347685583802*^9, 3.953347686313628*^9}, {
+   3.953347796127501*^9, 3.953347796934599*^9}, 3.95334784904185*^9, {
+   3.9533480688506613`*^9, 3.9533480695970297`*^9}, 3.953348171582431*^9, {
+   3.953348275626021*^9, 3.953348332065818*^9}, {3.9533484002275553`*^9, 
+   3.9533484010106497`*^9}, 3.953348531701033*^9, {3.953348662124753*^9, 
+   3.953348663168285*^9}, 3.9533490165919123`*^9, {3.953349218342217*^9, 
+   3.9533492191611032`*^9}, {3.953349404958879*^9, 3.9533494054058027`*^9}, {
+   3.953349509631791*^9, 3.953349510326066*^9}, {3.953349591806386*^9, 
+   3.953349593574562*^9}, {3.953349648818902*^9, 3.953349659265308*^9}, {
+   3.953350653633376*^9, 3.953350653963974*^9}},
+ CellLabel->"In[78]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
 InitializationCellWarning->False,
-WindowSize->{Full, Full},
-WindowMargins->{{0, Automatic}, {Automatic, 0}},
+WindowSize->{889, 1020},
+WindowMargins->{{Automatic, 7}, {7, Automatic}},
 FrontEndVersion->"14.2 for Mac OS X ARM (64-bit) (December 26, 2024)",
 StyleDefinitions->"Default.nb",
 ExpressionUUID->"07f45638-d88c-4efd-919a-f5ca70f97309"
@@ -185,24 +436,15 @@ Cell[1176, 40, 352, 8, 52, "Subtitle",ExpressionUUID->"848a9044-d4e5-4e85-af1f-0
 Cell[1531, 50, 229, 5, 33, "Text",ExpressionUUID->"f4a9fc12-c802-4fd6-83ce-68766b8ecc86",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[1763, 57, 431, 9, 30, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-3816a8d4e9b1",
+Cell[1763, 57, 431, 9, 56, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-3816a8d4e9b1",
  InitializationCell->True,
  InitializationGroup->True],
 Cell[2197, 68, 552, 9, 33, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[2752, 79, 1525, 39, 88, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+Cell[2752, 79, 15414, 324, 2598, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
  InitializationCell->True,
- InitializationGroup->True],
-Cell[CellGroupData[{
-Cell[4302, 122, 294, 6, 49, "Input",ExpressionUUID->"ece7f112-7ea9-4ff8-9fae-4ff861aded85"],
-Cell[4599, 130, 202, 2, 33, "Output",ExpressionUUID->"1b67c598-4021-4dbc-9c23-5ea36d9f53be"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[4838, 137, 207, 4, 49, "Input",ExpressionUUID->"91953795-212e-44a2-a890-07e13fc0f169"],
-Cell[5048, 143, 254, 3, 33, "Output",ExpressionUUID->"4a494ce9-fc8e-4dbf-b971-1a28f28ab2a9"]
-}, Open  ]],
-Cell[5317, 149, 150, 3, 29, "Input",ExpressionUUID->"b169ffc1-fec2-410c-887c-fce429a32219"]
+ InitializationGroup->True]
 }, Open  ]]
 }
 ]
