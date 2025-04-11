@@ -1,0 +1,210 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      7412,        202]
+NotebookOptionsPosition[      5483,        155]
+NotebookOutlinePosition[      5950,        173]
+CellTagsIndexPosition[      5907,        170]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["AI Based Organ Detection", "Title",
+ InitializationCell->True,
+ InitializationGroup->True,
+ CellChangeTimes->{
+  3.953003261733726*^9, {3.95300460417626*^9, 
+   3.953004616736231*^9}},ExpressionUUID->"93fcdfb1-a583-49fc-bc07-\
+d93de6df1881"],
+
+Cell["Gruppo numero 1: Morgan ", "Subtitle",
+ InitializationCell->True,
+ InitializationGroup->True,
+ CellChangeTimes->{{3.953003474049737*^9, 3.953003484651434*^9}, {
+  3.9530045631258287`*^9, 3.953004568142741*^9}},
+ FontColor->RGBColor[
+  0.7498130769817655, 0., 
+   0.03247119859616999],ExpressionUUID->"c651d3da-35f1-417d-8300-\
+82372e659e11"],
+
+Cell[TextData[StyleBox["MC 2024/2025",
+ FontColor->RGBColor[
+  0.7448386358434425, 0., 0.01271076523994812]]], "Subtitle",
+ InitializationCell->True,
+ InitializationGroup->True,
+ CellChangeTimes->{{3.953003573527338*^9, 3.953003577125852*^9}, {
+  3.953003651797236*^9, 
+  3.953003656006226*^9}},ExpressionUUID->"848a9044-d4e5-4e85-af1f-\
+0f327b6d8446"],
+
+Cell["FOTO1 FOTO2 FOTO3 FTO4 FOTO5", "Text",
+ InitializationCell->True,
+ InitializationGroup->True,
+ CellChangeTimes->{{3.9530036651012907`*^9, 
+  3.9530036873334713`*^9}},ExpressionUUID->"f4a9fc12-c802-4fd6-83ce-\
+68766b8ecc86"],
+
+Cell[TextData[StyleBox["Giuseppe Spathis, Matteo Fontana, Federico Augelli, \
+Emanuele di Sante, Alessandro Mencarelli",
+ FontColor->RGBColor[0.7496757457846952, 0., 0.03179980163271534]]], "Author",\
+
+ InitializationCell->True,
+ InitializationGroup->True,
+ CellChangeTimes->{{3.953003704746303*^9, 3.953003733491577*^9}, {
+  3.953004499788789*^9, 
+  3.953004504095313*^9}},ExpressionUUID->"78fad76d-2c59-488e-a333-\
+3816a8d4e9b1"],
+
+Cell[TextData[StyleBox["(anno 1, curriculum C), (anno 1, curriculum A), (anno \
+2, curriculum A) (anno 1, cirriculum A) (anno 1, curriculum A)",
+ FontColor->RGBColor[0.7448386358434425, 0., 0.02374303807125963]]], "Text",
+ InitializationCell->True,
+ InitializationGroup->True,
+ CellChangeTimes->{{3.953003950627871*^9, 3.9530039664070063`*^9}, {
+  3.9530040032182293`*^9, 3.953004057822535*^9}, {3.953004513350209*^9, 
+  3.9530045375131807`*^9}, {3.953009050826796*^9, 
+  3.953009051460822*^9}},ExpressionUUID->"0f600f28-f76c-4d81-99bb-\
+0adf37b5827e"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"DynamicModule", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"file", "=", "\"\<\>\""}], ",", 
+      RowBox[{"result", "=", "\"\<\>\""}]}], "}"}], ",", 
+    RowBox[{"CreateDialog", "[", 
+     RowBox[{"Column", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<Organ Detection Tool\>\"", ",", "18", ",", "Bold"}], 
+         "]"}], ",", "\"\<Select file:\>\"", ",", 
+        RowBox[{"InputField", "[", 
+         RowBox[{
+          RowBox[{"Dynamic", "[", "file", "]"}], ",", "String", ",", 
+          RowBox[{"FieldHint", "->", "\"\<Enter path/to/file.m\>\""}]}], 
+         "]"}], ",", 
+        RowBox[{"Button", "[", 
+         RowBox[{"\"\<Run Detection\>\"", ",", 
+          RowBox[{
+           RowBox[{"result", "=", 
+            
+            RowBox[{"\"\<Running organ detection on file: \>\"", "<>", 
+             "file"}]}], ";"}]}], "\[IndentingNewLine]", 
+         RowBox[{"(*", 
+          RowBox[{
+           RowBox[{
+           "call", " ", "your", " ", "detection", " ", "function", " ", 
+            "here"}], ",", 
+           RowBox[{"e", ".", "g", "."}], ",", 
+           RowBox[{"organDetect", "[", "file", "]"}]}], "*)"}], "]"}], ",", 
+        RowBox[{"Dynamic", "[", "result", "]"}]}], "}"}], "]"}], "]"}]}], 
+   "]"}], "\n"}]], "Code",
+ InitializationCell->True,
+ InitializationGroup->True,
+ CellChangeTimes->{3.953007083433497*^9},
+ CellLabel->"In[12]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Export", "[", 
+   RowBox[{"\"\<MyInteractiveApp.cdf\>\"", ",", 
+    RowBox[{"EvaluationNotebook", "[", "]"}]}], "]"}], "\n"}]], "Input",
+ CellChangeTimes->{3.9530091242310677`*^9},
+ CellLabel->"In[16]:=",ExpressionUUID->"ece7f112-7ea9-4ff8-9fae-4ff861aded85"],
+
+Cell[BoxData["\<\"MyInteractiveApp.cdf\"\>"], "Output",
+ CellChangeTimes->{{3.953009127210535*^9, 3.9530091519025908`*^9}},
+ CellLabel->"Out[16]=",ExpressionUUID->"1b67c598-4021-4dbc-9c23-5ea36d9f53be"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"NotebookDirectory", "[", "]"}], "\n"}]], "Input",
+ CellChangeTimes->{3.9530091901101103`*^9},
+ CellLabel->"In[17]:=",ExpressionUUID->"91953795-212e-44a2-a890-07e13fc0f169"],
+
+Cell[BoxData["\<\"/Users/ma3ti/Documents/Universita\:0300/Magistrale/matComp/\
+OrganDetect-AI-Based-Organ-Detection/\"\>"], "Output",
+ CellChangeTimes->{3.953009192245232*^9},
+ CellLabel->"Out[17]=",ExpressionUUID->"4a494ce9-fc8e-4dbf-b971-1a28f28ab2a9"]
+}, Open  ]],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{3.953008097056643*^9, 
+  3.953009116429944*^9},ExpressionUUID->"b169ffc1-fec2-410c-887c-\
+fce429a32219"]
+}, Open  ]]
+},
+InitializationCellEvaluation->True,
+InitializationCellWarning->False,
+WindowSize->{Full, Full},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"14.2 for Mac OS X ARM (64-bit) (December 26, 2024)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"07f45638-d88c-4efd-919a-f5ca70f97309"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 247, 6, 96, "Title",ExpressionUUID->"93fcdfb1-a583-49fc-bc07-d93de6df1881",
+ InitializationCell->True,
+ InitializationGroup->True],
+Cell[826, 30, 347, 8, 52, "Subtitle",ExpressionUUID->"c651d3da-35f1-417d-8300-82372e659e11",
+ InitializationCell->True,
+ InitializationGroup->True],
+Cell[1176, 40, 352, 8, 52, "Subtitle",ExpressionUUID->"848a9044-d4e5-4e85-af1f-0f327b6d8446",
+ InitializationCell->True,
+ InitializationGroup->True],
+Cell[1531, 50, 229, 5, 33, "Text",ExpressionUUID->"f4a9fc12-c802-4fd6-83ce-68766b8ecc86",
+ InitializationCell->True,
+ InitializationGroup->True],
+Cell[1763, 57, 431, 9, 30, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-3816a8d4e9b1",
+ InitializationCell->True,
+ InitializationGroup->True],
+Cell[2197, 68, 552, 9, 33, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
+ InitializationCell->True,
+ InitializationGroup->True],
+Cell[2752, 79, 1525, 39, 88, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+ InitializationCell->True,
+ InitializationGroup->True],
+Cell[CellGroupData[{
+Cell[4302, 122, 294, 6, 49, "Input",ExpressionUUID->"ece7f112-7ea9-4ff8-9fae-4ff861aded85"],
+Cell[4599, 130, 202, 2, 33, "Output",ExpressionUUID->"1b67c598-4021-4dbc-9c23-5ea36d9f53be"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4838, 137, 207, 4, 49, "Input",ExpressionUUID->"91953795-212e-44a2-a890-07e13fc0f169"],
+Cell[5048, 143, 254, 3, 33, "Output",ExpressionUUID->"4a494ce9-fc8e-4dbf-b971-1a28f28ab2a9"]
+}, Open  ]],
+Cell[5317, 149, 150, 3, 29, "Input",ExpressionUUID->"b169ffc1-fec2-410c-887c-fce429a32219"]
+}, Open  ]]
+}
+]
+*)
+
