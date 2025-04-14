@@ -47,7 +47,7 @@ FineTune[] :=
   {
    imageDir, maskDir, imageFiles, maskFiles,
    getId, imageIDs, maskIDs,
-   imagePaths, maskPaths,
+   imagePaths, maskPaths, numTraining,
    commonIDs, classNames, numClasses, listToSample,
    inputImageSize, dataList, dataset, trainingData, validationData
    },
@@ -134,8 +134,10 @@ listToSample = Normal[dataset];
 Print["Length of listToSample: ", Length[listToSample]];
 Print["Dimensions of listToSample: ", Dimensions[listToSample]];
 
-{trainingData, validationData} =
-  RandomSample[listToSample, {Floor[0.8 * Length[listToSample]], All}];
+numTraining = Floor[0.8 * Length[listToSample]];
+trainingData = RandomSample[listToSample, numTraining];
+
+validationData = Complement[listToSample, trainingData];
 
 Print["RandomSample completed successfully."]; (* Add confirmation *)
 
@@ -145,9 +147,6 @@ Print["RandomSample completed successfully."]; (* Add confirmation *)
   (* Return something useful, e.g., the split datasets *)
   <|"Training" -> trainingData, "Validation" -> validationData|>
  ]
-
-
-
 
 
 (* Defnition of auxiliary functions *)
