@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     19581,        444]
-NotebookOptionsPosition[     18182,        406]
-NotebookOutlinePosition[     18648,        424]
-CellTagsIndexPosition[     18605,        421]
+NotebookDataLength[     24400,        554]
+NotebookOptionsPosition[     22539,        508]
+NotebookOutlinePosition[     23017,        526]
+CellTagsIndexPosition[     22974,        523]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -77,6 +77,8 @@ Cell[TextData[StyleBox["(anno 1, curriculum C), (anno 1, curriculum A), (anno \
   3.953009051460822*^9}},ExpressionUUID->"0f600f28-f76c-4d81-99bb-\
 0adf37b5827e"],
 
+Cell[CellGroupData[{
+
 Cell[BoxData[
  RowBox[{"DynamicModule", "[", 
   RowBox[{
@@ -98,7 +100,6 @@ Cell[BoxData[
    RowBox[{
     RowBox[{
      RowBox[{"updateFileState", "[", "newFile_String", "]"}], " ", ":=", " ", 
-     
      RowBox[{"(", "\n", "    ", 
       RowBox[{
        RowBox[{"file", " ", "=", " ", "newFile"}], ";", "\n", "    ", 
@@ -172,6 +173,7 @@ dell'immagine.\>\""}], ";", "\n", "            ",
               RowBox[{
                RowBox[{
                "errorMsg", " ", "=", 
+                
                 " ", "\"\<\:274c Tipo file non supportato (solo .png, .jpg, \
 .jpeg).\>\""}], ";", "\n", "          ", 
                RowBox[{"imgPreview", " ", "=", " ", "None"}], ";"}]}], "\n", 
@@ -288,9 +290,7 @@ Tiroide: 101%\>\""}]}], ";", "\n", "    ", "\n", "    ",
               RowBox[{"fileSet", ",", "\n", "              ", 
                RowBox[{"Style", "[", 
                 RowBox[{
-                 
                  RowBox[{"\"\<\:2705 File selezionato: \>\"", " ", "<>", " ", 
-                  
                   RowBox[{"FileNameTake", "[", "file", "]"}]}], ",", " ", 
                  RowBox[{"Darker", "@", "Green"}]}], "]"}], ",", "\n", 
                "              ", 
@@ -401,14 +401,116 @@ Tiroide: 101%\>\""}]}], ";", "\n", "    ", "\n", "    ",
    3.953349509631791*^9, 3.953349510326066*^9}, {3.953349591806386*^9, 
    3.953349593574562*^9}, {3.953349648818902*^9, 3.953349659265308*^9}, {
    3.953350653633376*^9, 3.953350653963974*^9}},
- CellLabel->"In[78]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"]
+ CellLabel->"In[1]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
+
+Cell[BoxData[
+ DynamicModuleBox[{$CellContext`file$$ = "", $CellContext`result$$ = 
+  "", $CellContext`fileSet$$ = False, $CellContext`errorMsg$$ = 
+  "", $CellContext`imgPreview$$ = None, $CellContext`updateFileState$$}, 
+  TemplateBox[<|
+   "obj" -> NotebookObject[
+     "21b2496b-41b8-ae48-8e97-8c297e4168ee", 
+      "2fc22b73-b0d3-214b-a77d-0041343fe51b"], "label" -> 
+    "\"Organ Detection Tool\""|>,
+   "NotebookObjectUUIDsUnsaved"],
+  DynamicModuleValues:>{{
+    DownValues[$CellContext`updateFileState$$] = {HoldPattern[
+         $CellContext`updateFileState$$[
+          Pattern[$CellContext`newFile$, 
+           Blank[
+           String]]]] :> ($CellContext`file$$ = $CellContext`newFile$; \
+$CellContext`errorMsg$$ = ""; $CellContext`imgPreview$$ = 
+         None; $CellContext`fileSet$$ = False; 
+        If[StringTrim[$CellContext`file$$] == "", 
+          Return[]]; If[
+          FileExistsQ[$CellContext`file$$], 
+          Module[{$CellContext`ext$ = ToLowerCase[
+              
+              FileExtension[$CellContext`file$$]], \
+$CellContext`importedContent$}, If[
+             StringMatchQ[$CellContext`ext$, 
+              Alternatives["png", "jpg", "jpeg"]], 
+             Check[$CellContext`importedContent$ = 
+                Import[$CellContext`file$$]; If[
+                 
+                 ImageQ[$CellContext`importedContent$], \
+$CellContext`imgPreview$$ = $CellContext`importedContent$; \
+$CellContext`fileSet$$ = True; 
+                 Null, $CellContext`errorMsg$$ = 
+                  "\:274c File non \[EGrave] un'immagine PNG/JPG valida."; 
+                 Null], $CellContext`errorMsg$$ = 
+                "\:274c Errore durante l'importazione dell'immagine."; \
+$CellContext`imgPreview$$ = None; Null]; 
+             Null, $CellContext`errorMsg$$ = 
+              "\:274c Tipo file non supportato (solo .png, .jpg, .jpeg)."; \
+$CellContext`imgPreview$$ = None; Null]; Null], $CellContext`errorMsg$$ = 
+           "\:274c File non trovato."; $CellContext`imgPreview$$ = None; 
+          Null]; If[$CellContext`errorMsg$$ =!= "", $CellContext`fileSet$$ = 
+          False]; Null)}}}]], "Output",
+ CellChangeTimes->{3.953354138576275*^9, 3.9536034191884937`*^9, 
+  3.9536039374013767`*^9},
+ CellLabel->"Out[1]=",ExpressionUUID->"ba1dd4ef-45c7-d143-99f6-663821a47a34"]
+}, Open  ]],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.953603919870579*^9, 
+  3.953603951373617*^9}},ExpressionUUID->"bf838da0-7b02-d34a-9359-\
+03225bf07aed"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"Button", "[", 
+   RowBox[{"\"\<Test\>\"", ",", 
+    RowBox[{"{", " ", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"SetDirectory", "[", 
+       RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"Get", "[", "\"\<OrganDetection.m\>\"", "]"}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"path", " ", "=", " ", 
+       RowBox[{
+        RowBox[{"\"\<.\\\\groundtruth01\\\\unogt90.jpg\>\"", "\[IndentingNewLine]",
+          "pathXML"}], " ", "=", " ", 
+        RowBox[{"\"\<unogt90.xml\>\"", "\[IndentingNewLine]", 
+         RowBox[{"MaskToXML", "[", 
+          RowBox[{"path", ",", "pathXML"}], "]"}]}]}]}]}], 
+     "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     "\[IndentingNewLine]", "}"}], ",", 
+    RowBox[{"BaseStyle", "->", 
+     RowBox[{"{", 
+      RowBox[{"\"\<GenericButton\>\"", ",", "12", ",", "Bold"}], "}"}]}]}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.9533543590677166`*^9, 3.953354409860489*^9}, {
+  3.953603643969675*^9, 3.953603644419939*^9}, {3.953603702832714*^9, 
+  3.95360388536203*^9}},
+ CellLabel->"In[5]:=",ExpressionUUID->"dec17010-d763-1b42-9eb7-a6c418f5d70e"],
+
+Cell[BoxData[
+ ButtonBox["\<\"Test\"\>",
+  Appearance->Automatic,
+  BaseStyle->{"GenericButton", 12, Bold},
+  ButtonFunction:>{SetDirectory[
+      NotebookDirectory[]]; 
+    Get["OrganDetection.m"]; $CellContext`path = (
+      ".\\groundtruth01\\unogt90.jpg" $CellContext`pathXML = 
+      "unogt90.xml" 
+       ObjectDetection`MaskToXML[$CellContext`path, $CellContext`pathXML])},
+  Evaluator->Automatic,
+  Method->"Preemptive"]], "Output",
+ CellChangeTimes->{
+  3.953603420134012*^9, {3.953603863563555*^9, 3.9536038929818153`*^9}},
+ CellLabel->"Out[5]=",ExpressionUUID->"7bdd7da1-dc64-cd47-ad07-4d82fcb43f9c"]
+}, Open  ]]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
 InitializationCellWarning->False,
-WindowSize->{889, 1020},
-WindowMargins->{{Automatic, 7}, {7, Automatic}},
-FrontEndVersion->"14.2 for Mac OS X ARM (64-bit) (December 26, 2024)",
+WindowSize->{700.5, 717},
+WindowMargins->{{6.75, Automatic}, {6.75, Automatic}},
+FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
 StyleDefinitions->"Default.nb",
 ExpressionUUID->"07f45638-d88c-4efd-919a-f5ca70f97309"
 ]
@@ -439,12 +541,20 @@ Cell[1531, 50, 229, 5, 33, "Text",ExpressionUUID->"f4a9fc12-c802-4fd6-83ce-68766
 Cell[1763, 57, 431, 9, 56, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-3816a8d4e9b1",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[2197, 68, 552, 9, 33, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
+Cell[2197, 68, 552, 9, 55, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[2752, 79, 15414, 324, 2598, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+Cell[CellGroupData[{
+Cell[2774, 81, 15387, 322, 2379, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
  InitializationCell->True,
- InitializationGroup->True]
+ InitializationGroup->True],
+Cell[18164, 405, 2307, 46, 45, "Output",ExpressionUUID->"ba1dd4ef-45c7-d143-99f6-663821a47a34"]
+}, Open  ]],
+Cell[20486, 454, 152, 3, 28, "Input",ExpressionUUID->"bf838da0-7b02-d34a-9359-03225bf07aed"],
+Cell[CellGroupData[{
+Cell[20663, 461, 1234, 27, 218, "Input",ExpressionUUID->"dec17010-d763-1b42-9eb7-a6c418f5d70e"],
+Cell[21900, 490, 611, 14, 42, "Output",ExpressionUUID->"7bdd7da1-dc64-cd47-ad07-4d82fcb43f9c"]
+}, Open  ]]
 }, Open  ]]
 }
 ]
