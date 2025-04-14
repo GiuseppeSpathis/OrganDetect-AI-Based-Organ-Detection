@@ -5,7 +5,7 @@
 
 (*:Title: OrganDetection *)
 (*:Context: OrganDetection` *)
-(*:Authors: Giuseppe Spathis, Federico Augelli, ... *)
+(*:Authors: Giuseppe Spathis, Federico Augelli, Emanuele Di Sante, ... *)
 (*:Summary: Organ detection based on ultrasound images using deep learning algorithms, implemented in Wolfram Mathematica. *)
 (*:Copyright: GS 2025 da sistemare *)
 (*:Package Version: 1 *)
@@ -26,10 +26,10 @@ XMLToMask::usage = "pippo"
 (*
 Normalize::usage = "Normalize[f, {x0, x1, ...}]
 	test function for normalizing functions"
-
+*)
 FineTune::usage = "FineTune[f, g, h]
 	function for fine tuning the model"
-*)
+
 Begin["Private`"]
 
 (* Implementation of all function *)
@@ -41,12 +41,88 @@ code...
 *)
 
 
-(*
+(* Fine tuning function *)
 FineTune[] :=
-Module[],
+Module[
+  {
+   lossLayer, lossFunction, trainingOptions, trainedNet, finalTrainedNet,
+   testSample, testImage, groundTruthMask, rawPrediction, predictedMaskData,
+   predictedMask, trainingData, validationData
+   },
+   
+   {trainingData, validationData} = PreprocessingForFineTuning[]
+   
+  (* Define the loss function for pixel-wise segmentation *)
+  lossLayer = CrossEntropyLossLayer["Index", "Input" -> "Prediction", "Target" -> "TargetMask"];
 
-code...
-*)
+  (* Potential wrapper to adapt the network output and the target mask *)
+  (* This part needs to be adapted based on YOLOv8's output format. *)
+  (* YOLOv8 is primarily an object detection model, not a semantic segmentation model. *)
+  (* Directly applying a pixel-wise CrossEntropyLossLayer to its raw output might not be straightforward. *)
+  (* We need to understand how YOLOv8's output can be interpreted or modified for segmentation. *)
+  (* For now, let's assume 'adaptedNet' is a modified YOLOv8 or a different network suitable for segmentation. *)
+  lossFunction = NetGraph[
+   <|
+    "Net" -> adaptedNet, (* The adapted network *)
+    "ReshapePred" -> ReshapeLayer[{numClasses, -1}], (* Flattens HxW *)
+    "ReshapeTarget" -> ReshapeLayer[{-1}],         (* Flattens HxW *)
+    "Loss" -> lossLayer
+   |>,
+   {
+    NetPort["Input"] -> "Net" -> "ReshapePred" -> NetPort[lossLayer, "Prediction"],
+    NetPort["Target"] -> "ReshapeTarget" -> NetPort[lossLayer, "TargetMask"]
+   },
+   "Input" -> NetEncoder[{"Image", inputImageSize, ColorSpace -> "RGB"}],
+   "Target" -> NetDecoder[{"Image", "Index"}] (* Decodes the target mask into indices *)
+  ];
+
+  (* Training options *)
+  trainingOptions = {
+    MaxTrainingRounds -> 10, (* Number of epochs - increase for real training *)
+    TargetDevice -> "GPU",    (* Use "CPU" if you don't have a compatible GPU *)
+    BatchSize -> 4,          (* Reduce if you have limited GPU memory *)
+    ValidationSet -> validationData,
+    (* Optional: Freeze pre-trained layers (transfer learning) *)
+    (* You need to identify the layers to freeze (e.g., all except the replaced ones) *)
+    (* LearningRateMultipliers -> {layerToFreeze1 -> 0, layerToFreeze2 -> 0, _ -> 1}, *)
+    Method -> {"ADAM", "LearningRate" -> 0.0001} (* Optimizer and initial learning rate *)
+  };
+
+  (* Start training *)
+  Print["Starting training..."];
+  trainedNet = NetTrain[
+    lossFunction,   (* Use the NetGraph with the integrated loss *)
+    trainingData,
+    All,            (* Train to return the final model *)
+    trainingOptions
+  ];
+  Print["Training completed."];
+
+  (* Extract the trained network from the loss NetGraph (if you used the wrapper) *)
+  finalTrainedNet = NetExtract[trainedNet, "Net"];
+
+  (* Take a sample from the validation set for testing *)
+  testSample = RandomSample[validationData, 1][[1]];
+  testImage = testSample["Input"];
+  groundTruthMask = testSample["Target"];
+
+  (* Perform inference (preferably on GPU if possible) *)
+  rawPrediction = finalTrainedNet[testImage, TargetDevice -> "GPU"];
+
+  (* The 'rawPrediction' output will likely be an array {numClasses, H, W} *)
+  (* Find the class with the maximum probability for each pixel *)
+  predictedMaskData = N@Apply[TakeLargest[#, 1] &, rawPrediction, {1, 2}]; (* Find max index along the class axis *)
+  predictedMask = Image[predictedMaskData - 1, "Byte"]; (* Subtract 1 if index 1 is the first class (0 is background) *)
+
+  (* Display the results *)
+  Grid[{
+    {"Input Image", "Ground Truth Mask", "Predicted Mask"},
+    {testImage, groundTruthMask, predictedMask}
+  }]
+
+  (* Return the trained network *)
+  finalTrainedNet
+]
 
 
 (* Defnition of auxiliary functions *)
@@ -54,7 +130,7 @@ code...
 AuxFunction[] := 
 Module[]
 *)
-
+(*
 MaskToXML[maskPath_String, xmlPath_String] := Module[
   {img, grayImg, binImg, whitePixelCoordsYX, whitePixelCoordsXY, xml, doc},
 
@@ -196,6 +272,127 @@ XMLToMask[xmlPath_String, imageWidth_Integer?Positive, imageHeight_Integer?Posit
   Return[maskImage];
 
 ]
+*)
+preprocessSample[imgFile_, maskFile_, inputImageSize_] := Module[{img, mask},
+   img = Import[imgFile];
+   mask = Import[maskFile];
+   mask = ColorConvert[mask, "Grayscale"];
+   
+   mask = Binarize[mask];
+
+   (* Ridimensiona se necessario *)
+   img = ImageResize[img, inputImageSize];
+   mask = ImageResize[mask, inputImageSize, Resampling -> "Nearest"]; (* Usa Nearest per non alterare gli indici! *)
+
+   (* Restituisci l'associazione per NetTrain *)
+    <|"Input" -> img, "Target" -> mask|>
+];
+
+PreprocessingForFineTuning[] :=
+ Module[
+  {
+   imageDir, maskDir, imageFiles, maskFiles,
+   getId, imageIDs, maskIDs,
+   imagePaths, maskPaths, numTraining,
+   commonIDs, classNames, numClasses, listToSample,
+   inputImageSize, dataList, dataset, trainingData, validationData
+   },
+
+  (* Define directories *)
+  imageDir = "dataset/originali01";
+  maskDir = "dataset/groundtruth01";
+  Print["Current Directory: ", Directory[]]; (* Check working directory *)
+  Print["Image Directory: ", ExpandFileName[imageDir]]; (* Check absolute path *)
+  Print["Mask Directory: ", ExpandFileName[maskDir]];   (* Check absolute path *)
+
+
+  (* Find files *)
+  imageFiles = FileNames["uno*.jpg", imageDir];
+  Print["Found ", Length[imageFiles], " image files. First 5: ", Take[imageFiles, 5]]; (* DEBUG *)
+  maskFiles = FileNames["unogt*.jpg", maskDir];
+  Print["Found ", Length[maskFiles], " mask files. First 5: ", Take[maskFiles, 5]]; (* DEBUG *)
+
+  (* Function to extract numeric ID from filename *)
+  getId[file_, prefix_] :=
+   StringReplace[
+    FileBaseName[file],
+    {prefix -> "", ".jpg" -> ""} (* Ensure .jpg is removed correctly *)
+   ];
+
+  (* Extract IDs *)
+  imageIDs = getId[#, "uno"] & /@ imageFiles;
+  Print["Extracted ", Length[imageIDs], " image IDs. First 10: ", Take[imageIDs, 10]]; (* DEBUG *)
+  maskIDs = getId[#, "unogt"] & /@ maskFiles;
+  Print["Extracted ", Length[maskIDs], " mask IDs. First 10: ", Take[maskIDs, 10]]; (* DEBUG *)
+
+
+  (* Build associations: ID -> full path *)
+  imagePaths = AssociationThread[imageIDs, imageFiles];
+  maskPaths = AssociationThread[maskIDs, maskFiles];
+
+  (* Match on common numeric IDs *)
+  commonIDs = Intersection[Keys[imagePaths], Keys[maskPaths]];
+  Print["Found ", Length[commonIDs], " common IDs. First 10: ", Take[commonIDs, 10]]; (* CRITICAL DEBUG *)
+
+  (* === If Length[commonIDs] is 0 here, the rest will fail === *)
+  If[Length[commonIDs] == 0,
+     Print["Error: No common IDs found between images and masks. Cannot proceed."];
+     Return[$Failed]; (* Stop execution *)
+  ];
+
+
+  (* Define classes *)
+  classNames = {"background", "tiroide"};
+  numClasses = Length[classNames]; (* Usually numClasses = number of actual classes + background *)
+                 (* Check if NetTrain needs numClasses or numClasses+1 depending on background handling *)
+
+
+  (* Set input image size for preprocessing (adjust as needed) *)
+  inputImageSize = {353, 253};
+
+  (* Create the list of preprocessed samples *)
+  Print["Preprocessing samples..."];
+  dataList = Table[
+     Check[ (* Added Check to see if preprocessSample fails *)
+        preprocessSample[imagePaths[id], maskPaths[id], inputImageSize],
+        $FailedPreprocess],
+     {id, commonIDs}
+  ];
+  Print["Preprocessing complete. dataList length: ", Length[dataList]]; (* DEBUG *)
+  Print["Number of failed preprocess steps: ", Count[dataList, $FailedPreprocess]]; (* DEBUG *)
+  dataList = DeleteCases[dataList, $FailedPreprocess]; (* Remove failed samples *)
+  Print["dataList length after removing failures: ", Length[dataList]]; (* DEBUG *)
+
+  (* === If dataList is empty here (e.g., all preprocess failed), the rest will fail === *)
+   If[Length[dataList] == 0,
+     Print["Error: dataList is empty after preprocessing. Cannot proceed."];
+     Return[$Failed]; (* Stop execution *)
+  ];
+
+
+  (* Create dataset object *)
+  dataset = Dataset[dataList];
+  Print["Dataset created. Length: ", Length[dataset]]; (* DEBUG *)
+
+
+Print["Converting dataset to Normal list before sampling..."];
+listToSample = Normal[dataset];
+Print["Length of listToSample: ", Length[listToSample]];
+Print["Dimensions of listToSample: ", Dimensions[listToSample]];
+
+numTraining = Floor[0.8 * Length[listToSample]];
+trainingData = RandomSample[listToSample, numTraining];
+
+validationData = Complement[listToSample, trainingData];
+
+Print["RandomSample completed successfully."]; (* Add confirmation *)
+
+  Print["Numero campioni training: ", Length[trainingData]];
+  Print["Numero campioni validation: ", Length[validationData]];
+
+  (* Return something useful, e.g., the split datasets *)
+  <|"Training" -> trainingData, "Validation" -> validationData|>
+ ]
 
 
 End[]
