@@ -5,7 +5,7 @@
 
 (*:Title: OrganDetection *)
 (*:Context: OrganDetection` *)
-(*:Authors: Giuseppe Spathis, Federico Augelli, ... *)
+(*:Authors: Giuseppe Spathis, Federico Augelli, Emanuele Di Sante, ... *)
 (*:Summary: Organ detection based on ultrasound images using deep learning algorithms, implemented in Wolfram Mathematica. *)
 (*:Copyright: GS 2025 da sistemare *)
 (*:Package Version: 1 *)
@@ -26,10 +26,10 @@ XMLToMask::usage = "pippo"
 (*
 Normalize::usage = "Normalize[f, {x0, x1, ...}]
 	test function for normalizing functions"
-
+*)
 FineTune::usage = "FineTune[f, g, h]
 	function for fine tuning the model"
-*)
+
 Begin["Private`"]
 
 (* Implementation of all function *)
@@ -41,12 +41,113 @@ code...
 *)
 
 
-(*
+(* fine tuning function *)
 FineTune[] :=
-Module[],
+ Module[
+  {
+   imageDir, maskDir, imageFiles, maskFiles,
+   getId, imageIDs, maskIDs,
+   imagePaths, maskPaths,
+   commonIDs, classNames, numClasses, listToSample,
+   inputImageSize, dataList, dataset, trainingData, validationData
+   },
 
-code...
-*)
+  (* Define directories *)
+  imageDir = "dataset/originali01";
+  maskDir = "dataset/groundtruth01";
+  Print["Current Directory: ", Directory[]]; (* Check working directory *)
+  Print["Image Directory: ", ExpandFileName[imageDir]]; (* Check absolute path *)
+  Print["Mask Directory: ", ExpandFileName[maskDir]];   (* Check absolute path *)
+
+
+  (* Find files *)
+  imageFiles = FileNames["uno*.jpg", imageDir];
+  Print["Found ", Length[imageFiles], " image files. First 5: ", Take[imageFiles, 5]]; (* DEBUG *)
+  maskFiles = FileNames["unogt*.jpg", maskDir];
+  Print["Found ", Length[maskFiles], " mask files. First 5: ", Take[maskFiles, 5]]; (* DEBUG *)
+
+  (* Function to extract numeric ID from filename *)
+  getId[file_, prefix_] :=
+   StringReplace[
+    FileBaseName[file],
+    {prefix -> "", ".jpg" -> ""} (* Ensure .jpg is removed correctly *)
+   ];
+
+  (* Extract IDs *)
+  imageIDs = getId[#, "uno"] & /@ imageFiles;
+  Print["Extracted ", Length[imageIDs], " image IDs. First 10: ", Take[imageIDs, 10]]; (* DEBUG *)
+  maskIDs = getId[#, "unogt"] & /@ maskFiles;
+  Print["Extracted ", Length[maskIDs], " mask IDs. First 10: ", Take[maskIDs, 10]]; (* DEBUG *)
+
+
+  (* Build associations: ID -> full path *)
+  imagePaths = AssociationThread[imageIDs, imageFiles];
+  maskPaths = AssociationThread[maskIDs, maskFiles];
+
+  (* Match on common numeric IDs *)
+  commonIDs = Intersection[Keys[imagePaths], Keys[maskPaths]];
+  Print["Found ", Length[commonIDs], " common IDs. First 10: ", Take[commonIDs, 10]]; (* CRITICAL DEBUG *)
+
+  (* === If Length[commonIDs] is 0 here, the rest will fail === *)
+  If[Length[commonIDs] == 0,
+     Print["Error: No common IDs found between images and masks. Cannot proceed."];
+     Return[$Failed]; (* Stop execution *)
+  ];
+
+
+  (* Define classes *)
+  classNames = {"background", "tiroide"};
+  numClasses = Length[classNames]; (* Usually numClasses = number of actual classes + background *)
+                 (* Check if NetTrain needs numClasses or numClasses+1 depending on background handling *)
+
+
+  (* Set input image size for preprocessing (adjust as needed) *)
+  inputImageSize = {353, 253};
+
+  (* Create the list of preprocessed samples *)
+  Print["Preprocessing samples..."];
+  dataList = Table[
+     Check[ (* Added Check to see if preprocessSample fails *)
+        preprocessSample[imagePaths[id], maskPaths[id], inputImageSize],
+        $FailedPreprocess],
+     {id, commonIDs}
+  ];
+  Print["Preprocessing complete. dataList length: ", Length[dataList]]; (* DEBUG *)
+  Print["Number of failed preprocess steps: ", Count[dataList, $FailedPreprocess]]; (* DEBUG *)
+  dataList = DeleteCases[dataList, $FailedPreprocess]; (* Remove failed samples *)
+  Print["dataList length after removing failures: ", Length[dataList]]; (* DEBUG *)
+
+  (* === If dataList is empty here (e.g., all preprocess failed), the rest will fail === *)
+   If[Length[dataList] == 0,
+     Print["Error: dataList is empty after preprocessing. Cannot proceed."];
+     Return[$Failed]; (* Stop execution *)
+  ];
+
+
+  (* Create dataset object *)
+  dataset = Dataset[dataList];
+  Print["Dataset created. Length: ", Length[dataset]]; (* DEBUG *)
+
+
+Print["Converting dataset to Normal list before sampling..."];
+listToSample = Normal[dataset];
+Print["Length of listToSample: ", Length[listToSample]];
+Print["Dimensions of listToSample: ", Dimensions[listToSample]];
+
+{trainingData, validationData} =
+  RandomSample[listToSample, {Floor[0.8 * Length[listToSample]], All}];
+
+Print["RandomSample completed successfully."]; (* Add confirmation *)
+
+  Print["Numero campioni training: ", Length[trainingData]];
+  Print["Numero campioni validation: ", Length[validationData]];
+
+  (* Return something useful, e.g., the split datasets *)
+  <|"Training" -> trainingData, "Validation" -> validationData|>
+ ]
+
+
+
 
 
 (* Defnition of auxiliary functions *)
@@ -196,6 +297,21 @@ XMLToMask[xmlPath_String, imageWidth_Integer?Positive, imageHeight_Integer?Posit
   Return[maskImage];
 
 ]
+
+preprocessSample[imgFile_, maskFile_, inputImageSize_] := Module[{img, mask},
+   img = Import[imgFile];
+   mask = Import[maskFile];
+   mask = ColorConvert[mask, "Grayscale"];
+   
+   mask = Binarize[mask];
+
+   (* Ridimensiona se necessario *)
+   img = ImageResize[img, inputImageSize];
+   mask = ImageResize[mask, inputImageSize, Resampling -> "Nearest"]; (* Usa Nearest per non alterare gli indici! *)
+
+   (* Restituisci l'associazione per NetTrain *)
+    <|"Input" -> img, "Target" -> mask|>
+];
 
 
 End[]
