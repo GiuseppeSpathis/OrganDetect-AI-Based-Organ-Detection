@@ -45,83 +45,65 @@ code...
 FineTune[] :=
 Module[
   {
-   lossLayer, lossFunction, trainingOptions, trainedNet, finalTrainedNet,
-   testSample, testImage, groundTruthMask, rawPrediction, predictedMaskData,
-   predictedMask, trainingData, validationData
+   baseModel, trainingData, validationData, fineTunedNet, modelResource
    },
    
-   {trainingData, validationData} = PreprocessingForFineTuning[]
-   
-  (* Define the loss function for pixel-wise segmentation *)
-  lossLayer = CrossEntropyLossLayer["Index", "Input" -> "Prediction", "Target" -> "TargetMask"];
+  (*ResourceRemove[ResourceObject["YOLO V8 Segment Trained on MS-COCO Data"]]*)
+  Print["downloading..."];
+  baseModel = NetModel["YOLO V8 Segment Trained on MS-COCO Data"]; 
 
-  (* Potential wrapper to adapt the network output and the target mask *)
-  (* This part needs to be adapted based on YOLOv8's output format. *)
-  (* YOLOv8 is primarily an object detection model, not a semantic segmentation model. *)
-  (* Directly applying a pixel-wise CrossEntropyLossLayer to its raw output might not be straightforward. *)
-  (* We need to understand how YOLOv8's output can be interpreted or modified for segmentation. *)
-  (* For now, let's assume 'adaptedNet' is a modified YOLOv8 or a different network suitable for segmentation. *)
-  lossFunction = NetGraph[
-   <|
-    "Net" -> adaptedNet, (* The adapted network *)
-    "ReshapePred" -> ReshapeLayer[{numClasses, -1}], (* Flattens HxW *)
-    "ReshapeTarget" -> ReshapeLayer[{-1}],         (* Flattens HxW *)
-    "Loss" -> lossLayer
-   |>,
-   {
-    NetPort["Input"] -> "Net" -> "ReshapePred" -> NetPort[lossLayer, "Prediction"],
-    NetPort["Target"] -> "ReshapeTarget" -> NetPort[lossLayer, "TargetMask"]
-   },
-   "Input" -> NetEncoder[{"Image", inputImageSize, ColorSpace -> "RGB"}],
-   "Target" -> NetDecoder[{"Image", "Index"}] (* Decodes the target mask into indices *)
-  ];
 
-  (* Training options *)
-  trainingOptions = {
-    MaxTrainingRounds -> 10, (* Number of epochs - increase for real training *)
-    TargetDevice -> "GPU",    (* Use "CPU" if you don't have a compatible GPU *)
-    BatchSize -> 4,          (* Reduce if you have limited GPU memory *)
-    ValidationSet -> validationData,
-    (* Optional: Freeze pre-trained layers (transfer learning) *)
-    (* You need to identify the layers to freeze (e.g., all except the replaced ones) *)
-    (* LearningRateMultipliers -> {layerToFreeze1 -> 0, layerToFreeze2 -> 0, _ -> 1}, *)
-    Method -> {"ADAM", "LearningRate" -> 0.0001} (* Optimizer and initial learning rate *)
-  };
+(* Verifica se il caricamento \[EGrave] andato a buon fine *)
+If[FailureQ[baseModel],
+    Print["Errore: Impossibile caricare il modello base YOLO V8."];
+    Throw[$Failed]; (* Interrompi l'esecuzione se il modello non carica *)
+];
+Print["Base model loaded successfully."];
 
-  (* Start training *)
-  Print["Starting training..."];
-  trainedNet = NetTrain[
-    lossFunction,   (* Use the NetGraph with the integrated loss *)
-    trainingData,
-    All,            (* Train to return the final model *)
-    trainingOptions
-  ];
-  Print["Training completed."];
 
-  (* Extract the trained network from the loss NetGraph (if you used the wrapper) *)
-  finalTrainedNet = NetExtract[trainedNet, "Net"];
+(* --- Prepara i dati usando la tua funzione --- *)
+Print["Preparing datasets..."];
+{trainingData, validationData} = PreprocessingForFineTuning[];
 
-  (* Take a sample from the validation set for testing *)
-  testSample = RandomSample[validationData, 1][[1]];
-  testImage = testSample["Input"];
-  groundTruthMask = testSample["Target"];
 
-  (* Perform inference (preferably on GPU if possible) *)
-  rawPrediction = finalTrainedNet[testImage, TargetDevice -> "GPU"];
+(* Verifica che i set non siano vuoti *)
+If[Length[trainingData] == 0 || Length[validationData] == 0,
+    Print["Errore: Uno dei set di dati (training o validation) \[EGrave] vuoto dopo il preprocessing."];
+    Throw[$Failed];
+];
+Print["Datasets ready."];
 
-  (* The 'rawPrediction' output will likely be an array {numClasses, H, W} *)
-  (* Find the class with the maximum probability for each pixel *)
-  predictedMaskData = N@Apply[TakeLargest[#, 1] &, rawPrediction, {1, 2}]; (* Find max index along the class axis *)
-  predictedMask = Image[predictedMaskData - 1, "Byte"]; (* Subtract 1 if index 1 is the first class (0 is background) *)
 
-  (* Display the results *)
-  Grid[{
-    {"Input Image", "Ground Truth Mask", "Predicted Mask"},
-    {testImage, groundTruthMask, predictedMask}
-  }]
+(* --- Esegui il Fine-Tuning --- *)
+Print["Starting fine-tuning for 100 epochs..."];
 
-  (* Return the trained network *)
-  finalTrainedNet
+(* Imposta un seed per NetTrain se desideri riproducibilit\[AGrave] anche nell'addestramento *)
+SeedRandom[5678];
+
+fineTunedNet = NetTrain[
+    baseModel,                      (* Modello da cui partire *)
+    trainingData,                   (* Dati di addestramento *)
+    All,                            (* Fine-tuning: addestra tutti i layers partendo dai pesi attuali *)
+    ValidationSet -> validationData, (* Dati per la validazione *)
+    MaxTrainingRounds -> 100,       (* Numero di epoche *)
+
+    (* --- Opzioni Consigliate --- *)
+    TargetDevice -> "GPU",          (* Usa la GPU se disponibile, altrimenti "CPU" *)
+    BatchSize -> 8,                 (* Prova valori come 4, 8, 16 in base alla memoria GPU *)
+                                    (* Se ottieni errori Out-of-Memory, riduci il BatchSize *)
+    LearningRate -> 10^-4         (* Learning rate iniziale per fine-tuning (prova 10^-4 o 10^-5) *)
+                                    (* Potrebbe richiedere aggiustamenti *)
+];
+Print["Fine-tuning process completed."];
+
+(* Verifica se NetTrain ha prodotto un risultato valido *)
+If[FailureQ[fineTunedNet],
+    Print["Errore: NetTrain non \[EGrave] riuscito a completare l'addestramento."];
+    Throw[$Failed];
+];
+
+Print["Fine-tuned model created successfully!"];
+Print["Il modello fine-tuned \[EGrave] ora disponibile nella variabile 'fineTunedNet'."];
 ]
 
 
@@ -273,20 +255,6 @@ XMLToMask[xmlPath_String, imageWidth_Integer?Positive, imageHeight_Integer?Posit
 
 ]
 *)
-preprocessSample[imgFile_, maskFile_, inputImageSize_] := Module[{img, mask},
-   img = Import[imgFile];
-   mask = Import[maskFile];
-   mask = ColorConvert[mask, "Grayscale"];
-   
-   mask = Binarize[mask];
-
-   (* Ridimensiona se necessario *)
-   img = ImageResize[img, inputImageSize];
-   mask = ImageResize[mask, inputImageSize, Resampling -> "Nearest"]; (* Usa Nearest per non alterare gli indici! *)
-
-   (* Restituisci l'associazione per NetTrain *)
-    <|"Input" -> img, "Target" -> mask|>
-];
 
 PreprocessingForFineTuning[] :=
  Module[
@@ -393,6 +361,21 @@ Print["RandomSample completed successfully."]; (* Add confirmation *)
   (* Return something useful, e.g., the split datasets *)
   <|"Training" -> trainingData, "Validation" -> validationData|>
  ]
+ preprocessSample[imgFile_, maskFile_, inputImageSize_] := Module[{img, mask},
+   img = Import[imgFile];
+   mask = Import[maskFile];
+   mask = ColorConvert[mask, "Grayscale"];
+   
+   mask = Binarize[mask];
+
+   (* Ridimensiona se necessario *)
+   img = ImageResize[img, inputImageSize];
+   mask = ImageResize[mask, inputImageSize, Resampling -> "Nearest"]; (* Usa Nearest per non alterare gli indici! *)
+
+   (* Restituisci l'associazione per NetTrain *)
+    <|"Input" -> img, "Target" -> mask|>
+];
+
 
 
 End[]
