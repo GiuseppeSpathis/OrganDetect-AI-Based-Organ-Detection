@@ -20,6 +20,8 @@
 
 BeginPackage["ObjectDetection`"]
 
+ResourceFunction["DarkMode"][]
+
 (* Definition of public functions *)
 MaskToXML::usage = "pippo"
 XMLToMask::usage = "pippo"
