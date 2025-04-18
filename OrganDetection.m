@@ -79,8 +79,15 @@ Print["Datasets ready."];
 (* --- Esegui il Fine-Tuning --- *)
 Print["Starting fine-tuning for 100 epochs..."];
 
+(*Print[trainingData, validationData]*)
+
 (* Imposta un seed per NetTrain se desideri riproducibilit\[AGrave] anche nell'addestramento *)
 SeedRandom[5678];
+
+inputSpec = Information[baseModel, "InputPorts"];
+outputSpec = Information[baseModel, "OutputPorts"];
+Print["Input specification: ", inputSpec];
+Print["Output specification: ", outputSpec];
 
 fineTunedNet = NetTrain[
     baseModel,                      (* Modello da cui partire *)
@@ -90,7 +97,7 @@ fineTunedNet = NetTrain[
     MaxTrainingRounds -> 100,       (* Numero di epoche *)
 
     (* --- Opzioni Consigliate --- *)
-    TargetDevice -> "GPU",          (* Usa la GPU se disponibile, altrimenti "CPU" *)
+    TargetDevice -> "CPU",          (* Usa la GPU se disponibile, altrimenti "CPU" *)
     BatchSize -> 8,                 (* Prova valori come 4, 8, 16 in base alla memoria GPU *)
                                     (* Se ottieni errori Out-of-Memory, riduci il BatchSize *)
     LearningRate -> 10^-4         (* Learning rate iniziale per fine-tuning (prova 10^-4 o 10^-5) *)
@@ -361,7 +368,8 @@ Print["RandomSample completed successfully."]; (* Add confirmation *)
   Print["Numero campioni validation: ", Length[validationData]];
 
   (* Return something useful, e.g., the split datasets *)
-  <|"Training" -> trainingData, "Validation" -> validationData|>
+  (*<|"Training" -> trainingData, "Validation" -> validationData|>                          Cambio perche import non corretto*)
+  {trainingData, validationData}
  ]
  preprocessSample[imgFile_, maskFile_, inputImageSize_] := Module[{img, mask},
    img = Import[imgFile];
