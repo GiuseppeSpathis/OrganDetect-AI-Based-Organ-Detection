@@ -52,9 +52,9 @@ Module[
    
   (*ResourceRemove[ResourceObject["YOLO V8 Segment Trained on MS-COCO Data"]]*)
   Print["downloading..."];
-  baseModel = NetModel["YOLO V8 Segment Trained on MS-COCO Data"]; 
+  baseModel = NetModel["YOLO V8 Segment Trained on MS-COCO Data"];
 
-
+  
 (* Verifica se il caricamento \[EGrave] andato a buon fine *)
 If[FailureQ[baseModel],
     Print["Errore: Impossibile caricare il modello base YOLO V8."];
@@ -67,6 +67,10 @@ Print["Base model loaded successfully."];
 Print["Preparing datasets..."];
 {trainingData, validationData} = PreprocessingForFineTuning[];
 
+Print[trainingData[[1]]["Input"]];
+Print[trainingData[[1]]["Target"]["Masks"]];
+Print[trainingData[[1]]["Target"]["Boxes"]];
+Print[trainingData[[1]]["Target"]["Classes"]];
 
 (* Verifica che i set non siano vuoti *)
 If[Length[trainingData] == 0 || Length[validationData] == 0,
@@ -325,7 +329,7 @@ PreprocessingForFineTuning[] :=
 
 
   (* Set input image size for preprocessing (adjust as needed) *)
-  inputImageSize = {353, 253};
+  inputImageSize = {640, 640};
 
   (* Create the list of preprocessed samples *)
   Print["Preprocessing samples..."];
@@ -371,7 +375,8 @@ Print["RandomSample completed successfully."]; (* Add confirmation *)
   (*<|"Training" -> trainingData, "Validation" -> validationData|>                          Cambio perche import non corretto*)
   {trainingData, validationData}
  ]
- preprocessSample[imgFile_, maskFile_, inputImageSize_] := Module[{img, mask},
+ preprocessSample[imgFile_, maskFile_, inputImageSize_] := Module[{img, mask, targetData, comp,
+ bboxList,boundingBox, xmin, ymin, xmax, ymax},
    img = Import[imgFile];
    mask = Import[maskFile];
    mask = ColorConvert[mask, "Grayscale"];
@@ -381,11 +386,117 @@ Print["RandomSample completed successfully."]; (* Add confirmation *)
    (* Ridimensiona se necessario *)
    img = ImageResize[img, inputImageSize];
    mask = ImageResize[mask, inputImageSize, Resampling -> "Nearest"]; (* Usa Nearest per non alterare gli indici! *)
+   (* etichetta le componenti con MorphologicalComponents *)
+	comp      = MorphologicalComponents[mask];
+	(* misuro la bounding\[Hyphen]box della componente \[OpenCurlyDoubleQuote]1\[CloseCurlyDoubleQuote]  *)
+	bboxList  = ComponentMeasurements[comp, "BoundingBox"];
+	(* bboxList \[EGrave] tipo {{1 -> {l,b,w,h}}}, ne estraggo i valori *)
+	{{xmin, ymin}, {xmax, ymax}} = First[bboxList][[2]];
+	xmin = Round[xmin];
+	ymin = Round[ymin];
+	xmax = Round[xmax];
+	ymax = Round[ymax];
 
-   (* Restituisci l'associazione per NetTrain *)
-    <|"Input" -> img, "Target" -> mask|>
+	(* e costruisci il Rectangle *)
+	boundingBox = Rectangle[{xmin, ymin}, {xmax, ymax}];
+	   
+	
+	targetData = <|
+      "Boxes" -> {boundingBox},
+      "Classes" -> {"tiroide"},
+      "Masks" -> {mask}
+      |>;
+   
+
+  (* 6. Restituisci l'associazione finale per NetTrain *)
+  <|"Input" -> img, "Target" -> targetData|>
+
+   (* Restituisci l'associazione per NetTrain 
+    <|"Input" -> img, "Target" -> mask|>*)
+    
 ];
 
+
+
+labels={"person","bicycle","car","motorcycle","airplane","bus","train","truck",
+"boat","traffic light","fire hydrant","stop sign","parking meter","bench","bird","cat",
+"dog","horse","sheep","cow","elephant","bear","zebra","giraffe","backpack","umbrella",
+"handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat"
+,"baseball glove","skateboard","surfboard","tennis racket","bottle","wine glass","cup","fork"
+,"knife","spoon","bowl","banana","apple","sandwich","orange","broccoli","carrot","hot dog",
+"pizza","donut","cake","chair","couch","potted plant","bed","dining table","toilet","tv",
+"laptop","mouse","remote","keyboard","cell phone","microwave","oven","toaster","sink",
+"refrigerator","book","clock","vase","scissors","teddy bear","hair drier","toothbrush","tiroide"};
+
+
+
+
+netevaluate[net_,img_,detectionThreshold_:.45,overlapThreshold_:.45]:=Module[{imgSize,h,w,res,bestClass,isDetection,probableBoxes,probableClasses,probableMasks,max,scale,padx,pady,probableRectangles,x1,y1,x2,y2,nms,mw,mh,gain,pad,left,top,right,bottom,mask,imask,results},
+
+(*define image dimensions*)
+imgSize=640;
+{w,h}=ImageDimensions[img];
+{mw,mh}={160,160};
+
+(*get inference*)
+res=net[img];
+
+(*filter by probability*)
+(*very small probability are thresholded*)
+isDetection=UnitStep[Max/@res["ClassProb"]-detectionThreshold];
+{probableClasses,probableBoxes,probableMasks}=Map[Pick[#,isDetection,1]&,{res["ClassProb"],res["Boxes"],res["MasksWeights"]}];
+If[Length[probableBoxes]==0,Return[{}]];
+
+(*scale the coordinates and transform them into rectangular boxes*)
+max=Max[{w,h}];
+scale=max/imgSize;
+{padx,pady}=imgSize*(1-{w,h}/max)/2;
+
+{probableRectangles,probableBoxes}=
+Transpose@Apply[
+Function[
+x1=Clip[Floor[scale*(#1-#3/2-padx)],{1,w}];
+y1=Clip[Floor[scale*(imgSize-#2-#4/2-pady)],{1,h}];
+x2=Clip[Floor[scale*(#1+#3/2-padx)],{1,w}];
+y2=Clip[Floor[scale*(imgSize-#2+#4/2-pady)],{1,h}];
+{
+Rectangle[{x1,y1},{x2,y2}],
+{{x1,Clip[Floor[scale*(#2-#4/2-pady)],{1,h}]},{x2,Clip[Floor[scale*(#2+#4/2-pady)],{1,h}]}}
+}
+],
+probableBoxes,
+2
+];
+
+(*Perform non-max suppression*)
+nms=ResourceFunction["NonMaximumSuppression"][probableRectangles->Max/@probableClasses,"Index",MaxOverlapFraction->overlapThreshold];
+{probableBoxes,probableRectangles,probableClasses,probableMasks}=Part[{probableBoxes,probableRectangles,probableClasses,probableMasks},All,nms];
+
+(*Get the mask for each detected object*)
+probableMasks=LogisticSigmoid[probableMasks . res["MasksProtos"]];
+
+gain=Min[{mh,mw}/{w,h}];
+pad=({mw,mh}-{w,h}*gain)/2;
+{left,top}=Clip[Floor[pad],{1,mh}];
+{right,bottom}=Clip[Floor[{mw,mh}-pad],{1,mh}];
+
+probableMasks=probableMasks[[;;,top;;bottom,left;;right]];
+probableMasks=ArrayResample[probableMasks,{Length[probableMasks],h,w},"Bin",Resampling->"Linear"];
+
+probableMasks=MapThread[(
+mask=ConstantArray[0,Dimensions[#1]];
+imask=Take[#1,#2[[1,2]];;#2[[2,2]],#2[[1,1]];;#2[[2,1]]];
+mask[[#2[[1,2]];;#2[[2,2]],#2[[1,1]];;#2[[2,1]]]]=imask;
+Binarize[Image[mask,Interleaving->False],0.5])&,
+{probableMasks,probableBoxes}
+];
+
+<|
+"Boxes"->probableRectangles,
+"Classes"->labels[[Last@*Ordering/@probableClasses]],
+"Masks"->probableMasks
+|>
+];
 
 
 End[]
