@@ -67,10 +67,10 @@ Print["Base model loaded successfully."];
 Print["Preparing datasets..."];
 {trainingData, validationData} = PreprocessingForFineTuning[];
 
-Print[trainingData[[1]]["Input"]];
-Print[trainingData[[1]]["Target"]["Masks"]];
-Print[trainingData[[1]]["Target"]["Boxes"]];
-Print[trainingData[[1]]["Target"]["Classes"]];
+Print[trainingData[[1]]];
+(*Print[trainingData[[1]]["Masks"]];
+Print[trainingData[[1]]["Boxes"]];
+Print[trainingData[[1]]["Classes"]];*)
 
 (* Verifica che i set non siano vuoti *)
 If[Length[trainingData] == 0 || Length[validationData] == 0,
@@ -88,8 +88,14 @@ Print["Starting fine-tuning for 100 epochs..."];
 (* Imposta un seed per NetTrain se desideri riproducibilit\[AGrave] anche nell'addestramento *)
 SeedRandom[5678];
 
+(* define losses for each output *)
+clsLoss  = CrossEntropyLossLayer["Probabilities"];    (* 80 = # of coco classes *)
+boxLoss  = MeanSquaredLossLayer[];       (* one box\[Hyphen]regression loss *)
+maskLoss = DiceLossLayer[]; 
+
 inputSpec = Information[baseModel, "InputPorts"];
 outputSpec = Information[baseModel, "OutputPorts"];
+losses = Information[trainNet, "Loss"];
 Print["Input specification: ", inputSpec];
 Print["Output specification: ", outputSpec];
 
@@ -98,6 +104,11 @@ fineTunedNet = NetTrain[
     trainingData,                   (* Dati di addestramento *)
     All,                            (* Fine-tuning: addestra tutti i layers partendo dai pesi attuali *)
     ValidationSet -> validationData, (* Dati per la validazione *)
+    LossFunction -> {
+      "Boxes"   -> boxLoss,
+      "ClassProb" -> clsLoss,
+      "Masks"   -> maskLoss
+    },
     MaxTrainingRounds -> 100,       (* Numero di epoche *)
 
     (* --- Opzioni Consigliate --- *)
@@ -409,7 +420,12 @@ Print["RandomSample completed successfully."]; (* Add confirmation *)
    
 
   (* 6. Restituisci l'associazione finale per NetTrain *)
-  <|"Input" -> img, "Target" -> targetData|>
+  <|
+  "Input" -> img,
+  "Boxes" -> {boundingBox},
+  "Classes" -> {"tiroide"},
+  "Masks" -> {mask}
+  |>
 
    (* Restituisci l'associazione per NetTrain 
     <|"Input" -> img, "Target" -> mask|>*)
