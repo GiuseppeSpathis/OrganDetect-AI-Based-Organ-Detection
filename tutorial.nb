@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     33378,        736]
-NotebookOptionsPosition[     13146,        291]
-NotebookOutlinePosition[     31903,        707]
-CellTagsIndexPosition[     31860,        704]
+NotebookDataLength[     32926,        736]
+NotebookOptionsPosition[     12544,        284]
+NotebookOutlinePosition[     31297,        702]
+CellTagsIndexPosition[     31254,        699]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -105,20 +105,20 @@ Cell[BoxData[
      "sulla", " ", "cartella", " ", "contenente", " ", "i", " ", 
      RowBox[{"file", " ", ".", "m"}]}], ",", " ", 
     RowBox[{"se", " ", "necessario"}]}], " ", "*)"}], "\n", 
-  RowBox[{"(*", " ", 
+  RowBox[{
    RowBox[{
     RowBox[{"SetDirectory", "[", 
-     RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ";"}], " ", "*)"}], "\n",
-   "\n", 
-  RowBox[{"(*", " ", 
-   RowBox[{"Carica", " ", "il", " ", "package", " ", "della", " ", "UI"}], 
-   " ", "*)"}], "\n", 
-  RowBox[{"(*", " ", 
-   RowBox[{"Assicurati", " ", "che", " ", 
-    RowBox[{"OrganDetectionUI", ".", "m"}], " ", "sia", " ", "nella", " ", 
-    "stessa", " ", "cartella", " ", "del", " ", "notebook", " ", "o", " ", 
-    "nel", " ", "$Path"}], " ", "*)"}], "\n", 
-  RowBox[{"<<", " ", "OrganDetectionUI.m"}]}]], "Code",
+     RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ";"}], "\n", "\n", 
+   RowBox[{"FindFile", "[", "\"\<OrganDetection.m\>\"", "]"}], "\n", "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Carica", " ", "il", " ", "package", " ", "della", " ", "UI"}], 
+    " ", "*)"}], "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Assicurati", " ", "che", " ", 
+     RowBox[{"OrganDetectionUI", ".", "m"}], " ", "sia", " ", "nella", " ", 
+     "stessa", " ", "cartella", " ", "del", " ", "notebook", " ", "o", " ", 
+     "nel", " ", "$Path"}], " ", "*)"}], "\n", 
+   RowBox[{"<<", " ", "OrganDetectionUI.m"}]}]}]], "Code",
  InitializationCell->True,
  InitializationGroup->True,
  CellChangeTimes->{
@@ -135,48 +135,18 @@ Cell[BoxData[
    3.953349509631791*^9, 3.953349510326066*^9}, {3.953349591806386*^9, 
    3.953349593574562*^9}, {3.953349648818902*^9, 3.953349659265308*^9}, {
    3.953350653633376*^9, 3.953350653963974*^9}, {3.954990688198567*^9, 
-   3.9549907457769527`*^9}, 3.954990917679995*^9},
+   3.9549907457769527`*^9}, 3.954990917679995*^9, {3.955008907376635*^9, 
+   3.955008937379737*^9}, {3.955009053602071*^9, 3.955009063925407*^9}, {
+   3.955011990837966*^9, 3.95501199165877*^9}, {3.955013172072826*^9, 
+   3.955013173642239*^9}},
  FontSize->8,
- CellLabel->"In[35]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
+ CellLabel->"In[11]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
 
-Cell[BoxData[
- TemplateBox[{
-  "LaunchOrganDetectionUI", "shdw", 
-   "\"Symbol \
-\\!\\(\\*RowBox[{\\\"\\\\\\\"LaunchOrganDetectionUI\\\\\\\"\\\"}]\\) appears \
-in multiple contexts \\!\\(\\*RowBox[{\\\"{\\\", \
-RowBox[{\\\"\\\\\\\"OrganDetectionUI`\\\\\\\"\\\", \\\",\\\", \
-\\\"\\\\\\\"Global`\\\\\\\"\\\"}], \\\"}\\\"}]\\); definitions in context \\!\
-\\(\\*RowBox[{\\\"\\\\\\\"OrganDetectionUI`\\\\\\\"\\\"}]\\) may shadow or be \
-shadowed by other definitions.\"", 2, 35, 2, 29973144122530235470, "Local", 
-   "OrganDetectionUI`LaunchOrganDetectionUI"},
-  "MessageTemplate2",
-  BaseStyle->"MSG"]], "Message",
- CellChangeTimes->{3.954990767888115*^9, 3.954990808212214*^9, 
-  3.954990936168041*^9, 3.955000502617697*^9, 3.9550198905712986`*^9},
- CellLabel->
-  "During evaluation of \
-In[35]:=",ExpressionUUID->"0f2c8929-a051-b14d-bc75-61db91343a0a"],
-
-Cell[BoxData[
- TemplateBox[{
-  "Quiet", "anmlist", 
-   "\"Argument \\!\\(\\*RowBox[{\\\"2\\\"}]\\) of \
-\\!\\(\\*RowBox[{\\\"Quiet\\\", \\\"[\\\", RowBox[{RowBox[{\\\"<<\\\", \\\"\\\
-\\\\\"OrganDetection.m\\\\\\\"\\\"}], \\\",\\\", \
-RowBox[{RowBox[{\\\"Print\\\", \\\"[\\\", RowBox[{\\\"\\\\\\\"Errore: \
-Impossibile caricare OrganDetec\\\\\\\"\\\", \\\"\[Ellipsis]\\\", \
-\\\"\\\\\\\"curati che sia nel $Path di Mathematica.\\\\\\\"\\\"}], \
-\\\"]\\\"}], \\\";\\\", RowBox[{\\\"\[LeftSkeleton]\\\", \\\"1\\\", \\\"\
-\[RightSkeleton]\\\"}]}]}], \\\"]\\\"}]\\) should be All, None, a message \
-name, or a list of message names.\"", 2, 35, 3, 29973144122530235470, "Local"},
-  "MessageTemplate",
-  BaseStyle->"MSG"]], "Message",
- CellChangeTimes->{3.954990767888115*^9, 3.954990808212214*^9, 
-  3.954990936168041*^9, 3.955000502617697*^9, 3.955019890671299*^9},
- CellLabel->
-  "During evaluation of \
-In[35]:=",ExpressionUUID->"e4bdd796-c22e-ca47-890e-83d9ad8a0b5e"]
+Cell[BoxData["\<\"/home/luizo/Documents/GitHub/OrganDetect-AI-Based-Organ-\
+Detection/OrganDetection.m\"\>"], "Output",
+ CellChangeTimes->{{3.955012100938921*^9, 3.955012130562389*^9}, 
+   3.9550130646664753`*^9, {3.955013168214265*^9, 3.955013175891741*^9}},
+ CellLabel->"Out[12]=",ExpressionUUID->"67ca94f6-1486-43c3-9c4b-fed777f10111"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -188,7 +158,7 @@ Cell[BoxData[
     RowBox[{"l", "'"}], "interfaccia", " ", "utente"}], " ", "*)"}], "\n", 
   RowBox[{"LaunchOrganDetectionUI", "[", "]"}]}]], "Code",
  CellChangeTimes->{3.954990756106764*^9},
- CellLabel->"In[36]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+ CellLabel->"In[14]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
 
 Cell[BoxData[
  DynamicModuleBox[{OrganDetectionUI`Private`file$$ = "", 
@@ -247,9 +217,12 @@ Cell[BoxData[
          Return[OrganDetectionUI`Private`detectionResult]; 
          Null]}}}]], "Output",
  CellChangeTimes->{{3.95499080397269*^9, 3.9549908083196898`*^9}, 
-   3.954990936284377*^9, 3.9550005034334793`*^9, 3.955019890874935*^9},
- CellLabel->"Out[36]=",ExpressionUUID->"804588d6-431a-2d42-ac86-603b1a13cb8d"]
+   3.954990936284377*^9, 3.9550005034334793`*^9, 3.955013064787368*^9, 
+   3.9550131821717167`*^9},
+ CellLabel->"Out[14]=",ExpressionUUID->"b03e3b29-47e6-4e06-8b8e-1771bd0dc74a"]
 }, Open  ]],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{"\[IndentingNewLine]", 
@@ -283,18 +256,34 @@ Cell[BoxData[
    3.953985802156034*^9}, {3.9539858353888903`*^9, 3.953985839591661*^9}, {
    3.9545628421352425`*^9, 3.9545628533780365`*^9}, {3.954677351724141*^9, 
    3.9546773530648403`*^9}, {3.954677478552121*^9, 3.954677480290784*^9}, {
-   3.9550005166753635`*^9, 3.9550005424044437`*^9}, {3.9550198677462654`*^9, 
-   3.955019868089266*^9}},
+   3.9550005166753635`*^9, 3.9550005424044437`*^9}},
  FontSize->8,
- CellLabel->"In[41]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+ CellLabel->"In[4]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["\<\"Calling ObjectDetection`FineTune[]...\"\>"], "Print",
+ CellChangeTimes->{3.955013065528823*^9},
+ CellLabel->
+  "During evaluation of \
+In[4]:=",ExpressionUUID->"b5eeb95e-b854-4f9a-a3c0-53fcf15eec99"],
+
+Cell[BoxData[
+ RowBox[{"Inference", "[", "\<\"uno96.jpg\"\>", "]"}]], "Print",
+ CellChangeTimes->{3.955013065531049*^9},
+ CellLabel->
+  "During evaluation of \
+In[4]:=",ExpressionUUID->"e108b554-dde0-4c68-b8b7-818d6283208b"]
+}, Open  ]]
+}, Open  ]]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
 InitializationCellWarning->False,
 WindowSize->{700.5, 717},
-WindowMargins->{{6.75, Automatic}, {6.75, Automatic}},
+WindowMargins->{{Automatic, 0}, {Automatic, 29.25}},
 Magnification:>1.5 Inherited,
-FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
+FrontEndVersion->"14.2 for Linux x86 (64-bit) (March 16, 2025)",
 StyleDefinitions->Notebook[{
    Cell[
     CellGroupData[{
@@ -579,6 +568,7 @@ StyleDefinitions->Notebook[{
              RGBColor[0.45, 0.45, 0.95], 
              Thickness[1], 
              Dashing[{4, 6}]]}, CellFrameLabelMargins -> -5, FontSize -> 13], 
+         
          Cell[
           StyleData["Message"], CellFrame -> True, 
           CellMargins -> {{55, Inherited}, {Inherited, Inherited}}, 
@@ -638,6 +628,7 @@ StyleDefinitions->Notebook[{
           StyleData["DisplayFormula"], FontColor -> GrayLevel[0.85]], 
          Cell[
           StyleData["DisplayFormulaNumbered"], FontColor -> GrayLevel[0.85]], 
+         
          Cell[
           StyleData["Program"], CellFrameColor -> GrayLevel[0.4]]}, Open]], 
       Cell[
@@ -691,7 +682,7 @@ StyleDefinitions->Notebook[{
              RGBColor[
               0.5764705882352941, 0.6313725490196078, 0.6313725490196078]]}, 
            Open]]}, Open]]}, Open]]}, Visible -> False, FrontEndVersion -> 
-  "14.2 for Microsoft Windows (64-bit) (December 26, 2024)", StyleDefinitions -> 
+  "14.2 for Linux x86 (64-bit) (March 16, 2025)", StyleDefinitions -> 
   "Default.nb"],
 ExpressionUUID->"07f45638-d88c-4efd-919a-f5ca70f97309"
 ]
@@ -716,27 +707,32 @@ Cell[834, 29, 361, 9, 48, "Subtitle",ExpressionUUID->"c651d3da-35f1-417d-8300-82
 Cell[1198, 40, 361, 7, 48, "Subtitle",ExpressionUUID->"848a9044-d4e5-4e85-af1f-0f327b6d8446",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[1562, 49, 238, 4, 40, "Text",ExpressionUUID->"f4a9fc12-c802-4fd6-83ce-68766b8ecc86",
+Cell[1562, 49, 238, 4, 36, "Text",ExpressionUUID->"f4a9fc12-c802-4fd6-83ce-68766b8ecc86",
  InitializationCell->True,
  InitializationGroup->True],
 Cell[1803, 55, 440, 8, 46, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-3816a8d4e9b1",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[2246, 65, 561, 8, 63, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
+Cell[2246, 65, 561, 8, 54, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
  InitializationCell->True,
  InitializationGroup->True],
 Cell[CellGroupData[{
-Cell[2832, 77, 2875, 62, 251, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+Cell[2832, 77, 3130, 65, 308, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[5710, 141, 852, 17, 123, "Message",ExpressionUUID->"0f2c8929-a051-b14d-bc75-61db91343a0a"],
-Cell[6565, 160, 965, 18, 125, "Message",ExpressionUUID->"e4bdd796-c22e-ca47-890e-83d9ad8a0b5e"]
+Cell[5965, 144, 338, 4, 82, "Output",ExpressionUUID->"67ca94f6-1486-43c3-9c4b-fed777f10111"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[7567, 183, 328, 7, 78, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
-Cell[7898, 192, 3430, 58, 49, "Output",ExpressionUUID->"804588d6-431a-2d42-ac86-603b1a13cb8d"]
+Cell[6340, 153, 328, 7, 82, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+Cell[6671, 162, 3458, 59, 51, "Output",ExpressionUUID->"b03e3b29-47e6-4e06-8b8e-1771bd0dc74a"]
 }, Open  ]],
-Cell[11343, 253, 1787, 35, 138, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+Cell[CellGroupData[{
+Cell[10166, 226, 1869, 38, 168, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"],
+Cell[CellGroupData[{
+Cell[12060, 268, 217, 4, 36, "Print",ExpressionUUID->"b5eeb95e-b854-4f9a-a3c0-53fcf15eec99"],
+Cell[12280, 274, 224, 5, 36, "Print",ExpressionUUID->"e108b554-dde0-4c68-b8b7-818d6283208b"]
+}, Open  ]]
+}, Open  ]]
 }, Open  ]]
 }
 ]
