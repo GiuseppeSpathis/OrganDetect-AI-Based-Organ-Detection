@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     32926,        736]
-NotebookOptionsPosition[     12544,        284]
-NotebookOutlinePosition[     31297,        702]
-CellTagsIndexPosition[     31254,        699]
+NotebookDataLength[     35261,        782]
+NotebookOptionsPosition[     14504,        326]
+NotebookOutlinePosition[     33254,        744]
+CellTagsIndexPosition[     33211,        741]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -242,9 +242,8 @@ Cell[BoxData[
        RowBox[{"{", 
         RowBox[{"\"\<GenericButton\>\"", ",", "12", ",", "Bold"}], "}"}]}]}], 
      "]"}], "*)"}], "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{"predictedImage", " ", "=", " ", 
-     RowBox[{"Inference", "[", "\"\<uno96.jpg\>\"", "]"}]}], ";"}], " ", "\[IndentingNewLine]", 
+   RowBox[{"predictedImage", " ", "=", " ", 
+    RowBox[{"Inference", "[", "\"\<uno96.jpg\>\"", "]"}]}], "\[IndentingNewLine]", 
    RowBox[{"Print", "[", "predictedImage", "]"}]}]}]], "Input",
  CellChangeTimes->{{3.9533543590677166`*^9, 3.953354409860489*^9}, {
    3.953603643969675*^9, 3.953603644419939*^9}, {3.953603702832714*^9, 
@@ -256,32 +255,79 @@ Cell[BoxData[
    3.953985802156034*^9}, {3.9539858353888903`*^9, 3.953985839591661*^9}, {
    3.9545628421352425`*^9, 3.9545628533780365`*^9}, {3.954677351724141*^9, 
    3.9546773530648403`*^9}, {3.954677478552121*^9, 3.954677480290784*^9}, {
-   3.9550005166753635`*^9, 3.9550005424044437`*^9}},
+   3.9550005166753635`*^9, 3.9550005424044437`*^9}, 3.955023253634687*^9},
  FontSize->8,
- CellLabel->"In[4]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"],
+ CellLabel->"In[29]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"],
 
 Cell[CellGroupData[{
 
-Cell[BoxData["\<\"Calling ObjectDetection`FineTune[]...\"\>"], "Print",
- CellChangeTimes->{3.955013065528823*^9},
+Cell[BoxData["\<\"Conda trovato\"\>"], "Print",
+ CellChangeTimes->{
+  3.955013065528823*^9, 3.955023164320064*^9, {3.955023245437715*^9, 
+   3.95502325648038*^9}, 3.955023384057559*^9, 3.955023460172606*^9, 
+   3.955023843019456*^9, 3.955023884241082*^9, 3.955023996487961*^9},
  CellLabel->
   "During evaluation of \
-In[4]:=",ExpressionUUID->"b5eeb95e-b854-4f9a-a3c0-53fcf15eec99"],
+In[29]:=",ExpressionUUID->"bb42898a-5bc3-4223-a520-20fd101eb524"],
 
 Cell[BoxData[
- RowBox[{"Inference", "[", "\<\"uno96.jpg\"\>", "]"}]], "Print",
- CellChangeTimes->{3.955013065531049*^9},
+ InterpretationBox[
+  RowBox[{"\<\"Eseguibile Python per l'ambiente trovato: \"\>", 
+   "\[InvisibleSpace]", \
+"\<\"/home/luizo/miniconda3/envs/yolo_inference/bin/python\"\>"}],
+  SequenceForm[
+  "Eseguibile Python per l'ambiente trovato: ", 
+   "/home/luizo/miniconda3/envs/yolo_inference/bin/python"],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.955013065528823*^9, 3.955023164320064*^9, {3.955023245437715*^9, 
+   3.95502325648038*^9}, 3.955023384057559*^9, 3.955023460172606*^9, 
+   3.955023843019456*^9, 3.955023884241082*^9, 3.955023996495104*^9},
  CellLabel->
   "During evaluation of \
-In[4]:=",ExpressionUUID->"e108b554-dde0-4c68-b8b7-818d6283208b"]
-}, Open  ]]
+In[29]:=",ExpressionUUID->"fe13b3db-3294-469c-bf93-9a2b2f0d9c09"],
+
+Cell[BoxData["\<\"\\nAvvio inferenza usando l'eseguibile Python \
+specifico...\"\>"], "Print",
+ CellChangeTimes->{
+  3.955013065528823*^9, 3.955023164320064*^9, {3.955023245437715*^9, 
+   3.95502325648038*^9}, 3.955023384057559*^9, 3.955023460172606*^9, 
+   3.955023843019456*^9, 3.955023884241082*^9, 3.955023996497569*^9},
+ CellLabel->
+  "During evaluation of \
+In[29]:=",ExpressionUUID->"d413af6b-d56a-40c2-9674-fe5981fb8952"],
+
+Cell[BoxData["\<\"Inferenza fallita.\"\>"], "Print",
+ CellChangeTimes->{
+  3.955013065528823*^9, 3.955023164320064*^9, {3.955023245437715*^9, 
+   3.95502325648038*^9}, 3.955023384057559*^9, 3.955023460172606*^9, 
+   3.955023843019456*^9, 3.955023884241082*^9, 3.955023996506557*^9},
+ CellLabel->
+  "During evaluation of \
+In[29]:=",ExpressionUUID->"f09cebb7-2271-41b4-98a1-cc0533f02739"]
+}, Open  ]],
+
+Cell[BoxData["$Failed"], "Output",
+ CellChangeTimes->{3.955023256462487*^9, 3.9550233840691347`*^9, 
+  3.9550234603711357`*^9, 3.9550238430536833`*^9, 3.955023884245767*^9, 
+  3.9550239965096684`*^9},
+ CellLabel->"Out[31]=",ExpressionUUID->"40e09f55-1e33-4182-b066-00ca6a125b48"],
+
+Cell[BoxData["$Failed"], "Print",
+ CellChangeTimes->{
+  3.955013065528823*^9, 3.955023164320064*^9, {3.955023245437715*^9, 
+   3.95502325648038*^9}, 3.955023384057559*^9, 3.955023460172606*^9, 
+   3.955023843019456*^9, 3.955023884241082*^9, 3.955023996510808*^9},
+ CellLabel->
+  "During evaluation of \
+In[29]:=",ExpressionUUID->"2fe14ec1-cc64-401f-924a-80e15399d086"]
 }, Open  ]]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
 InitializationCellWarning->False,
-WindowSize->{700.5, 717},
-WindowMargins->{{Automatic, 0}, {Automatic, 29.25}},
+WindowSize->{720, 758.25},
+WindowMargins->{{Automatic, 0}, {0, Automatic}},
 Magnification:>1.5 Inherited,
 FrontEndVersion->"14.2 for Linux x86 (64-bit) (March 16, 2025)",
 StyleDefinitions->Notebook[{
@@ -727,14 +773,20 @@ Cell[6340, 153, 328, 7, 82, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28
 Cell[6671, 162, 3458, 59, 51, "Output",ExpressionUUID->"b03e3b29-47e6-4e06-8b8e-1771bd0dc74a"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[10166, 226, 1869, 38, 168, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"],
+Cell[10166, 226, 1731, 33, 147, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"],
 Cell[CellGroupData[{
-Cell[12060, 268, 217, 4, 36, "Print",ExpressionUUID->"b5eeb95e-b854-4f9a-a3c0-53fcf15eec99"],
-Cell[12280, 274, 224, 5, 36, "Print",ExpressionUUID->"e108b554-dde0-4c68-b8b7-818d6283208b"]
-}, Open  ]]
+Cell[11922, 263, 382, 7, 36, "Print",ExpressionUUID->"bb42898a-5bc3-4223-a520-20fd101eb524"],
+Cell[12307, 272, 682, 15, 92, "Print",ExpressionUUID->"fe13b3db-3294-469c-bf93-9a2b2f0d9c09"],
+Cell[12992, 289, 429, 8, 92, "Print",ExpressionUUID->"d413af6b-d56a-40c2-9674-fe5981fb8952"],
+Cell[13424, 299, 387, 7, 36, "Print",ExpressionUUID->"f09cebb7-2271-41b4-98a1-cc0533f02739"]
+}, Open  ]],
+Cell[13826, 309, 279, 4, 51, "Output",ExpressionUUID->"40e09f55-1e33-4182-b066-00ca6a125b48"],
+Cell[14108, 315, 368, 7, 36, "Print",ExpressionUUID->"2fe14ec1-cc64-401f-924a-80e15399d086"]
 }, Open  ]]
 }, Open  ]]
 }
 ]
 *)
+
+(* End of internal cache information *)
 

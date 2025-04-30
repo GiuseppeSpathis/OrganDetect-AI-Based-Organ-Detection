@@ -66,14 +66,14 @@ Inference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
   If[! FileExistsQ[modelWeightsPath], Print["Errore: best.pt non trovato."]; Return[$Failed]];
   If[! FileExistsQ[effectiveImageToProcessPath], Print["Errore: Immagine input non trovata: ", effectiveImageToProcessPath]; Return[$Failed]];
 
-  (* 1. Controlla Conda 
+  (* 1. Controlla Conda *)
   condaOK = CheckCondaInstallation[];
-  If[! condaOK, Print["Installare Miniconda."]; Return[$Failed]];
+  If[! condaOK, Print["Installare Miniconda."]; Return[$Failed], Print["Conda trovato"]];
 
   (* 2. Controlla/Crea Ambiente *)
-  envOK = EnsureCondaEnvironment[envName, ymlPath];
+  envOK = EnsureCondaEnvFromFile[envName, ymlPath];
   If[! envOK, Print["Impossibile usare l'ambiente Conda '", envName, "'."]; Return[$Failed]];
-*)
+
   (* 3. Trova l'eseguibile Python nell'ambiente creato/verificato *)
   (* Assumiamo miniconda3 come base, CAMBIA SE HAI ANACONDA3 *)
 
@@ -193,37 +193,37 @@ RunInferenceWithExecutable[
 
 ];
 
-CheckCondaInstallation[] := Module[{process, exitCode},
-   Print["Verifica installazione Conda..."];
-   process = RunProcess[{"conda", "--version"}, ProcessDirectory -> NotebookDirectory[]];
-   exitCode = process["ExitCode"];
-   If[exitCode == 0,
-    Print["Conda trovato: ", StringTrim@process["StandardOutput"]]; True,
-    Print["Comando 'conda' non trovato o non funzionante. Assicurati che Miniconda/Anaconda sia installato e nel PATH di sistema."]; False
-   ]
+CheckCondaInstallation[] := Module[{basePath},
+   basePath = FileNameJoin[{$HomeDirectory, "miniconda3"}];
+   Return[DirectoryQ[basePath]]
   ]
 
 (* Funzione per verificare/creare l'ambiente Conda *)
-EnsureCondaEnvironment[envName_String, ymlFile_String?FileExistsQ] := Module[
-   {condaExe = "conda", envListProcess, envListOutput, envExists = False, createProcess, createSuccess = False},
+EnsureCondaEnvFromFile[envName_String:"yolo_inference", envYmlPath_String : "environment.yml"] := 
+ Module[{minicondaPath, condaPath, envsDir, envDir, ymlExists, result},
 
-   Print["Verifica esistenza ambiente Conda: '", envName, "'..."];
-   envListProcess = RunProcess[{condaExe, "info", "--envs"}];
-   If[envListProcess["ExitCode"] =!= 0,
-    Print["Errore nell'eseguire 'conda info --envs'."]; Return[False]
-   ];
-   envListOutput = envListProcess["StandardOutput"];
-   (* Cerca il nome ambiente seguito da spazio o alla fine riga *)
-   envExists = StringContainsQ[envListOutput, envName ~~ (" " | EndOfLine)];
+  (* Detect Miniconda install location *)
+  minicondaPath = Switch[$OperatingSystem,
+    "Windows"| "MacOSX" | "Unix", FileNameJoin[{$HomeDirectory, "miniconda3"}],
+    _, Print["Unsupported OS"]; Return[$Failed];
+  ];
 
-   If[envExists,
-    Print["Ambiente '", envName, "' trovato."];
-    Return[True]
-   ];
+  condaPath = FileNameJoin[{minicondaPath, "bin", "conda"}];
+  If[$OperatingSystem === "Windows",
+   condaPath = FileNameJoin[{minicondaPath, "Scripts", "conda.exe"}]
+  ];
 
+  (* Environment directory *)
+  envsDir = FileNameJoin[{minicondaPath, "envs"}];
+  envDir = FileNameJoin[{envsDir, envName}];
+
+  If[DirectoryQ[envDir], Print["Conda environment '", envName, "' already exists at: ", envDir]; Return[]];
+
+   Print["Environment '", envName, "' not found. Creating from: ", envYmlPath];
+	
    (* Se non esiste, tenta di crearlo *)
-   Print["Ambiente '", envName, "' non trovato. Tentativo di creazione da: ", ymlFile, " (potrebbe richiedere tempo)..."];
-   createProcess = RunProcess[{condaExe, "env", "create", "-f", ymlFile, "-y"}, TimeConstraint -> 1800]; (* Timeout 30 min *)
+   Print["Ambiente '", envName, "' non trovato. Tentativo di creazione da: ", envYmlPath, " (potrebbe richiedere tempo)..."];
+   createProcess = RunProcess[{condaPath, "env", "create", "-f", envYmlPath, "-y"}];
 
    Print["--- Output Creazione Ambiente ---"];
    Print[createProcess["StandardOutput"]];
