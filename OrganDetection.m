@@ -210,7 +210,7 @@ EnsureCondaEnvFromFile[envName_String:"yolo_inference", envYmlPath_String : "env
 
   condaPath = FileNameJoin[{minicondaPath, "bin", "conda"}];
   If[$OperatingSystem === "Windows",
-   condaPath = FileNameJoin[{minicondaPath, "Scripts", "conda.exe"}]
+   condaPath = FileNameJoin[{minicondaPath, "conda.exe"}]
   ];
 
   (* Environment directory *)
