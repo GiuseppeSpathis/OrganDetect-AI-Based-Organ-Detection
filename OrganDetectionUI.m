@@ -23,9 +23,10 @@ LaunchOrganDetectionUI::usage = "LaunchOrganDetectionUI[] avvia l'interfaccia ut
 
 Begin["`Private`"];
 
+Get["OrganDetection.m"];
 (* Carica il package di rilevamento effettivo *)
 (* Assicurati che OrganDetection.m sia in un percorso accessibile da Mathematica *)
-Quiet[<< OrganDetection.m, Print["Errore: Impossibile caricare OrganDetection.m. Assicurati che sia nel $Path di Mathematica."]; Abort[]];
+(*Quiet[<< OrganDetection.m, Print["Errore: Impossibile caricare OrganDetection.m. Assicurati che sia nel $Path di Mathematica."]; Abort[]];*)
 
 (* Definizione della funzione pubblica che crea e lancia la UI *)
 LaunchOrganDetectionUI[] := DynamicModule[{
