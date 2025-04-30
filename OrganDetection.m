@@ -29,8 +29,8 @@ XMLToMask::usage = "pippo"
 Normalize::usage = "Normalize[f, {x0, x1, ...}]
 	test function for normalizing functions"
 *)
-FineTune::usage = "FineTune[f, g, h]
-	function for fine tuning the model"
+Inference::usage = "Inference[f, g, h]
+	function for inference of the model"
 
 Begin["Private`"]
 
@@ -43,17 +43,187 @@ code...
 *)
 
 
-(* Fine tuning function *)
+(* Definisci la funzione Inference accettando un argomento per il percorso dell'immagine *)
+(* Aggiungiamo _String per un minimo di type checking *)
+Inference[pythonExe_String?FileExistsQ, scriptPath_String?FileExistsQ, weights_String?FileExistsQ, image_String?FileExistsQ] := Module[
+  {args, process, stdOut, stdErr, savedImagePath, result = $Failed},
+
+  args = {
+     "--weights", weights,
+     "--image", image
+     (* Aggiungi --conf se necessario *)
+  };
+  Print["Esecuzione inferenza per: ", FileNameTake[image]];
+  Print["Usando Python specifico: ", pythonExe];
+
+  process = RunProcess[{pythonExe, scriptPath, ## & @@ args}];
+
+  stdOut = process["StandardOutput"];
+  stdErr = process["StandardError"];
+  If[StringLength[stdErr] > 0, Print["--- Standard Error (Inference) ---"]; Print[stdErr];];
+
+  If[process["ExitCode"] == 0,
+     savedImagePath = StringCases[stdOut, "SAVED_IMAGE_PATH:" ~~ path___ ~~ EndOfLine :> StringTrim[path]];
+     If[Length[savedImagePath] > 0,
+       savedImagePath = First[savedImagePath];
+       Print["Percorso immagine salvata rilevato: ", savedImagePath];
+       If[FileExistsQ[savedImagePath],
+         result = Quiet@Check[Import[savedImagePath], $Failed];
+         If[FailureQ[result] || !ImageQ[result], result = $Failed; Print["Errore Import."]] (* Aggiunto controllo *)
+         , Print["Errore: File salvato non trovato: ", savedImagePath]; result = $Failed]
+       , Print["Attenzione: SAVED_IMAGE_PATH non trovato."]; result = $Failed]
+     , Print["Errore: Script Python terminato con codice ", process["ExitCode"]]; result = $Failed];
+
+  Return[result]
+]
+
+(* --- Script Principale Modificato --- *)
+SetupAndRunInference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
+  {condaOK, envName, ymlPath, envOK, pythonExecutablePath, resultImage,
+   scriptPath, modelWeightsPath, effectiveImageToProcessPath}, (* Variabili locali *)
+
+  SetDirectory[NotebookDirectory[]];
+  envName = "yolo_inference_env";
+  ymlPath = FileNameJoin[{NotebookDirectory[], "environment.yml"}];
+  scriptPath = FileNameJoin[{NotebookDirectory[], "inference.py"}];
+  modelWeightsPath = FileNameJoin[{NotebookDirectory[], "best.pt"}];
+
+  (* Usa l'immagine passata come argomento, o un default se l'argomento \[EGrave] Null *)
+  effectiveImageToProcessPath = If[imageToProcessPath === Null,
+        FileNameJoin[{NotebookDirectory[], "uno100.jpg"}], (* Immagine di default *)
+        imageToProcessPath (* Immagine specificata *)
+    ];
+
+  (* 0. Controlla file necessari *)
+  If[! FileExistsQ[ymlPath], Print["Errore: environment.yml non trovato."]; Return[$Failed]];
+  If[! FileExistsQ[scriptPath], Print["Errore: inference.py non trovato."]; Return[$Failed]];
+  If[! FileExistsQ[modelWeightsPath], Print["Errore: best.pt non trovato."]; Return[$Failed]];
+  If[! FileExistsQ[effectiveImageToProcessPath], Print["Errore: Immagine input non trovata: ", effectiveImageToProcessPath]; Return[$Failed]];
+
+  (* 1. Controlla Conda *)
+  condaOK = CheckCondaInstallation[];
+  If[! condaOK, Print["Installare Miniconda."]; Return[$Failed]];
+
+  (* 2. Controlla/Crea Ambiente *)
+  envOK = EnsureCondaEnvironment[envName, ymlPath];
+  If[! envOK, Print["Impossibile usare l'ambiente Conda '", envName, "'."]; Return[$Failed]];
+
+  (* 3. Trova l'eseguibile Python nell'ambiente creato/verificato *)
+  (* Assumiamo miniconda3 come base, CAMBIA SE HAI ANACONDA3 *)
+  pythonExecutablePath = GetUserPythonExecutable["miniconda3", envName];
+  If[FailureQ[pythonExecutablePath],
+      Print["Impossibile trovare l'eseguibile Python per l'ambiente '", envName, "'."];
+      Return[$Failed]
+  ];
+  Print["Eseguibile Python per l'ambiente trovato: ", pythonExecutablePath];
+
+  (* 4. Esegui Inferenza usando il percorso specifico *)
+  Print["\nAvvio inferenza usando l'eseguibile Python specifico..."];
+  resultImage = RunInferenceWithExecutable[
+      pythonExecutablePath, (* Passa il percorso specifico trovato *)
+      scriptPath,
+      modelWeightsPath,
+      effectiveImageToProcessPath  (* Usa il percorso dell'immagine determinato *)
+  ];
+
+  (* 5. Gestisci Risultato Inferenza *)
+  If[ImageQ[resultImage],
+    Print["Inferenza completata con successo!"];
+    resultImage (* Restituisce l'immagine *)
+    ,
+    Print["Inferenza fallita."];
+    $Failed
+  ]
+]
+
+(* funzioni helper *)
+
+CheckCondaInstallation[] := Module[{process, exitCode},
+   Print["Verifica installazione Conda..."];
+   process = RunProcess[{"conda", "--version"}, ProcessDirectory -> NotebookDirectory[]];
+   exitCode = process["ExitCode"];
+   If[exitCode == 0,
+    Print["Conda trovato: ", StringTrim@process["StandardOutput"]]; True,
+    Print["Comando 'conda' non trovato o non funzionante. Assicurati che Miniconda/Anaconda sia installato e nel PATH di sistema."]; False
+   ]
+  ]
+
+(* Funzione per verificare/creare l'ambiente Conda *)
+EnsureCondaEnvironment[envName_String, ymlFile_String?FileExistsQ] := Module[
+   {condaExe = "conda", envListProcess, envListOutput, envExists = False, createProcess, createSuccess = False},
+
+   Print["Verifica esistenza ambiente Conda: '", envName, "'..."];
+   envListProcess = RunProcess[{condaExe, "info", "--envs"}];
+   If[envListProcess["ExitCode"] =!= 0,
+    Print["Errore nell'eseguire 'conda info --envs'."]; Return[False]
+   ];
+   envListOutput = envListProcess["StandardOutput"];
+   (* Cerca il nome ambiente seguito da spazio o alla fine riga *)
+   envExists = StringContainsQ[envListOutput, envName ~~ (" " | EndOfLine)];
+
+   If[envExists,
+    Print["Ambiente '", envName, "' trovato."];
+    Return[True]
+   ];
+
+   (* Se non esiste, tenta di crearlo *)
+   Print["Ambiente '", envName, "' non trovato. Tentativo di creazione da: ", ymlFile, " (potrebbe richiedere tempo)..."];
+   createProcess = RunProcess[{condaExe, "env", "create", "-f", ymlFile, "-y"}, TimeConstraint -> 1800]; (* Timeout 30 min *)
+
+   Print["--- Output Creazione Ambiente ---"];
+   Print[createProcess["StandardOutput"]];
+   If[StringLength[createProcess["StandardError"]] > 0, Print["--- Error Creazione Ambiente ---"]; Print[createProcess["StandardError"]];];
+   Print["-------------------------------"];
+
+   If[createProcess["ExitCode"] == 0,
+    Print["Creazione ambiente '", envName, "' completata con successo."];
+    createSuccess = True,
+    Print["Errore durante la creazione dell'ambiente '", envName, "' (Exit Code: ", createProcess["ExitCode"], "). Controlla l'output/error."];
+    createSuccess = False
+   ];
+   Return[createSuccess]
+  ]
+
+(* Funzione helper per trovare l'eseguibile Python nell'ambiente specificato *)
+(* Prende il nome della cartella base di conda (es. "miniconda3") e il nome dell'ambiente *)
+GetUserPythonExecutable[condaBaseDirName_String:"miniconda3", envName_String _] := Module[
+    {basePath, pythonSubPath, fullPath},
+    basePath = FileNameJoin[{$HomeDirectory, condaBaseDirName, "envs", envName}];
+    pythonSubPath = Switch[$OperatingSystem,
+        "Windows", "python.exe",
+        "MacOSX" | "Unix", FileNameJoin[{"bin", "python"}],
+        _, Print["OS non supportato per GetUserPythonExecutable"]; Return[$Failed]
+    ];
+    fullPath = FileNameJoin[{basePath, pythonSubPath}];
+
+    (* Verifica finale se il file esiste effettivamente *)
+    If[FileExistsQ[fullPath],
+        Return[fullPath],
+        Print["Errore: Eseguibile Python NON trovato al percorso calcolato: ", fullPath];
+        Return[$Failed]
+    ]
+];
+
+
+
+(* Fine tuning function 
 FineTune[] :=
 Module[
   {
-   baseModel, trainingData, validationData, fineTunedNet, modelResource
+   baseModel, trainingData, validationData, fineTunedNet, modelResource, fullNet, maskHead,
+   clsLoss, boxLoss, maskLoss, trainingNet, modelRes, detectUninit, frozenNet, protoNet
    },
    
   (*ResourceRemove[ResourceObject["YOLO V8 Segment Trained on MS-COCO Data"]]*)
   Print["downloading..."];
-  baseModel = NetModel["YOLO V8 Segment Trained on MS-COCO Data"];
+  baseModel = NetModel["YOLO V8 Segment Trained on MS-COCO Data", "UninitializedEvaluationNet"];
 
+Print[Information[baseModel]];
+Print[NetGraph[baseModel]];
+
+decoderLayer = NetExtract[baseModel, "Decoder"];
+
+Print[NetGraph[decoderLayer]];
   
 (* Verifica se il caricamento \[EGrave] andato a buon fine *)
 If[FailureQ[baseModel],
@@ -67,10 +237,7 @@ Print["Base model loaded successfully."];
 Print["Preparing datasets..."];
 {trainingData, validationData} = PreprocessingForFineTuning[];
 
-Print[trainingData[[1]]];
-(*Print[trainingData[[1]]["Masks"]];
-Print[trainingData[[1]]["Boxes"]];
-Print[trainingData[[1]]["Classes"]];*)
+
 
 (* Verifica che i set non siano vuoti *)
 If[Length[trainingData] == 0 || Length[validationData] == 0,
@@ -88,47 +255,34 @@ Print["Starting fine-tuning for 100 epochs..."];
 (* Imposta un seed per NetTrain se desideri riproducibilit\[AGrave] anche nell'addestramento *)
 SeedRandom[5678];
 
-(* define losses for each output *)
-clsLoss  = CrossEntropyLossLayer["Probabilities"];    (* 80 = # of coco classes *)
-boxLoss  = MeanSquaredLossLayer[];       (* one box\[Hyphen]regression loss *)
-maskLoss = DiceLossLayer[]; 
 
-inputSpec = Information[baseModel, "InputPorts"];
-outputSpec = Information[baseModel, "OutputPorts"];
-losses = Information[trainNet, "Loss"];
-Print["Input specification: ", inputSpec];
-Print["Output specification: ", outputSpec];
+
 
 fineTunedNet = NetTrain[
-    baseModel,                      (* Modello da cui partire *)
-    trainingData,                   (* Dati di addestramento *)
-    All,                            (* Fine-tuning: addestra tutti i layers partendo dai pesi attuali *)
-    ValidationSet -> validationData, (* Dati per la validazione *)
-    LossFunction -> {
-      "Boxes"   -> boxLoss,
-      "ClassProb" -> clsLoss,
-      "Masks"   -> maskLoss
-    },
-    MaxTrainingRounds -> 100,       (* Numero di epoche *)
-
-    (* --- Opzioni Consigliate --- *)
-    TargetDevice -> "CPU",          (* Usa la GPU se disponibile, altrimenti "CPU" *)
-    BatchSize -> 8,                 (* Prova valori come 4, 8, 16 in base alla memoria GPU *)
-                                    (* Se ottieni errori Out-of-Memory, riduci il BatchSize *)
-    LearningRate -> 10^-4         (* Learning rate iniziale per fine-tuning (prova 10^-4 o 10^-5) *)
-                                    (* Potrebbe richiedere aggiustamenti *)
+  baseModel,
+  trainingData,
+  All,
+  ValidationSet -> validationData,
+  BatchSize -> 4,
+  MaxTrainingRounds -> 50,
+  LearningRate -> 0.0001,
+  TargetDevice -> "CPU"
 ];
 Print["Fine-tuning process completed."];
 
 (* Verifica se NetTrain ha prodotto un risultato valido *)
 If[FailureQ[fineTunedNet],
     Print["Errore: NetTrain non \[EGrave] riuscito a completare l'addestramento."];
+    {
+ {Print[Internal`$LastInternalFailure];}
+}
     Throw[$Failed];
 ];
 
 Print["Fine-tuned model created successfully!"];
 Print["Il modello fine-tuned \[EGrave] ora disponibile nella variabile 'fineTunedNet'."];
 ]
+*)
 
 
 (* Defnition of auxiliary functions *)
@@ -278,7 +432,7 @@ XMLToMask[xmlPath_String, imageWidth_Integer?Positive, imageHeight_Integer?Posit
   Return[maskImage];
 
 ]
-*)
+
 
 PreprocessingForFineTuning[] :=
  Module[
@@ -387,7 +541,7 @@ Print["RandomSample completed successfully."]; (* Add confirmation *)
   {trainingData, validationData}
  ]
  preprocessSample[imgFile_, maskFile_, inputImageSize_] := Module[{img, mask, targetData, comp,
- bboxList,boundingBox, xmin, ymin, xmax, ymax},
+ bboxList,boundingBox, xmin, ymin, xmax, ymax, classNames, classIndex},
    img = Import[imgFile];
    mask = Import[maskFile];
    mask = ColorConvert[mask, "Grayscale"];
@@ -411,108 +565,24 @@ Print["RandomSample completed successfully."]; (* Add confirmation *)
 	(* e costruisci il Rectangle *)
 	boundingBox = Rectangle[{xmin, ymin}, {xmax, ymax}];
 	   
-	
-	targetData = <|
-      "Boxes" -> {boundingBox},
-      "Classes" -> {"tiroide"},
-      "Masks" -> {mask}
-      |>;
-   
-
-  (* 6. Restituisci l'associazione finale per NetTrain *)
-  <|
-  "Input" -> img,
-  "Boxes" -> {boundingBox},
-  "Classes" -> {"tiroide"},
-  "Masks" -> {mask}
+	classNames = {"background", "tiroide"};
+	classIndex = Position[classNames, "tiroide"][[1, 1]];
+	<|
+  "Input"  -> img,
+  "Target" -> <|
+     "Boxes"   -> {{xmin,ymin,xmax,ymax}},
+     "Classes" -> {classIndex},
+     "Masks" -> {mask}
   |>
+|>
+
+
 
    (* Restituisci l'associazione per NetTrain 
     <|"Input" -> img, "Target" -> mask|>*)
     
-];
+];*)
 
-
-
-labels={"person","bicycle","car","motorcycle","airplane","bus","train","truck",
-"boat","traffic light","fire hydrant","stop sign","parking meter","bench","bird","cat",
-"dog","horse","sheep","cow","elephant","bear","zebra","giraffe","backpack","umbrella",
-"handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat"
-,"baseball glove","skateboard","surfboard","tennis racket","bottle","wine glass","cup","fork"
-,"knife","spoon","bowl","banana","apple","sandwich","orange","broccoli","carrot","hot dog",
-"pizza","donut","cake","chair","couch","potted plant","bed","dining table","toilet","tv",
-"laptop","mouse","remote","keyboard","cell phone","microwave","oven","toaster","sink",
-"refrigerator","book","clock","vase","scissors","teddy bear","hair drier","toothbrush","tiroide"};
-
-
-
-
-netevaluate[net_,img_,detectionThreshold_:.45,overlapThreshold_:.45]:=Module[{imgSize,h,w,res,bestClass,isDetection,probableBoxes,probableClasses,probableMasks,max,scale,padx,pady,probableRectangles,x1,y1,x2,y2,nms,mw,mh,gain,pad,left,top,right,bottom,mask,imask,results},
-
-(*define image dimensions*)
-imgSize=640;
-{w,h}=ImageDimensions[img];
-{mw,mh}={160,160};
-
-(*get inference*)
-res=net[img];
-
-(*filter by probability*)
-(*very small probability are thresholded*)
-isDetection=UnitStep[Max/@res["ClassProb"]-detectionThreshold];
-{probableClasses,probableBoxes,probableMasks}=Map[Pick[#,isDetection,1]&,{res["ClassProb"],res["Boxes"],res["MasksWeights"]}];
-If[Length[probableBoxes]==0,Return[{}]];
-
-(*scale the coordinates and transform them into rectangular boxes*)
-max=Max[{w,h}];
-scale=max/imgSize;
-{padx,pady}=imgSize*(1-{w,h}/max)/2;
-
-{probableRectangles,probableBoxes}=
-Transpose@Apply[
-Function[
-x1=Clip[Floor[scale*(#1-#3/2-padx)],{1,w}];
-y1=Clip[Floor[scale*(imgSize-#2-#4/2-pady)],{1,h}];
-x2=Clip[Floor[scale*(#1+#3/2-padx)],{1,w}];
-y2=Clip[Floor[scale*(imgSize-#2+#4/2-pady)],{1,h}];
-{
-Rectangle[{x1,y1},{x2,y2}],
-{{x1,Clip[Floor[scale*(#2-#4/2-pady)],{1,h}]},{x2,Clip[Floor[scale*(#2+#4/2-pady)],{1,h}]}}
-}
-],
-probableBoxes,
-2
-];
-
-(*Perform non-max suppression*)
-nms=ResourceFunction["NonMaximumSuppression"][probableRectangles->Max/@probableClasses,"Index",MaxOverlapFraction->overlapThreshold];
-{probableBoxes,probableRectangles,probableClasses,probableMasks}=Part[{probableBoxes,probableRectangles,probableClasses,probableMasks},All,nms];
-
-(*Get the mask for each detected object*)
-probableMasks=LogisticSigmoid[probableMasks . res["MasksProtos"]];
-
-gain=Min[{mh,mw}/{w,h}];
-pad=({mw,mh}-{w,h}*gain)/2;
-{left,top}=Clip[Floor[pad],{1,mh}];
-{right,bottom}=Clip[Floor[{mw,mh}-pad],{1,mh}];
-
-probableMasks=probableMasks[[;;,top;;bottom,left;;right]];
-probableMasks=ArrayResample[probableMasks,{Length[probableMasks],h,w},"Bin",Resampling->"Linear"];
-
-probableMasks=MapThread[(
-mask=ConstantArray[0,Dimensions[#1]];
-imask=Take[#1,#2[[1,2]];;#2[[2,2]],#2[[1,1]];;#2[[2,1]]];
-mask[[#2[[1,2]];;#2[[2,2]],#2[[1,1]];;#2[[2,1]]]]=imask;
-Binarize[Image[mask,Interleaving->False],0.5])&,
-{probableMasks,probableBoxes}
-];
-
-<|
-"Boxes"->probableRectangles,
-"Classes"->labels[[Last@*Ordering/@probableClasses]],
-"Masks"->probableMasks
-|>
-];
 
 
 End[]

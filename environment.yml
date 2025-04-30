@@ -1,0 +1,44 @@
+# Nome dell'ambiente Conda
+name: yolo_inference
+
+# Canali da cui cercare i pacchetti (l'ordine è importante)
+channels:
+  - pytorch   # Canale primario per PyTorch
+  - nvidia    # Canale per i componenti CUDA di PyTorch
+  - conda-forge # Un canale popolare con molte librerie
+  - defaults  # Canale di default di Conda
+
+# Lista delle dipendenze
+dependencies:
+  # Versione di Python
+  - python=3.10   # Puoi scegliere 3.9, 3.10, 3.11 - 3.10 è una scelta solida
+
+  # Pip per installare pacchetti non disponibili o specifici via pip
+  - pip
+
+  # PyTorch e componenti correlati (per supporto GPU con CUDA 11.8)
+  # Assicurati che la versione di CUDA sia compatibile con i tuoi driver NVIDIA!
+  # Se non hai GPU o vuoi usare la CPU, rimuovi pytorch-cuda e il canale nvidia
+  # Puoi cambiare '11.8' con '12.1' se hai driver più recenti
+  - pytorch>=1.10   # Ultralytics richiede PyTorch >= 1.8, usiamo una versione più recente
+  - torchvision     # Spesso necessario con PyTorch per task di visione
+  - torchaudio      # Spesso installato insieme a PyTorch
+  - pytorch-cuda=11.8  # Specifica la versione CUDA - **ADATTA QUESTO SE NECESSARIO**
+
+  # Librerie Python standard/comuni usate implicitamente o esplicitamente
+  - numpy
+  - pyyaml        # Per leggere file YAML (usato da ultralytics)
+  - requests      # Spesso usato da librerie per download
+  - pandas        # Utile per gestire dati, a volte una dipendenza secondaria
+  - opencv        # OpenCV per la manipolazione delle immagini (usato da ultralytics)
+
+  # Dipendenze da installare usando pip (dopo quelle Conda)
+  - pip:
+      - ultralytics   # La libreria principale YOLOv8
+      # - argparse -> è nella libreria standard Python, non serve aggiungerlo
+      # - os -> è nella libreria standard Python
+      # - sys -> è nella libreria standard Python
+      # - Potresti aggiungere altre dipendenze specifiche qui se necessario
+      #   es. - specific_package==1.2.3
+
+# Nota: Argparse, os, sys sono moduli built-in di Python, non serve specificarli.
