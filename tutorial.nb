@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     29053,        663]
-NotebookOptionsPosition[      8828,        218]
-NotebookOutlinePosition[     27585,        634]
-CellTagsIndexPosition[     27542,        631]
+NotebookDataLength[     33378,        736]
+NotebookOptionsPosition[     13146,        291]
+NotebookOutlinePosition[     31903,        707]
+CellTagsIndexPosition[     31860,        704]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -137,25 +137,46 @@ Cell[BoxData[
    3.953350653633376*^9, 3.953350653963974*^9}, {3.954990688198567*^9, 
    3.9549907457769527`*^9}, 3.954990917679995*^9},
  FontSize->8,
- CellLabel->"In[1]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
+ CellLabel->"In[35]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
 
 Cell[BoxData[
  TemplateBox[{
-  "Get", "noopen", 
-   "\"Cannot open \
-\\!\\(\\*RowBox[{\\\"\\\\\\\"OrganDetectionUI.m\\\\\\\"\\\"}]\\).\"", 2, 1, 1,
-    29973027692159044886, "Local"},
+  "LaunchOrganDetectionUI", "shdw", 
+   "\"Symbol \
+\\!\\(\\*RowBox[{\\\"\\\\\\\"LaunchOrganDetectionUI\\\\\\\"\\\"}]\\) appears \
+in multiple contexts \\!\\(\\*RowBox[{\\\"{\\\", \
+RowBox[{\\\"\\\\\\\"OrganDetectionUI`\\\\\\\"\\\", \\\",\\\", \
+\\\"\\\\\\\"Global`\\\\\\\"\\\"}], \\\"}\\\"}]\\); definitions in context \\!\
+\\(\\*RowBox[{\\\"\\\\\\\"OrganDetectionUI`\\\\\\\"\\\"}]\\) may shadow or be \
+shadowed by other definitions.\"", 2, 35, 2, 29973144122530235470, "Local", 
+   "OrganDetectionUI`LaunchOrganDetectionUI"},
+  "MessageTemplate2",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.954990767888115*^9, 3.954990808212214*^9, 
+  3.954990936168041*^9, 3.955000502617697*^9, 3.9550198905712986`*^9},
+ CellLabel->
+  "During evaluation of \
+In[35]:=",ExpressionUUID->"0f2c8929-a051-b14d-bc75-61db91343a0a"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "Quiet", "anmlist", 
+   "\"Argument \\!\\(\\*RowBox[{\\\"2\\\"}]\\) of \
+\\!\\(\\*RowBox[{\\\"Quiet\\\", \\\"[\\\", RowBox[{RowBox[{\\\"<<\\\", \\\"\\\
+\\\\\"OrganDetection.m\\\\\\\"\\\"}], \\\",\\\", \
+RowBox[{RowBox[{\\\"Print\\\", \\\"[\\\", RowBox[{\\\"\\\\\\\"Errore: \
+Impossibile caricare OrganDetec\\\\\\\"\\\", \\\"\[Ellipsis]\\\", \
+\\\"\\\\\\\"curati che sia nel $Path di Mathematica.\\\\\\\"\\\"}], \
+\\\"]\\\"}], \\\";\\\", RowBox[{\\\"\[LeftSkeleton]\\\", \\\"1\\\", \\\"\
+\[RightSkeleton]\\\"}]}]}], \\\"]\\\"}]\\) should be All, None, a message \
+name, or a list of message names.\"", 2, 35, 3, 29973144122530235470, "Local"},
   "MessageTemplate",
   BaseStyle->"MSG"]], "Message",
  CellChangeTimes->{3.954990767888115*^9, 3.954990808212214*^9, 
-  3.954990936168041*^9, 3.955000502617697*^9},
+  3.954990936168041*^9, 3.955000502617697*^9, 3.955019890671299*^9},
  CellLabel->
   "During evaluation of \
-In[1]:=",ExpressionUUID->"d1edb2a5-cd98-e342-93cc-9aee08e1e076"],
-
-Cell[BoxData["$Failed"], "Output",
- CellChangeTimes->{3.955000502679695*^9},
- CellLabel->"Out[1]=",ExpressionUUID->"88033f85-536c-194b-861d-38884ac74a7a"]
+In[35]:=",ExpressionUUID->"e4bdd796-c22e-ca47-890e-83d9ad8a0b5e"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -167,13 +188,67 @@ Cell[BoxData[
     RowBox[{"l", "'"}], "interfaccia", " ", "utente"}], " ", "*)"}], "\n", 
   RowBox[{"LaunchOrganDetectionUI", "[", "]"}]}]], "Code",
  CellChangeTimes->{3.954990756106764*^9},
- CellLabel->"In[2]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+ CellLabel->"In[36]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
 
 Cell[BoxData[
- RowBox[{"LaunchOrganDetectionUI", "[", "]"}]], "Output",
+ DynamicModuleBox[{OrganDetectionUI`Private`file$$ = "", 
+  OrganDetectionUI`Private`result$$ = "", OrganDetectionUI`Private`fileSet$$ =
+   False, OrganDetectionUI`Private`errorMsg$$ = "", 
+  OrganDetectionUI`Private`imgPreview$$ = None, 
+  OrganDetectionUI`Private`updateFileState$$, 
+  OrganDetectionUI`Private`organDetect$$}, "Null",
+  DynamicModuleValues:>{{
+    DownValues[OrganDetectionUI`Private`updateFileState$$] = {HoldPattern[
+         OrganDetectionUI`Private`updateFileState$$[
+          Pattern[OrganDetectionUI`Private`newFile$, 
+           Blank[String]]]] :> (
+        OrganDetectionUI`Private`file$$ = OrganDetectionUI`Private`newFile$; 
+        OrganDetectionUI`Private`errorMsg$$ = ""; 
+        OrganDetectionUI`Private`imgPreview$$ = None; 
+        OrganDetectionUI`Private`fileSet$$ = False; 
+        If[StringTrim[OrganDetectionUI`Private`file$$] == "", 
+          Return[]]; If[
+          FileExistsQ[OrganDetectionUI`Private`file$$], 
+          Module[{OrganDetectionUI`Private`ext$ = ToLowerCase[
+              FileExtension[OrganDetectionUI`Private`file$$]], 
+            OrganDetectionUI`Private`importedContent$}, If[
+             StringMatchQ[OrganDetectionUI`Private`ext$, 
+              Alternatives["png", "jpg", "jpeg"]], 
+             Check[OrganDetectionUI`Private`importedContent$ = 
+                Import[OrganDetectionUI`Private`file$$]; If[
+                 ImageQ[OrganDetectionUI`Private`importedContent$], 
+                 OrganDetectionUI`Private`imgPreview$$ = 
+                  OrganDetectionUI`Private`importedContent$; 
+                 OrganDetectionUI`Private`fileSet$$ = True; Null, 
+                 OrganDetectionUI`Private`errorMsg$$ = 
+                  "\:274c File non \[EGrave] un'immagine PNG/JPG valida."; 
+                 OrganDetectionUI`Private`imgPreview$$ = None; Null], 
+               OrganDetectionUI`Private`errorMsg$$ = 
+                "\:274c Errore durante l'importazione dell'immagine."; 
+               OrganDetectionUI`Private`imgPreview$$ = None; Null]; Null, 
+             OrganDetectionUI`Private`errorMsg$$ = 
+              "\:274c Tipo file non supportato (solo .png, .jpg, .jpeg)."; 
+             OrganDetectionUI`Private`imgPreview$$ = None; Null]; Null], 
+          OrganDetectionUI`Private`errorMsg$$ = "\:274c File non trovato."; 
+          OrganDetectionUI`Private`imgPreview$$ = None; Null]; 
+        If[OrganDetectionUI`Private`errorMsg$$ =!= "", 
+          OrganDetectionUI`Private`fileSet$$ = False]; Null)}}, {
+    DownValues[OrganDetectionUI`Private`organDetect$$] = {HoldPattern[
+         OrganDetectionUI`Private`organDetect$$[
+          Pattern[OrganDetectionUI`Private`imagePath, 
+           Blank[String]]]] :> 
+       Module[{OrganDetectionUI`Private`detectionResult}, 
+         Print["Esecuzione di OrganDetection su: ", 
+           OrganDetectionUI`Private`imagePath]; 
+         OrganDetectionUI`Private`detectionResult = Check[
+            OrganDetectionUI`Private`OrganDetection[
+            OrganDetectionUI`Private`imagePath], 
+            "\:274c Errore durante l'esecuzione di OrganDetection."]; 
+         Return[OrganDetectionUI`Private`detectionResult]; 
+         Null]}}}]], "Output",
  CellChangeTimes->{{3.95499080397269*^9, 3.9549908083196898`*^9}, 
-   3.954990936284377*^9, 3.9550005034334793`*^9},
- CellLabel->"Out[2]=",ExpressionUUID->"5a4cbaa9-2322-0e4b-8833-6f3fb708ad94"]
+   3.954990936284377*^9, 3.9550005034334793`*^9, 3.955019890874935*^9},
+ CellLabel->"Out[36]=",ExpressionUUID->"804588d6-431a-2d42-ac86-603b1a13cb8d"]
 }, Open  ]],
 
 Cell[BoxData[
@@ -185,10 +260,6 @@ Cell[BoxData[
    RowBox[{
     RowBox[{"Get", "[", "\"\<OrganDetection.m\>\"", "]"}], ";"}], 
    "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{
-    "Print", "[", "\"\<Calling ObjectDetection`FineTune[]...\>\"", "]"}], 
-    ";"}], "\[IndentingNewLine]", 
    RowBox[{"(*", 
     RowBox[{
      RowBox[{
@@ -212,14 +283,16 @@ Cell[BoxData[
    3.953985802156034*^9}, {3.9539858353888903`*^9, 3.953985839591661*^9}, {
    3.9545628421352425`*^9, 3.9545628533780365`*^9}, {3.954677351724141*^9, 
    3.9546773530648403`*^9}, {3.954677478552121*^9, 3.954677480290784*^9}, {
-   3.9550005166753635`*^9, 3.9550005424044437`*^9}},
- FontSize->8,ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+   3.9550005166753635`*^9, 3.9550005424044437`*^9}, {3.9550198677462654`*^9, 
+   3.955019868089266*^9}},
+ FontSize->8,
+ CellLabel->"In[41]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
 InitializationCellWarning->False,
 WindowSize->{700.5, 717},
-WindowMargins->{{Automatic, 6.75}, {6.75, Automatic}},
+WindowMargins->{{6.75, Automatic}, {6.75, Automatic}},
 Magnification:>1.5 Inherited,
 FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
 StyleDefinitions->Notebook[{
@@ -653,17 +726,17 @@ Cell[2246, 65, 561, 8, 63, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf3
  InitializationCell->True,
  InitializationGroup->True],
 Cell[CellGroupData[{
-Cell[2832, 77, 2874, 62, 251, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+Cell[2832, 77, 2875, 62, 251, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[5709, 141, 452, 12, 40, "Message",ExpressionUUID->"d1edb2a5-cd98-e342-93cc-9aee08e1e076"],
-Cell[6164, 155, 154, 2, 49, "Output",ExpressionUUID->"88033f85-536c-194b-861d-38884ac74a7a"]
+Cell[5710, 141, 852, 17, 123, "Message",ExpressionUUID->"0f2c8929-a051-b14d-bc75-61db91343a0a"],
+Cell[6565, 160, 965, 18, 125, "Message",ExpressionUUID->"e4bdd796-c22e-ca47-890e-83d9ad8a0b5e"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[6355, 162, 327, 7, 78, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
-Cell[6685, 171, 266, 4, 49, "Output",ExpressionUUID->"5a4cbaa9-2322-0e4b-8833-6f3fb708ad94"]
+Cell[7567, 183, 328, 7, 78, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+Cell[7898, 192, 3430, 58, 49, "Output",ExpressionUUID->"804588d6-431a-2d42-ac86-603b1a13cb8d"]
 }, Open  ]],
-Cell[6966, 178, 1846, 37, 156, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+Cell[11343, 253, 1787, 35, 138, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 }
 ]

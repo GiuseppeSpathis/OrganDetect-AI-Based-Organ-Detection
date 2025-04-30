@@ -43,54 +43,20 @@ code...
 *)
 
 
-(* Definisci la funzione Inference accettando un argomento per il percorso dell'immagine *)
-(* Aggiungiamo _String per un minimo di type checking *)
-Inference[pythonExe_String?FileExistsQ, scriptPath_String?FileExistsQ, weights_String?FileExistsQ, image_String?FileExistsQ] := Module[
-  {args, process, stdOut, stdErr, savedImagePath, result = $Failed},
 
-  args = {
-     "--weights", weights,
-     "--image", image
-     (* Aggiungi --conf se necessario *)
-  };
-  Print["Esecuzione inferenza per: ", FileNameTake[image]];
-  Print["Usando Python specifico: ", pythonExe];
-
-  process = RunProcess[{pythonExe, scriptPath, ## & @@ args}];
-
-  stdOut = process["StandardOutput"];
-  stdErr = process["StandardError"];
-  If[StringLength[stdErr] > 0, Print["--- Standard Error (Inference) ---"]; Print[stdErr];];
-
-  If[process["ExitCode"] == 0,
-     savedImagePath = StringCases[stdOut, "SAVED_IMAGE_PATH:" ~~ path___ ~~ EndOfLine :> StringTrim[path]];
-     If[Length[savedImagePath] > 0,
-       savedImagePath = First[savedImagePath];
-       Print["Percorso immagine salvata rilevato: ", savedImagePath];
-       If[FileExistsQ[savedImagePath],
-         result = Quiet@Check[Import[savedImagePath], $Failed];
-         If[FailureQ[result] || !ImageQ[result], result = $Failed; Print["Errore Import."]] (* Aggiunto controllo *)
-         , Print["Errore: File salvato non trovato: ", savedImagePath]; result = $Failed]
-       , Print["Attenzione: SAVED_IMAGE_PATH non trovato."]; result = $Failed]
-     , Print["Errore: Script Python terminato con codice ", process["ExitCode"]]; result = $Failed];
-
-  Return[result]
-]
-
-(* --- Script Principale Modificato --- *)
-SetupAndRunInference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
+Inference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
   {condaOK, envName, ymlPath, envOK, pythonExecutablePath, resultImage,
-   scriptPath, modelWeightsPath, effectiveImageToProcessPath}, (* Variabili locali *)
+   scriptPath, modelWeightsPath, effectiveImageToProcessPath, basePath,
+   pythonSubPath}, (* Variabili locali *)
 
-  SetDirectory[NotebookDirectory[]];
-  envName = "yolo_inference_env";
-  ymlPath = FileNameJoin[{NotebookDirectory[], "environment.yml"}];
-  scriptPath = FileNameJoin[{NotebookDirectory[], "inference.py"}];
-  modelWeightsPath = FileNameJoin[{NotebookDirectory[], "best.pt"}];
+  envName = "yolo_inference";
+  ymlPath =  "environment.yml";
+  scriptPath = "inference.py";
+  modelWeightsPath = "best.pt";
 
   (* Usa l'immagine passata come argomento, o un default se l'argomento \[EGrave] Null *)
   effectiveImageToProcessPath = If[imageToProcessPath === Null,
-        FileNameJoin[{NotebookDirectory[], "uno100.jpg"}], (* Immagine di default *)
+        "uno100.jpg", (* Immagine di default *)
         imageToProcessPath (* Immagine specificata *)
     ];
 
@@ -100,23 +66,34 @@ SetupAndRunInference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] 
   If[! FileExistsQ[modelWeightsPath], Print["Errore: best.pt non trovato."]; Return[$Failed]];
   If[! FileExistsQ[effectiveImageToProcessPath], Print["Errore: Immagine input non trovata: ", effectiveImageToProcessPath]; Return[$Failed]];
 
-  (* 1. Controlla Conda *)
+  (* 1. Controlla Conda 
   condaOK = CheckCondaInstallation[];
   If[! condaOK, Print["Installare Miniconda."]; Return[$Failed]];
 
   (* 2. Controlla/Crea Ambiente *)
   envOK = EnsureCondaEnvironment[envName, ymlPath];
   If[! envOK, Print["Impossibile usare l'ambiente Conda '", envName, "'."]; Return[$Failed]];
-
+*)
   (* 3. Trova l'eseguibile Python nell'ambiente creato/verificato *)
   (* Assumiamo miniconda3 come base, CAMBIA SE HAI ANACONDA3 *)
+
   pythonExecutablePath = GetUserPythonExecutable["miniconda3", envName];
   If[FailureQ[pythonExecutablePath],
       Print["Impossibile trovare l'eseguibile Python per l'ambiente '", envName, "'."];
       Return[$Failed]
   ];
+  
+  basePath = FileNameJoin[{$HomeDirectory, "miniconda3", "envs", envName}];
+    pythonSubPath = Switch[$OperatingSystem,
+        "Windows", "python.exe",
+        "MacOSX" | "Unix", FileNameJoin[{"bin", "python"}],
+        _, Print["OS non supportato per GetUserPythonExecutable"]; Return[$Failed]
+    ];
+    pythonExecutablePath = FileNameJoin[{basePath, pythonSubPath}];
+    
   Print["Eseguibile Python per l'ambiente trovato: ", pythonExecutablePath];
 
+	
   (* 4. Esegui Inferenza usando il percorso specifico *)
   Print["\nAvvio inferenza usando l'eseguibile Python specifico..."];
   resultImage = RunInferenceWithExecutable[
@@ -125,6 +102,8 @@ SetupAndRunInference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] 
       modelWeightsPath,
       effectiveImageToProcessPath  (* Usa il percorso dell'immagine determinato *)
   ];
+  
+  
 
   (* 5. Gestisci Risultato Inferenza *)
   If[ImageQ[resultImage],
@@ -137,6 +116,82 @@ SetupAndRunInference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] 
 ]
 
 (* funzioni helper *)
+
+RunInferenceWithExecutable[
+    pythonExecutable_String?FileExistsQ,
+    scriptPath_String?FileExistsQ,
+    modelWeightsPath_String?FileExistsQ,
+    imageToProcessPath_String?FileExistsQ] := Module[
+    {
+     process, commandArgs, exitCode, outputLog, errorLog, outputLines,
+     savedPathLine, outputImagePath, resultImage, startTime, endTime, duration
+     },
+
+    Print["  \:23f3 Avvio processo Python..."];
+
+    (* Definisci gli argomenti per lo script Python *)
+    (* Assicurati che questi corrispondano a quelli attesi da inference.py *)
+    commandArgs = {
+       scriptPath,
+       "--weights", modelWeightsPath,
+       "--image", imageToProcessPath
+       (* Puoi aggiungere altri argomenti qui se necessario, es: *)
+       (* , "--conf", "0.6" *)
+    };
+
+    (* Esegui il processo esterno *)
+    process = RunProcess[
+        Join[{pythonExecutable}, commandArgs],
+        ProcessDirectory -> NotebookDirectory[] (* Esegui nella directory del Notebook *)
+    ];
+   
+
+    (* Recupera output, errori e codice di uscita *)
+    exitCode = process["ExitCode"];
+    outputLog = process["StandardOutput"];
+    errorLog = process["StandardError"];
+
+
+    (* Controlla se il processo \[EGrave] terminato con successo *)
+    If[exitCode =!= 0,
+        Print["\:274c Errore: Lo script Python \[EGrave] terminato con codice di uscita non zero: ", exitCode];
+        Print["   Controllare l'output e l'errore standard sopra per i dettagli."];
+        Return[$Failed]
+    ];
+
+    (* Cerca il percorso dell'immagine salvata nell'output standard *)
+    outputLines = StringSplit[outputLog, {"\n", "\r\n", "\r"}]; (* Gestisce diversi tipi di newline *)
+    savedPathLine = SelectFirst[outputLines, StringStartsQ[#, "SAVED_IMAGE_PATH:"] &, Missing["NotFound"]];
+
+    If[MissingQ[savedPathLine],
+        Print["\:274c Errore: Impossibile trovare la riga 'SAVED_IMAGE_PATH:' nell'output dello script Python."];
+        Print["   Assicurati che lo script '", FileNameTake[scriptPath], "' stampi correttamente il percorso."];
+        Return[$Failed];
+    ];
+
+    (* Estrai il percorso del file dall'output *)
+    outputImagePath = StringTrim[savedPathLine, "SAVED_IMAGE_PATH:"];
+
+    (* Verifica finale se il file immagine esiste davvero *)
+    If[!FileExistsQ[outputImagePath],
+        Print["\:274c Errore Critico: Lo script ha indicato il percorso '", outputImagePath, "', ma il file non esiste!" ];
+        Return[$Failed];
+    ];
+
+    (* Importa l'immagine risultante *)
+    resultImage = Check[Import[outputImagePath], $Failed];
+
+    (* Controlla se l'importazione \[EGrave] andata a buon fine e se \[EGrave] un'immagine *)
+    If[FailureQ[resultImage] || !ImageQ[resultImage],
+        Print["\:274c Errore: Impossibile importare l'immagine da '", outputImagePath, "' o il risultato non \[EGrave] un'immagine."];
+        Return[$Failed];
+    ];
+
+    Print["\:2705 Immagine importata con successo!"];
+
+    Return[resultImage] (* Restituisce l'immagine importata *)
+
+];
 
 CheckCondaInstallation[] := Module[{process, exitCode},
    Print["Verifica installazione Conda..."];
