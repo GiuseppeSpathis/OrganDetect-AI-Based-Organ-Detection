@@ -29,7 +29,7 @@ XMLToMask::usage = "pippo"
 Normalize::usage = "Normalize[f, {x0, x1, ...}]
 	test function for normalizing functions"
 *)
-Inference::usage = "Inference[f, g, h]
+OrganDetection::usage = "Inference[f, g, h]
 	function for inference of the model"
 
 Begin["Private`"]
@@ -44,7 +44,7 @@ code...
 
 
 
-Inference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
+OrganDetection[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
   {condaOK, envName, ymlPath, envOK, pythonExecutablePath, resultImage,
    scriptPath, modelWeightsPath, effectiveImageToProcessPath, basePath,
    pythonSubPath}, (* Variabili locali *)
@@ -68,7 +68,7 @@ Inference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
 
   (* 1. Controlla Conda *)
   condaOK = CheckCondaInstallation[];
-  If[! condaOK, Print["Installare Miniconda."]; Return[$Failed], Print["Conda trovato"]];
+  If[! condaOK, Print["Installare Miniconda."]; Return[$Failed]];
 
   (* 2. Controlla/Crea Ambiente *)
   envOK = EnsureCondaEnvFromFile[envName, ymlPath];
@@ -91,11 +91,11 @@ Inference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
     ];
     pythonExecutablePath = FileNameJoin[{basePath, pythonSubPath}];
     
-  Print["Eseguibile Python per l'ambiente trovato: ", pythonExecutablePath];
+  (*Print["Eseguibile Python per l'ambiente trovato: ", pythonExecutablePath]; *)
 
 	
   (* 4. Esegui Inferenza usando il percorso specifico *)
-  Print["\nAvvio inferenza usando l'eseguibile Python specifico..."];
+  (*Print["\nAvvio inferenza usando l'eseguibile Python specifico..."]; *)
   resultImage = RunInferenceWithExecutable[
       pythonExecutablePath, (* Passa il percorso specifico trovato *)
       scriptPath,
@@ -107,7 +107,7 @@ Inference[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
 
   (* 5. Gestisci Risultato Inferenza *)
   If[ImageQ[resultImage],
-    Print["Inferenza completata con successo!"];
+    (*Print["Inferenza completata con successo!"]; *)
     resultImage (* Restituisce l'immagine *)
     ,
     Print["Inferenza fallita."];
@@ -127,7 +127,7 @@ RunInferenceWithExecutable[
      savedPathLine, outputImagePath, resultImage, startTime, endTime, duration
      },
 
-    Print["  \:23f3 Avvio processo Python..."];
+    (*Print["  \:23f3 Avvio processo Python..."]; *)
 
     (* Definisci gli argomenti per lo script Python *)
     (* Assicurati che questi corrispondano a quelli attesi da inference.py *)
@@ -141,9 +141,8 @@ RunInferenceWithExecutable[
 
     (* Esegui il processo esterno *)
     process = RunProcess[
-        Join[{pythonExecutable}, commandArgs],
-        ProcessDirectory -> NotebookDirectory[] (* Esegui nella directory del Notebook *)
-    ];
+        Join[{pythonExecutable}, commandArgs]
+          ];
    
 
     (* Recupera output, errori e codice di uscita *)
@@ -187,7 +186,7 @@ RunInferenceWithExecutable[
         Return[$Failed];
     ];
 
-    Print["\:2705 Immagine importata con successo!"];
+    (*Print["\:2705 Immagine importata con successo!"]; *)
 
     Return[resultImage] (* Restituisce l'immagine importata *)
 
@@ -217,7 +216,7 @@ EnsureCondaEnvFromFile[envName_String:"yolo_inference", envYmlPath_String : "env
   envsDir = FileNameJoin[{minicondaPath, "envs"}];
   envDir = FileNameJoin[{envsDir, envName}];
 
-  If[DirectoryQ[envDir], Print["Conda environment '", envName, "' already exists at: ", envDir]; Return[]];
+  If[DirectoryQ[envDir], Return[]];
 
    Print["Environment '", envName, "' not found. Creating from: ", envYmlPath];
 	

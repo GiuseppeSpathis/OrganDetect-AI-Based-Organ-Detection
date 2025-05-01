@@ -31,7 +31,6 @@ Get["OrganDetection.m"];
 (* Definizione della funzione pubblica che crea e lancia la UI *)
 LaunchOrganDetectionUI[] := DynamicModule[{
     file = "",
-    result = "",
     fileSet = False,
     errorMsg = "",
     imgPreview = None,
@@ -78,12 +77,13 @@ LaunchOrganDetectionUI[] := DynamicModule[{
     organDetect[imagePath_String] := Module[{detectionResult},
         (* Qui si assume che OrganDetection.m definisca una funzione globale OrganDetection[] *)
         (* Se il nome \[EGrave] diverso, aggiornalo qui *)
-        Print["Esecuzione di OrganDetection su: ", imagePath]; (* Debug *)
+    
         detectionResult = Check[
              OrganDetection[imagePath],
              "\:274c Errore durante l'esecuzione di OrganDetection."
         ];
-        Return[detectionResult];
+        
+        imgPreview = detectionResult;
     ];
 
     (* UI - Creazione della finestra di dialogo *)
@@ -141,28 +141,16 @@ LaunchOrganDetectionUI[] := DynamicModule[{
                 (* Bottone per eseguire il rilevamento *)
                 Button[
                     "Esegui Organ Detection",
-                    result = ""; (* Pulisci risultati precedenti *)
-                    result = organDetect[file];, (* Chiamata alla funzione di rilevamento *)
+                    organDetect[file];, (* Chiamata alla funzione di rilevamento *)
                     ImageSize -> {300, 50},
                     Enabled -> Dynamic[fileSet], (* Abilita solo se un file valido \[EGrave] selezionato *)
                     Background -> LightBlue,
                     BaseStyle -> {FontSize -> 16}
                 ],
 
-                Spacer[25],
+                Spacer[25]
 
-                (* Mostra i risultati del rilevamento *)
-                Dynamic[
-                    If[StringTrim[ToString[result]] != "", (* Converti result in stringa per sicurezza *)
-                        Panel[
-                            Style[result, 16],
-                            ImageSize -> {750, Automatic},
-                            FrameMargins -> 15,
-                            Background -> White
-                        ],
-                        "" (* Non mostrare nulla se non ci sono risultati *)
-                    ]
-                ]
+                
             },
             Spacing -> 2.5,
             Alignment -> Center,
