@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
             # Genera l'immagine con le predizioni disegnate sopra.
             # Il metodo .plot() restituisce un array NumPy in formato BGR.
-            annotated_image_bgr = result.plot()
+            annotated_image_bgr = result.plot(boxes=False, labels=False, conf=False)
 
             # Costruisci il nuovo nome del file di output
             base_name = os.path.basename(args.image)           # Es: 'uno100.jpg'
