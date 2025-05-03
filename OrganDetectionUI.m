@@ -41,6 +41,8 @@ LaunchOrganDetectionUI[] := DynamicModule[
    taskObject = None
    },
 
+
+
   (* Funzione di aggiornamento dello stato del file *)
   updateFileState[newFile_String] := (
     file = newFile;
@@ -62,15 +64,15 @@ LaunchOrganDetectionUI[] := DynamicModule[
               errorMsg = "File non \[EGrave] un'immagine PNG/JPG valida.";
               imgPreview = None; (* Assicura reset anche qui *)
               ],
-            errorMsg = "\:274c Errore durante l'importazione dell'immagine.";
+            errorMsg = "Errore durante l'importazione dell'immagine.";
             imgPreview = None;
             ];
           ,
-          errorMsg = "\:274c Tipo file non supportato (solo .png, .jpg, .jpeg).";
+          errorMsg = "Tipo file non supportato (solo .png, .jpg, .jpeg).";
           imgPreview = None;
           ];
         ],
-      errorMsg = "\:274c File non trovato.";
+      errorMsg = "File non trovato.";
       imgPreview = None;
       ];
     If[errorMsg =!= "", fileSet = False]; (* Aggiorna fileSet se c'\[EGrave] stato un errore *)
@@ -84,7 +86,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
 
     detectionResult = Check[
       OrganDetection[imagePath],
-      "\:274c Errore durante l'esecuzione di OrganDetection."
+      "Errore durante l'esecuzione di OrganDetection."
       ];
 
     (* Aggiorna imgPreview con il risultato del rilevamento *)
@@ -96,6 +98,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
   (* UI - Creazione della finestra di dialogo *)
   CreateDialog[
     Panel[
+    Item[
       Column[{
         (* Titolo dell'app *)
         Style[" Organ Detection Tool", 30, Bold, FontFamily -> "Helvetica"],
@@ -114,7 +117,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
         (* Stato del file selezionato *)
         Dynamic[
           If[fileSet,
-            Style["\:2705 File selezionato: " <> FileNameTake[file], Darker@Green, 14],
+            Style["File selezionato: " <> FileNameTake[file], Darker@Green, 14],
             If[errorMsg != "", Style[errorMsg, Red, 14], Style["Nessun file selezionato.", Gray, 14]]
             ]
           ],
@@ -314,15 +317,14 @@ LaunchOrganDetectionUI[] := DynamicModule[
 
 
         },
-      Spacing -> 2, (* Adjusted spacing *)
-      Alignment -> Center,
-      FontFamily -> "Calibri"
+      Alignment -> Center 
+      ],
+       Alignment -> {Center, Center} (* Opzione per Item *)
       ],
     Background -> GrayLevel[0.95]
     ],
-    WindowTitle -> "Organ Detection Tool",
-    WindowSize -> {850, 950}, (* Slightly increased height *)
-    WindowCentered -> True
+    WindowTitle -> "Organ Detection Tool"
+    (* WindowSize -> Scaled[1.0] *)
     ]; (* Fine CreateDialog *)
   ]; (* Fine LaunchOrganDetectionUI *)
 
