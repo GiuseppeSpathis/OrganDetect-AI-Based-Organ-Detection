@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     31407,        681]
-NotebookOptionsPosition[     11403,        240]
-NotebookOutlinePosition[     30160,        656]
-CellTagsIndexPosition[     30117,        653]
+NotebookDataLength[     31934,        693]
+NotebookOptionsPosition[     11927,        250]
+NotebookOutlinePosition[     30687,        668]
+CellTagsIndexPosition[     30644,        665]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -107,6 +107,7 @@ Cell[BoxData[
    RowBox[{
     RowBox[{"SetDirectory", "[", 
      RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ";"}], "\n", "\n", "\n", 
+   
    RowBox[{
     RowBox[{"Get", "[", "\"\<OrganDetection.m\>\"", "]"}], ";"}], "\n", 
    RowBox[{"(*", " ", 
@@ -139,7 +140,7 @@ Cell[BoxData[
    3.955011990837966*^9, 3.95501199165877*^9}, {3.955013172072826*^9, 
    3.955013173642239*^9}, {3.9550769756335125`*^9, 3.9550769804899864`*^9}},
  FontSize->8,
- CellLabel->"In[86]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
+ CellLabel->"In[6]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
 
 Cell[CellGroupData[{
 
@@ -150,15 +151,18 @@ Cell[BoxData[
     RowBox[{"l", "'"}], "interfaccia", " ", "utente"}], " ", "*)"}], "\n", 
   RowBox[{"LaunchOrganDetectionUI", "[", "]"}]}]], "Code",
  CellChangeTimes->{3.954990756106764*^9},
- CellLabel->"In[89]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+ CellLabel->"In[9]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
 
 Cell[BoxData[
  DynamicModuleBox[{OrganDetectionUI`Private`file$$ = "", 
   OrganDetectionUI`Private`fileSet$$ = False, 
   OrganDetectionUI`Private`errorMsg$$ = "", 
   OrganDetectionUI`Private`imgPreview$$ = None, 
+  OrganDetectionUI`Private`editMode$$ = False, 
+  OrganDetectionUI`Private`isProcessing$$ = False, 
   OrganDetectionUI`Private`updateFileState$$, 
-  OrganDetectionUI`Private`organDetect$$}, "Null",
+  OrganDetectionUI`Private`organDetect$$, 
+  OrganDetectionUI`Private`taskObject$$ = None}, "Null",
   DynamicModuleValues:>{{
     DownValues[OrganDetectionUI`Private`updateFileState$$] = {HoldPattern[
          OrganDetectionUI`Private`updateFileState$$[
@@ -168,6 +172,7 @@ Cell[BoxData[
         OrganDetectionUI`Private`errorMsg$$ = ""; 
         OrganDetectionUI`Private`imgPreview$$ = None; 
         OrganDetectionUI`Private`fileSet$$ = False; 
+        OrganDetectionUI`Private`isProcessing$$ = False; 
         If[StringTrim[OrganDetectionUI`Private`file$$] == "", 
           Return[]]; If[
           FileExistsQ[OrganDetectionUI`Private`file$$], 
@@ -183,7 +188,7 @@ Cell[BoxData[
                   OrganDetectionUI`Private`importedContent$; 
                  OrganDetectionUI`Private`fileSet$$ = True; Null, 
                  OrganDetectionUI`Private`errorMsg$$ = 
-                  "\:274c File non \[EGrave] un'immagine PNG/JPG valida."; 
+                  "File non \[EGrave] un'immagine PNG/JPG valida."; 
                  OrganDetectionUI`Private`imgPreview$$ = None; Null], 
                OrganDetectionUI`Private`errorMsg$$ = 
                 "\:274c Errore durante l'importazione dell'immagine."; 
@@ -205,7 +210,8 @@ Cell[BoxData[
             OrganDetectionUI`Private`imagePath$], 
             "\:274c Errore durante l'esecuzione di OrganDetection."]; 
          OrganDetectionUI`Private`imgPreview$$ = 
-          OrganDetectionUI`Private`detectionResult$; Null]}}}]], "Output",
+          OrganDetectionUI`Private`detectionResult$; 
+         OrganDetectionUI`Private`editMode$$ = False; Null]}}}]], "Output",
  CellChangeTimes->{{3.95499080397269*^9, 3.9549908083196898`*^9}, 
    3.954990936284377*^9, 3.9550005034334793`*^9, 3.955013064787368*^9, 
    3.9550131821717167`*^9, 3.9550764029151554`*^9, 3.955076607523491*^9, 
@@ -216,8 +222,12 @@ Cell[BoxData[
    3.9550780508734207`*^9, 3.9550783496727333`*^9, 3.955078403008177*^9, {
    3.955078465582382*^9, 3.955078487757118*^9}, 3.955078528226921*^9, 
    3.9550786728124313`*^9, 3.9550787735688705`*^9, 3.955078810106003*^9, 
-   3.9550788642958984`*^9, 3.9550789912166367`*^9},
- CellLabel->"Out[89]=",ExpressionUUID->"dbdca8a7-fc3f-bd41-be76-a3c289d219ac"]
+   3.9550788642958984`*^9, 3.9550789912166367`*^9, {3.955279458385508*^9, 
+   3.955279474051169*^9}, 3.955279534794034*^9, {3.955279807240471*^9, 
+   3.9552798338557577`*^9}, 3.955279982124186*^9, 3.955280019259654*^9, {
+   3.955280221755657*^9, 3.955280221966968*^9}, {3.955280487014843*^9, 
+   3.955280487218758*^9}},
+ CellLabel->"Out[9]=",ExpressionUUID->"78ffa1d3-8978-4290-ad5b-1eb4e9c604b3"]
 }, Open  ]],
 
 Cell[BoxData[""], "Input",
@@ -235,15 +245,15 @@ Cell[BoxData[""], "Input",
    3.955076671572241*^9, 3.9550766891105976`*^9}, {3.9550788588851414`*^9, 
    3.9550788591542377`*^9}},
  FontSize->8,
- CellLabel->"In[90]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+ CellLabel->"In[10]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
 InitializationCellWarning->False,
-WindowSize->{700.5, 717},
-WindowMargins->{{Automatic, 6.75}, {6.75, Automatic}},
+WindowSize->{888, 1019},
+WindowMargins->{{Automatic, 8}, {7, Automatic}},
 Magnification:>1.5 Inherited,
-FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
+FrontEndVersion->"14.2 for Mac OS X ARM (64-bit) (December 26, 2024)",
 StyleDefinitions->Notebook[{
    Cell[
     CellGroupData[{
@@ -528,6 +538,7 @@ StyleDefinitions->Notebook[{
              RGBColor[0.45, 0.45, 0.95], 
              Thickness[1], 
              Dashing[{4, 6}]]}, CellFrameLabelMargins -> -5, FontSize -> 13], 
+         
          Cell[
           StyleData["Message"], CellFrame -> True, 
           CellMargins -> {{55, Inherited}, {Inherited, Inherited}}, 
@@ -587,6 +598,7 @@ StyleDefinitions->Notebook[{
           StyleData["DisplayFormula"], FontColor -> GrayLevel[0.85]], 
          Cell[
           StyleData["DisplayFormulaNumbered"], FontColor -> GrayLevel[0.85]], 
+         
          Cell[
           StyleData["Program"], CellFrameColor -> GrayLevel[0.4]]}, Open]], 
       Cell[
@@ -640,7 +652,7 @@ StyleDefinitions->Notebook[{
              RGBColor[
               0.5764705882352941, 0.6313725490196078, 0.6313725490196078]]}, 
            Open]]}, Open]]}, Open]]}, Visible -> False, FrontEndVersion -> 
-  "14.2 for Microsoft Windows (64-bit) (December 26, 2024)", StyleDefinitions -> 
+  "14.2 for Mac OS X ARM (64-bit) (December 26, 2024)", StyleDefinitions -> 
   "Default.nb"],
 ExpressionUUID->"07f45638-d88c-4efd-919a-f5ca70f97309"
 ]
@@ -665,23 +677,23 @@ Cell[834, 29, 361, 9, 48, "Subtitle",ExpressionUUID->"c651d3da-35f1-417d-8300-82
 Cell[1198, 40, 361, 7, 48, "Subtitle",ExpressionUUID->"848a9044-d4e5-4e85-af1f-0f327b6d8446",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[1562, 49, 238, 4, 40, "Text",ExpressionUUID->"f4a9fc12-c802-4fd6-83ce-68766b8ecc86",
+Cell[1562, 49, 238, 4, 36, "Text",ExpressionUUID->"f4a9fc12-c802-4fd6-83ce-68766b8ecc86",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[1803, 55, 440, 8, 46, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-3816a8d4e9b1",
+Cell[1803, 55, 440, 8, 27, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-3816a8d4e9b1",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[2246, 65, 561, 8, 63, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
+Cell[2246, 65, 561, 8, 36, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[2810, 75, 3195, 66, 286, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+Cell[2810, 75, 3198, 67, 306, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
  InitializationCell->True,
  InitializationGroup->True],
 Cell[CellGroupData[{
-Cell[6030, 145, 328, 7, 78, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
-Cell[6361, 154, 3963, 65, 49, "Output",ExpressionUUID->"dbdca8a7-fc3f-bd41-be76-a3c289d219ac"]
+Cell[6033, 146, 327, 7, 82, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+Cell[6363, 155, 4485, 74, 51, "Output",ExpressionUUID->"78ffa1d3-8978-4290-ad5b-1eb4e9c604b3"]
 }, Open  ]],
-Cell[10339, 222, 1048, 15, 33, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+Cell[10863, 232, 1048, 15, 34, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 }
 ]

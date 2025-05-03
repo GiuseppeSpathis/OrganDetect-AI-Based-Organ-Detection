@@ -8,13 +8,11 @@
 BeginPackage["OrganDetectionUI`"];
 
 
-
 (* ::Usage:: *)
 (**)
 
 
 LaunchOrganDetectionUI::usage = "LaunchOrganDetectionUI[] avvia l'interfaccia utente grafica per lo strumento di rilevamento degli organi.";
-
 
 
 (* ::Subsubsection:: *)
@@ -37,8 +35,10 @@ LaunchOrganDetectionUI[] := DynamicModule[
    errorMsg = "",
    imgPreview = None,
    editMode = False,
+   isProcessing = False,
    updateFileState,
-   organDetect
+   organDetect,
+   taskObject = None
    },
 
   (* Funzione di aggiornamento dello stato del file *)
@@ -47,6 +47,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
     errorMsg = "";
     imgPreview = None; (* Reset dell'anteprima dell'immagine *)
     fileSet = False; (* Reset dello stato del file *)
+    isProcessing = False;
 
     If[StringTrim[file] == "", Return[]]; (* Esci se il percorso del file \[EGrave] vuoto *)
 
@@ -58,7 +59,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
             If[ImageQ[importedContent],
               imgPreview = importedContent;
               fileSet = True;,
-              errorMsg = "\:274c File non \[EGrave] un'immagine PNG/JPG valida.";
+              errorMsg = "File non \[EGrave] un'immagine PNG/JPG valida.";
               imgPreview = None; (* Assicura reset anche qui *)
               ],
             errorMsg = "\:274c Errore durante l'importazione dell'immagine.";
@@ -262,12 +263,42 @@ LaunchOrganDetectionUI[] := DynamicModule[
         (* Bottone per eseguire il rilevamento *)
         Button[
           "Esegui Organ Detection",
-          organDetect[file];, (* Chiamata alla funzione di rilevamento *)
+          (* Action to start processing *)
+          isProcessing = True;
+          (* Use a CriticalSection wrapped in TimeConstrained to prevent UI freezing *)
+          taskObject = SessionSubmit[
+            TimeConstrained[
+              CriticalSection[{},
+                organDetect[file]; (* Run the detection *)
+              ],
+              300, (* Time limit - 5 minutes *)
+              (isProcessing = False; 
+               MessageDialog["L'operazione ha impiegato troppo tempo ed \[EGrave] stata interrotta."])
+            ],
+            HandlerFunctions -> <|
+              "TaskFinished" -> (isProcessing = False; taskObject = None; &),
+              "TaskFailed" -> (isProcessing = False; 
+                              MessageDialog["Si \[EGrave] verificato un errore: " <> ToString[#["Error"]]]; 
+                              taskObject = None; &)
+            |>
+          ];,
           ImageSize -> {300, 50},
-          Enabled -> Dynamic[fileSet], (* Abilita solo se un file valido \[EGrave] selezionato *)
-          Background -> LightBlue,
+          Enabled -> Dynamic[fileSet && !isProcessing], (* Abilita solo se un file valido \[EGrave] selezionato E non in elaborazione *)
+          Background -> Dynamic[If[isProcessing, Gray, LightBlue]], (* Change color when disabled *)
           BaseStyle -> {FontSize -> 16}
           ],
+
+        (* Indicatore di caricamento *)
+        Dynamic[
+          If[isProcessing,
+            Column[{
+              TextCell["Elaborazione in corso...", Italic, 14],
+              ProgressIndicator[Appearance -> "Indeterminate"]
+              }, Alignment -> Center],
+            Spacer[0] (* Sostituisce Nothing con un elemento visibile ma vuoto *)
+            ]
+          ],
+
         Spacer[15], (* Adjusted spacing *)
 
         (* Bottone per attivare/disattivare la modalit\[AGrave] Modifica *)
@@ -275,7 +306,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
           Dynamic[If[editMode, "Esci da Modifica", "Modifica Maschera"]], (* Button label changes *)
           If[ImageQ[imgPreview], editMode = ! editMode], (* Toggle only if image is loaded *)
           ImageSize -> {300, 50},
-          Enabled -> Dynamic[fileSet && ImageQ[imgPreview]], (* Abilita solo se file valido e immagine caricata *)
+          Enabled -> Dynamic[fileSet && ImageQ[imgPreview] && !isProcessing], (* Abilita solo se file valido, immagine caricata e non in elaborazione *)
           Background -> Dynamic[If[editMode, Orange, Green]], (* Button color changes *)
           BaseStyle -> {FontSize -> 16}
           ],

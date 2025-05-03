@@ -23,7 +23,7 @@ dependencies:
   - pytorch>=1.10   # Ultralytics richiede PyTorch >= 1.8, usiamo una versione più recente
   - torchvision     # Spesso necessario con PyTorch per task di visione
   - torchaudio      # Spesso installato insieme a PyTorch
-  - pytorch-cuda=11.8  # Specifica la versione CUDA - **ADATTA QUESTO SE NECESSARIO**
+  #  - pytorch-cuda=11.8  # Specifica la versione CUDA - **ADATTA QUESTO SE NECESSARIO**
 
   # Librerie Python standard/comuni usate implicitamente o esplicitamente
   - numpy
