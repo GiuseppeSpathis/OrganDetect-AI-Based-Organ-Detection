@@ -153,11 +153,10 @@ LaunchOrganDetectionUI[] := DynamicModule[
                 DynamicModule[
                   {
                     points = N[detectedPoints],
-                    mode = "none",
+                    mode = "edit",
                     selectedPointIndex = None,
                     imgSize = {353, 253},
                     img = imgPreview,
-                    filePath = FileNameJoin[{Directory[], "points_salvati.txt"}], (* Questo filePath non \[EGrave] pi\[UGrave] usato per salvare i punti *)
                     clickThreshold = 10.0
                     },
                   Column[{
@@ -166,7 +165,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
                       Style["Modalit\[AGrave]: ", Bold],
                       PopupMenu[
                         Dynamic[mode],
-                        {"none" -> "Nessuna",
+                        {
                          "edit" -> "Modifica points",
                          "add" -> "Aggiungi punto",
                          "remove" -> "Rimuovi punto"}, Appearance -> "Button"
@@ -282,6 +281,8 @@ LaunchOrganDetectionUI[] := DynamicModule[
                           PlotRangePadding -> None,
                           ImageMargins -> 0
                           ];
+                          imgPreview = Rasterize[imageToSave];
+                          editMode = False;
                         (* Esporta la grafica come immagine *)
                         Export[FileNameJoin[{Directory[], "maschera_salvata.png"}], imageToSave]; (* Puoi cambiare l'estensione in ".jpg" se preferisci *)
                         (* Mostra una finestra di dialogo di conferma *)
@@ -314,10 +315,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
                  MessageDialog["L'operazione ha impiegato troppo tempo ed \[EGrave] stata interrotta."])
               ],
               HandlerFunctions -> <|
-                "TaskFinished" -> (isProcessing = False; taskObject = None; &),
-                "TaskFailed" -> (isProcessing = False;
-                                MessageDialog["Si \[EGrave] verificato un errore: " <> ToString[#["Error"]]];
-                                taskObject = None; &)
+                "TaskFinished" -> (isProcessing = False; taskObject = None; &)
               |>
             ];,
             ImageSize -> {300, 50},
@@ -359,6 +357,8 @@ LaunchOrganDetectionUI[] := DynamicModule[
     Background -> GrayLevel[0.95]
     ],
     WindowTitle -> "Organ Detection Tool"
+    
+    
     (* WindowSize -> Scaled[1.0] *)
     ]; (* Fine CreateDialog *)
   ]; (* Fine LaunchOrganDetectionUI *)
