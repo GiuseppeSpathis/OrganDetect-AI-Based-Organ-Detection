@@ -34,6 +34,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
    fileSet = False,
    errorMsg = "",
    imgPreview = None,
+   detectedPoints = {{50, 50}, {300, 50}, {300, 200}, {50, 200}},
    editMode = False,
    isProcessing = False,
    updateFileState,
@@ -41,13 +42,12 @@ LaunchOrganDetectionUI[] := DynamicModule[
    taskObject = None
    },
 
-
-
   (* Funzione di aggiornamento dello stato del file *)
   updateFileState[newFile_String] := (
     file = newFile;
     errorMsg = "";
     imgPreview = None; (* Reset dell'anteprima dell'immagine *)
+    detectedPoints = {}; (* Reset punti rilevati *)
     fileSet = False; (* Reset dello stato del file *)
     isProcessing = False;
 
@@ -90,7 +90,8 @@ LaunchOrganDetectionUI[] := DynamicModule[
       ];
 
     (* Aggiorna imgPreview con il risultato del rilevamento *)
-    imgPreview = detectionResult;
+    imgPreview = detectionResult["ResultImage"];
+    detectedPoints = ToExpression[detectionResult["DetectedPoints"]];
     (* Mantieni editMode a False dopo il rilevamento per mostrare il risultato *)
     editMode = False;
     ];
@@ -145,12 +146,12 @@ LaunchOrganDetectionUI[] := DynamicModule[
               (* Modalit\[AGrave] Modifica - Implementazione placeholder/semplificata *)
               DynamicModule[
                 {
-                  punti = N[{{50, 50}, {300, 50}, {300, 200}, {50, 200}}],
+                  points = N[detectedPoints],
                   mode = "none",
                   selectedPointIndex = None,
                   imgSize = {353, 253},
                   img = imgPreview,
-                  filePath = FileNameJoin[{$TemporaryDirectory, "punti_salvati.wdx"}],
+                  filePath = FileNameJoin[{$TemporaryDirectory, "points_salvati.wdx"}],
                   clickThreshold = 10.0
                   },
                 Column[{
@@ -160,7 +161,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
                     PopupMenu[
                       Dynamic[mode],
                       {"none" -> "Nessuna",
-                       "edit" -> "Modifica punti",
+                       "edit" -> "Modifica points",
                        "add" -> "Aggiungi punto",
                        "remove" -> "Rimuovi punto"}, Appearance -> "Button"
                       ]
@@ -172,26 +173,26 @@ LaunchOrganDetectionUI[] := DynamicModule[
                         (*1. Immagine Sfondo*)
                         Inset[img, Scaled[{0, 0}], {Left, Bottom}, Scaled[{1, 1}]],
                         (*2. Poligono*)
-                        Dynamic@If[Length[punti] >= 3,
+                        Dynamic@If[Length[points] >= 3,
                           {
                            EdgeForm[{Darker@Green, Thick, Opacity[1.0]}],
-                           FaceForm[None], Polygon[punti]
+                           FaceForm[None], Polygon[points]
                            },
                           {}
                           ],
                         (*3. Punti base*)
                         Dynamic@Switch[mode,
-                          "edit", {PointSize[Medium], Darker@Blue, Point[punti]},
-                          "add", {PointSize[Medium], Darker@Blue, Point[punti]},
-                          "remove", {PointSize[Medium], Darker@Blue, Point[punti]},
-                          _, {PointSize[Medium], Red, Point[punti]}
+                          "edit", {PointSize[Medium], Darker@Blue, Point[points]},
+                          "add", {PointSize[Medium], Darker@Blue, Point[points]},
+                          "remove", {PointSize[Medium], Darker@Blue, Point[points]},
+                          _, {PointSize[Medium], Red, Point[points]}
                           ],
                         (*4. Evidenzia punto selezionato*)
-                        Dynamic@If[mode === "edit" && IntegerQ[selectedPointIndex] && 1 <= selectedPointIndex <= Length[punti],
+                        Dynamic@If[mode === "edit" && IntegerQ[selectedPointIndex] && 1 <= selectedPointIndex <= Length[points],
                           {
                            Blue,
                            PointSize[Large],
-                           Point[punti[[selectedPointIndex]]]
+                           Point[points[[selectedPointIndex]]]
                            },
                           {}
                           ]
@@ -208,28 +209,28 @@ LaunchOrganDetectionUI[] := DynamicModule[
                        pt = N[pt];
                        Switch[mode,
                          "edit",
-                         idx = SelectFirst[Range[Length[punti]], (EuclideanDistance[pt, punti[[#]]] < clickThreshold) &, None];
+                         idx = SelectFirst[Range[Length[points]], (EuclideanDistance[pt, points[[#]]] < clickThreshold) &, None];
                          selectedPointIndex = idx;,
                          "add",
-                         If[Length[punti] >= 2,
+                         If[Length[points] >= 2,
                            Module[{distances, minSegmentIdx, insertPos},
-                             distances = Table[RegionDistance[Line[{punti[[i]], punti[[Mod[i, Length[punti]] + 1]]}], pt], {i, Length[punti]}];
+                             distances = Table[RegionDistance[Line[{points[[i]], points[[Mod[i, Length[points]] + 1]]}], pt], {i, Length[points]}];
                              minSegmentIdx = Ordering[distances, 1][[1]];
-                             insertPos = Mod[minSegmentIdx, Length[punti]] + 1;
-                             punti = Insert[punti, pt, insertPos];
+                             insertPos = Mod[minSegmentIdx, Length[points]] + 1;
+                             points = Insert[points, pt, insertPos];
                              selectedPointIndex = None;
                              ];
                            ];
                          ,
                          "remove",
-                         If[Length[punti] > 3,
+                         If[Length[points] > 3,
                            Module[{nearestIdxList},
-                             nearestIdxList = Nearest[punti -> "Index", pt, 1];
+                             nearestIdxList = Nearest[points -> "Index", pt, 1];
                              If[Length[nearestIdxList] > 0,
                                idx = First@nearestIdxList;
-                               dist = EuclideanDistance[punti[[idx]], pt];
+                               dist = EuclideanDistance[points[[idx]], pt];
                                If[dist < clickThreshold,
-                                 punti = Delete[punti, idx];
+                                 points = Delete[points, idx];
                                  selectedPointIndex = None;
                                  ];
                                ];
@@ -242,15 +243,15 @@ LaunchOrganDetectionUI[] := DynamicModule[
                        ],
                      "MouseDragged" :> Module[{pt = MousePosition["Graphics"]},
                        If[pt =!= None && selectedPointIndex =!= None,
-                         punti = ReplacePart[punti, selectedPointIndex -> pt]
+                         points = ReplacePart[points, selectedPointIndex -> pt]
                          ]
                        ],
                      "MouseUp" :> (selectedPointIndex = None)
                      }
                     ],
                   (*---Pulsante Salva---*)
-                  Button["Salva punti",
-                    Export[filePath, punti];
+                  Button["Salva points",
+                    Export[filePath, points];
                     CreateDialog[{TextCell["Punti salvati in:\n" <> filePath], DefaultButton[]}], Method -> "Queued"]
                   }, Alignment -> Center]
                 ]

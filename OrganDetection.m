@@ -44,8 +44,9 @@ code...
 
 
 
+
 OrganDetection[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
-  {condaOK, envName, ymlPath, envOK, pythonExecutablePath, resultImage,
+  {condaOK, envName, ymlPath, envOK, pythonExecutablePath, inferenceResult,
    scriptPath, modelWeightsPath, effectiveImageToProcessPath, basePath,
    pythonSubPath}, (* Variabili locali *)
 
@@ -96,7 +97,7 @@ OrganDetection[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Mod
 	
   (* 4. Esegui Inferenza usando il percorso specifico *)
   (*Print["\nAvvio inferenza usando l'eseguibile Python specifico..."]; *)
-  resultImage = RunInferenceWithExecutable[
+  inferenceResult = RunInferenceWithExecutable[
       pythonExecutablePath, (* Passa il percorso specifico trovato *)
       scriptPath,
       modelWeightsPath,
@@ -106,9 +107,9 @@ OrganDetection[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Mod
   
 
   (* 5. Gestisci Risultato Inferenza *)
-  If[ImageQ[resultImage],
+  If[ImageQ[inferenceResult["ResultImage"]],
     (*Print["Inferenza completata con successo!"]; *)
-    resultImage (* Restituisce l'immagine *)
+    inferenceResult (* Restituisce l'immagine *)
     ,
     Print["Inferenza fallita."];
     $Failed
@@ -124,7 +125,7 @@ RunInferenceWithExecutable[
     imageToProcessPath_String?FileExistsQ] := Module[
     {
      process, commandArgs, exitCode, outputLog, errorLog, outputLines,
-     savedPathLine, outputImagePath, resultImage, startTime, endTime, duration
+     savedPathLine, savedCoordinates, outputImagePath, outputCoordinates, resultImage, startTime, endTime, duration
      },
 
     (*Print["  \:23f3 Avvio processo Python..."]; *)
@@ -149,6 +150,11 @@ RunInferenceWithExecutable[
     exitCode = process["ExitCode"];
     outputLog = process["StandardOutput"];
     errorLog = process["StandardError"];
+    (*
+    Print[outputLog];
+    Print[errorLog];
+    Print[exitCode];
+    *)
 
 
     (* Controlla se il processo \[EGrave] terminato con successo *)
@@ -161,16 +167,24 @@ RunInferenceWithExecutable[
     (* Cerca il percorso dell'immagine salvata nell'output standard *)
     outputLines = StringSplit[outputLog, {"\n", "\r\n", "\r"}]; (* Gestisce diversi tipi di newline *)
     savedPathLine = SelectFirst[outputLines, StringStartsQ[#, "SAVED_IMAGE_PATH:"] &, Missing["NotFound"]];
-
+	savedCoordinates = SelectFirst[outputLines, StringStartsQ[#, "DETECTED_POINTS:"] &, Missing["NotFound"]];
+	
     If[MissingQ[savedPathLine],
         Print["\:274c Errore: Impossibile trovare la riga 'SAVED_IMAGE_PATH:' nell'output dello script Python."];
+        Print["   Assicurati che lo script '", FileNameTake[scriptPath], "' stampi correttamente il percorso."];
+        Return[$Failed];
+    ];
+    
+    If[MissingQ[savedCoordinates],
+        Print["\:274c Errore: Impossibile trovare la riga 'DETECTED_POINTS:' nell'output dello script Python."];
         Print["   Assicurati che lo script '", FileNameTake[scriptPath], "' stampi correttamente il percorso."];
         Return[$Failed];
     ];
 
     (* Estrai il percorso del file dall'output *)
     outputImagePath = StringTrim[savedPathLine, "SAVED_IMAGE_PATH:"];
-
+	outputCoordinates = StringTrim[savedCoordinates, "DETECTED_POINTS:"];
+	
     (* Verifica finale se il file immagine esiste davvero *)
     If[!FileExistsQ[outputImagePath],
         Print["\:274c Errore Critico: Lo script ha indicato il percorso '", outputImagePath, "', ma il file non esiste!" ];
@@ -188,7 +202,7 @@ RunInferenceWithExecutable[
 
     (*Print["\:2705 Immagine importata con successo!"]; *)
 
-    Return[resultImage] (* Restituisce l'immagine importata *)
+     Return[<|"ResultImage" -> resultImage, "DetectedPoints" -> outputCoordinates|>] (* Restituisce l'immagine importata *)
 
 ];
 
@@ -257,7 +271,6 @@ GetUserPythonExecutable[condaBaseDirName_String:"miniconda3", envName_String _] 
         Return[$Failed]
     ]
 ];
-
 
 
 (* Fine tuning function 
