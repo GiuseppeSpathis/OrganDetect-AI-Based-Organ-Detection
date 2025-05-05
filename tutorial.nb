@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     32594,        723]
-NotebookOptionsPosition[     12362,        276]
-NotebookOutlinePosition[     31122,        694]
-CellTagsIndexPosition[     31079,        691]
+NotebookDataLength[     32381,        701]
+NotebookOptionsPosition[     12374,        258]
+NotebookOutlinePosition[     31134,        676]
+CellTagsIndexPosition[     31091,        673]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -72,8 +72,6 @@ Cell[TextData[StyleBox["(anno 1, curriculum C), (anno 1, curriculum A), (anno \
   3.9530040032182293`*^9, 3.953004057822535*^9}, {3.953004513350209*^9, 
   3.9530045375131807`*^9}, {3.953009050826796*^9, 3.953009051460822*^9}},
  FontSize->8,ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e"],
-
-Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{
@@ -142,23 +140,7 @@ Cell[BoxData[
    3.955011990837966*^9, 3.95501199165877*^9}, {3.955013172072826*^9, 
    3.955013173642239*^9}, {3.9550769756335125`*^9, 3.9550769804899864`*^9}},
  FontSize->8,
- CellLabel->
-  "In[121]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
-
-Cell[BoxData[
- TemplateBox[{
-  "Syntax", "com", 
-   "\"Warning: comma encountered with no adjacent expression. The expression \
-will be treated as Null. \\!\\(\\*RowBox[{\\\"\\\\\\\" (line 328 of \
-\\\\\\\\\\\\\\\"OrganDetectionUI.m\\\\\\\\\\\\\\\")\\\\\\\"\\\"}]\\).\"", 2, 
-   123, 60, 21372683845077697691, "Local"},
-  "MessageTemplate",
-  BaseStyle->"MSG"]], "Message",
- CellChangeTimes->{3.955282740773559*^9},
- CellLabel->
-  "During evaluation of \
-In[121]:=",ExpressionUUID->"d5096e09-020d-4953-8ec8-eaa4b4a0bf30"]
-}, Open  ]],
+ CellLabel->"In[55]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
 
 Cell[CellGroupData[{
 
@@ -169,28 +151,15 @@ Cell[BoxData[
     RowBox[{"l", "'"}], "interfaccia", " ", "utente"}], " ", "*)"}], "\n", 
   RowBox[{"LaunchOrganDetectionUI", "[", "]"}]}]], "Code",
  CellChangeTimes->{3.954990756106764*^9},
- CellLabel->
-  "In[124]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
-
-Cell[BoxData[
- TemplateBox[{
-  "CreateDialog", "argt", 
-   "\"\\!\\(\\*RowBox[{\\\"CreateDialog\\\"}]\\) called with \
-\\!\\(\\*RowBox[{\\\"3\\\"}]\\) arguments; \\!\\(\\*RowBox[{\\\"1\\\"}]\\) or \
-\\!\\(\\*RowBox[{\\\"2\\\"}]\\) arguments are expected.\"", 2, 124, 61, 
-   21372683845077697691, "Local"},
-  "MessageTemplate",
-  BaseStyle->"MSG"]], "Message",
- CellChangeTimes->{3.955282740833105*^9},
- CellLabel->
-  "During evaluation of \
-In[124]:=",ExpressionUUID->"34dda66c-6297-4794-a8b3-8268e16637fa"],
+ CellLabel->"In[58]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
 
 Cell[BoxData[
  DynamicModuleBox[{OrganDetectionUI`Private`file$$ = "", 
   OrganDetectionUI`Private`fileSet$$ = False, 
   OrganDetectionUI`Private`errorMsg$$ = "", 
   OrganDetectionUI`Private`imgPreview$$ = None, 
+  OrganDetectionUI`Private`originalImg$$ = None, 
+  OrganDetectionUI`Private`detectedPoints$$ = {}, 
   OrganDetectionUI`Private`editMode$$ = False, 
   OrganDetectionUI`Private`isProcessing$$ = False, 
   OrganDetectionUI`Private`updateFileState$$, 
@@ -204,6 +173,7 @@ Cell[BoxData[
         OrganDetectionUI`Private`file$$ = OrganDetectionUI`Private`newFile$; 
         OrganDetectionUI`Private`errorMsg$$ = ""; 
         OrganDetectionUI`Private`imgPreview$$ = None; 
+        OrganDetectionUI`Private`detectedPoints$$ = {}; 
         OrganDetectionUI`Private`fileSet$$ = False; 
         OrganDetectionUI`Private`isProcessing$$ = False; 
         If[StringTrim[OrganDetectionUI`Private`file$$] == "", 
@@ -219,18 +189,24 @@ Cell[BoxData[
                  ImageQ[OrganDetectionUI`Private`importedContent$], 
                  OrganDetectionUI`Private`imgPreview$$ = 
                   OrganDetectionUI`Private`importedContent$; 
+                 OrganDetectionUI`Private`originalImg$$ = 
+                  OrganDetectionUI`Private`importedContent$; 
                  OrganDetectionUI`Private`fileSet$$ = True; Null, 
                  OrganDetectionUI`Private`errorMsg$$ = 
                   "File non \[EGrave] un'immagine PNG/JPG valida."; 
-                 OrganDetectionUI`Private`imgPreview$$ = None; Null], 
+                 OrganDetectionUI`Private`imgPreview$$ = None; 
+                 OrganDetectionUI`Private`originalImg$$ = None; Null], 
                OrganDetectionUI`Private`errorMsg$$ = 
                 "Errore durante l'importazione dell'immagine."; 
-               OrganDetectionUI`Private`imgPreview$$ = None; Null]; Null, 
+               OrganDetectionUI`Private`imgPreview$$ = None; 
+               OrganDetectionUI`Private`originalImg$$ = None; Null]; Null, 
              OrganDetectionUI`Private`errorMsg$$ = 
               "Tipo file non supportato (solo .png, .jpg, .jpeg)."; 
-             OrganDetectionUI`Private`imgPreview$$ = None; Null]; Null], 
+             OrganDetectionUI`Private`imgPreview$$ = None; 
+             OrganDetectionUI`Private`originalImg$$ = None; Null]; Null], 
           OrganDetectionUI`Private`errorMsg$$ = "File non trovato."; 
-          OrganDetectionUI`Private`imgPreview$$ = None; Null]; 
+          OrganDetectionUI`Private`imgPreview$$ = None; 
+          OrganDetectionUI`Private`originalImg$$ = None; Null]; 
         If[OrganDetectionUI`Private`errorMsg$$ =!= "", 
           OrganDetectionUI`Private`fileSet$$ = False]; Null)}}, {
     DownValues[OrganDetectionUI`Private`organDetect$$] = {HoldPattern[
@@ -243,16 +219,23 @@ Cell[BoxData[
             OrganDetectionUI`Private`imagePath$], 
             "Errore durante l'esecuzione di OrganDetection."]; 
          OrganDetectionUI`Private`imgPreview$$ = 
-          OrganDetectionUI`Private`detectionResult$; 
+          OrganDetectionUI`Private`detectionResult$["ResultImage"]; 
+         OrganDetectionUI`Private`detectedPoints$$ = ToExpression[
+            OrganDetectionUI`Private`detectionResult$["DetectedPoints"]]; 
          OrganDetectionUI`Private`editMode$$ = False; Null]}}}]], "Output",
  CellChangeTimes->{{3.955281098991303*^9, 3.955281121331676*^9}, 
    3.955281270137837*^9, 3.9552813023131323`*^9, {3.9552815339094267`*^9, 
    3.9552815468125*^9}, 3.9552815790928993`*^9, 3.955281684928117*^9, 
    3.9552819409773073`*^9, {3.9552820177669*^9, 3.955282092430031*^9}, 
    3.9552821297841787`*^9, 3.955282204853148*^9, 3.955282393994763*^9, 
-   3.955282591162077*^9, {3.955282722445615*^9, 3.955282740835518*^9}},
- CellLabel->
-  "Out[124]=",ExpressionUUID->"14d17dc4-7b66-4288-91c7-b6679c4b47f2"]
+   3.955282591162077*^9, {3.955282722445615*^9, 3.955282740835518*^9}, {
+   3.95542074631496*^9, 3.955420785450674*^9}, 3.955420821488641*^9, 
+   3.955421424230976*^9, 3.9554215305485487`*^9, {3.955421601494665*^9, 
+   3.955421620945938*^9}, {3.955421669474121*^9, 3.9554216991077347`*^9}, 
+   3.9554217411119204`*^9, {3.955421775649706*^9, 3.95542181280855*^9}, 
+   3.955421846490926*^9, 3.955422007020713*^9, 3.955422051531575*^9, {
+   3.955422697927453*^9, 3.9554227301746492`*^9}},
+ CellLabel->"Out[58]=",ExpressionUUID->"547c5dc5-9bba-4b5c-9213-7c9277541e4f"]
 }, Open  ]],
 
 Cell[BoxData[""], "Input",
@@ -270,8 +253,7 @@ Cell[BoxData[""], "Input",
    3.955076671572241*^9, 3.9550766891105976`*^9}, {3.9550788588851414`*^9, 
    3.9550788591542377`*^9}},
  FontSize->8,
- CellLabel->
-  "In[125]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+ CellLabel->"In[59]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
@@ -712,18 +694,14 @@ Cell[1803, 55, 440, 8, 27, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-381
 Cell[2246, 65, 561, 8, 36, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[CellGroupData[{
-Cell[2832, 77, 3203, 68, 322, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+Cell[2810, 75, 3199, 67, 306, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[6038, 147, 521, 12, 65, "Message",ExpressionUUID->"d5096e09-020d-4953-8ec8-eaa4b4a0bf30"]
-}, Open  ]],
 Cell[CellGroupData[{
-Cell[6596, 164, 332, 8, 98, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
-Cell[6931, 174, 508, 12, 40, "Message",ExpressionUUID->"34dda66c-6297-4794-a8b3-8268e16637fa"],
-Cell[7442, 188, 3837, 66, 68, "Output",ExpressionUUID->"14d17dc4-7b66-4288-91c7-b6679c4b47f2"]
+Cell[6034, 146, 328, 7, 82, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+Cell[6365, 155, 4930, 82, 51, "Output",ExpressionUUID->"547c5dc5-9bba-4b5c-9213-7c9277541e4f"]
 }, Open  ]],
-Cell[11294, 257, 1052, 16, 34, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+Cell[11310, 240, 1048, 15, 34, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 }
 ]

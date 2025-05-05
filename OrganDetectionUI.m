@@ -35,7 +35,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
     errorMsg = "",
     imgPreview = None,
     originalImg = None,
-    detectedPoints = {{50, 50}, {300, 50}, {300, 200}, {50, 200}},
+    detectedPoints = {},
     editMode = False,
     isProcessing = False,
     updateFileState,
@@ -338,14 +338,19 @@ LaunchOrganDetectionUI[] := DynamicModule[
           Spacer[15], (* Adjusted spacing *)
 
           (* Bottone per attivare/disattivare la modalit\[AGrave] Modifica *)
-          Button[
-            Dynamic[If[editMode, "Esci da Modifica", "Modifica Maschera"]], (* Button label changes *)
-            If[ImageQ[imgPreview], editMode = ! editMode], (* Toggle only if image is loaded *)
-            ImageSize -> {300, 50},
-            Enabled -> Dynamic[fileSet && ImageQ[imgPreview] && !isProcessing], (* Abilita solo se file valido, immagine caricata e non in elaborazione *)
-            Background -> Dynamic[If[editMode, Orange, Green]], (* Button color changes *)
-            BaseStyle -> {FontSize -> 16}
-            ],
+         Dynamic[
+            If[Length[detectedPoints] > 0, (* Mostra il bottone solo se i punti sono stati rilevati *)
+              Button[
+                Dynamic[If[editMode, "Esci da Modifica", "Modifica Maschera"]], (* Button label changes *)
+                If[ImageQ[imgPreview], editMode = ! editMode], (* Toggle only if image is loaded *)
+                ImageSize -> {300, 50},
+                Enabled -> Dynamic[fileSet && ImageQ[imgPreview] && !isProcessing], (* Abilita solo se file valido, immagine caricata e non in elaborazione *)
+                Background -> Dynamic[If[editMode, Orange, Green]], (* Button color changes *)
+                BaseStyle -> {FontSize -> 16}
+              ],
+              Spacer[0] (* Sostituisce il bottone con uno spacer quando non deve apparire *)
+            ]
+          ],
           Spacer[25]
 
 
@@ -356,10 +361,8 @@ LaunchOrganDetectionUI[] := DynamicModule[
       ],
     Background -> GrayLevel[0.95]
     ],
-    WindowTitle -> "Organ Detection Tool"
-    
-    
-    (* WindowSize -> Scaled[1.0] *)
+    WindowTitle -> "Organ Detection Tool",
+    WindowMargins -> {{500, Automatic}, {Automatic, 0}}
     ]; (* Fine CreateDialog *)
   ]; (* Fine LaunchOrganDetectionUI *)
 
