@@ -38,6 +38,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
     detectedPoints = {},
     editMode = False,
     isProcessing = False,
+    showMessage = False,
     updateFileState,
     organDetect,
     taskObject = None
@@ -51,6 +52,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
     detectedPoints = {}; (* Reset punti rilevati *)
     fileSet = False; (* Reset dello stato del file *)
     isProcessing = False;
+    showMessage = False;
 
     If[StringTrim[file] == "", Return[]]; (* Esci se il percorso del file \[EGrave] vuoto *)
 
@@ -100,6 +102,13 @@ LaunchOrganDetectionUI[] := DynamicModule[
     detectedPoints = ToExpression[detectionResult["DetectedPoints"]];
     (* Mantieni editMode a False dopo il rilevamento per mostrare il risultato *)
     editMode = False;
+
+    (* Nuova logica: Mostra messaggio se nessun punto rilevato *)
+    If[Length[detectedPoints] == 0,
+        showMessage = True;
+        (* Pianifica una task per nascondere il messaggio dopo 5 secondi *)
+        RunScheduledTask[showMessage = False;, {5}];
+    ];
     ];
 
   (* UI - Creazione della finestra di dialogo *)
@@ -337,9 +346,10 @@ LaunchOrganDetectionUI[] := DynamicModule[
 
           Spacer[15], (* Adjusted spacing *)
 
-          (* Bottone per attivare/disattivare la modalit\[AGrave] Modifica *)
-         Dynamic[
-            If[Length[detectedPoints] > 0, (* Mostra il bottone solo se i punti sono stati rilevati *)
+         (* Spazio per bottone Modifica Maschera o messaggio *)
+          Dynamic[
+            If[Length[detectedPoints] > 0,
+              (* Bottone per attivare/disattivare la modalit\[AGrave] Modifica *)
               Button[
                 Dynamic[If[editMode, "Esci da Modifica", "Modifica Maschera"]], (* Button label changes *)
                 If[ImageQ[imgPreview], editMode = ! editMode], (* Toggle only if image is loaded *)
@@ -348,7 +358,16 @@ LaunchOrganDetectionUI[] := DynamicModule[
                 Background -> Dynamic[If[editMode, Orange, Green]], (* Button color changes *)
                 BaseStyle -> {FontSize -> 16}
               ],
-              Spacer[0] (* Sostituisce il bottone con uno spacer quando non deve apparire *)
+              (* Altrimenti, se non ci sono punti... *)
+              If[showMessage,
+                (* Messaggio di nessun organo rilevato *)
+                Column[{
+                  Style["Nessun organo tiroideo rilevato", Red, 14],
+                  Spacer[5] (* Piccolo spazio sotto il messaggio *)
+                }, Alignment -> Center],
+                (* Altrimenti (nessun punto e messaggio non attivo), non mostrare nulla *)
+                Spacer[0]
+              ]
             ]
           ],
           Spacer[25]
