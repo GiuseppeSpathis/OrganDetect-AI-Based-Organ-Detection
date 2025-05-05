@@ -19,6 +19,10 @@ LaunchOrganDetectionUI::usage = "LaunchOrganDetectionUI[] avvia l'interfaccia ut
 (* Inizia la sezione privata del package *)
 
 
+(* ::Subsubsection:: *)
+(* Inizia la sezione privata del package *)
+
+
 Begin["`Private`"];
 
 (* Package OrganDetection.m *)
@@ -35,10 +39,10 @@ LaunchOrganDetectionUI[] := DynamicModule[
     errorMsg = "",
     imgPreview = None,
     originalImg = None,
-    detectedPoints = {},
+    detectedPoints = {}, (* Inizializzato a lista vuota per nascondere il bottone inizialmente *)
     editMode = False,
     isProcessing = False,
-    showMessage = False,
+    (* Rimuovi la variabile showMessage: showMessage = False, *)
     updateFileState,
     organDetect,
     taskObject = None
@@ -52,7 +56,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
     detectedPoints = {}; (* Reset punti rilevati *)
     fileSet = False; (* Reset dello stato del file *)
     isProcessing = False;
-    showMessage = False;
+    (* Rimuovi il reset di showMessage: showMessage = False; *)
 
     If[StringTrim[file] == "", Return[]]; (* Esci se il percorso del file \[EGrave] vuoto *)
 
@@ -103,12 +107,28 @@ LaunchOrganDetectionUI[] := DynamicModule[
     (* Mantieni editMode a False dopo il rilevamento per mostrare il risultato *)
     editMode = False;
 
-    (* Nuova logica: Mostra messaggio se nessun punto rilevato *)
-    If[Length[detectedPoints] == 0,
-        showMessage = True;
-        (* Pianifica una task per nascondere il messaggio dopo 5 secondi *)
-        RunScheduledTask[showMessage = False;, {5}];
+    
+(* Nuova logica: Apri una finestra di dialogo se nessun punto rilevato *)
+If[Length[detectedPoints] == 0,
+    (* Apri una nuova finestra di dialogo di notifica *)
+    CreateDialog[
+      Panel[
+        Grid[{
+          {Style["Nessun organo tiroideo rilevato!!", Red, 14]},
+          {Spacer[{0, 15}]},
+          {DefaultButton[]}
+        }, Alignment -> {Center, Center}, Spacings -> {0, 2}],
+        ImageSize -> 280,
+        Alignment -> Center
+      ],
+      WindowTitle -> "Risultato Detection",
+      WindowSize -> {300, 150},
+      WindowMargins -> {{Automatic, Automatic}, {Automatic, Automatic}},
+      WindowElements -> {"StatusArea" -> False},
+      Background -> White
     ];
+];
+
     ];
 
   (* UI - Creazione della finestra di dialogo *)
@@ -313,6 +333,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
             "Esegui Organ Detection",
             (* Action to start processing *)
             isProcessing = True;
+            (* Rimuovi: showMessage = False; *)
             (* Use a CriticalSection wrapped in TimeConstrained to prevent UI freezing *)
             taskObject = SessionSubmit[
               TimeConstrained[
@@ -346,7 +367,8 @@ LaunchOrganDetectionUI[] := DynamicModule[
 
           Spacer[15], (* Adjusted spacing *)
 
-         (* Spazio per bottone Modifica Maschera o messaggio *)
+          (* Spazio per bottone Modifica Maschera *)
+          (* Semplifica questo blocco per mostrare solo il bottone o uno spazio vuoto *)
           Dynamic[
             If[Length[detectedPoints] > 0,
               (* Bottone per attivare/disattivare la modalit\[AGrave] Modifica *)
@@ -358,16 +380,8 @@ LaunchOrganDetectionUI[] := DynamicModule[
                 Background -> Dynamic[If[editMode, Orange, Green]], (* Button color changes *)
                 BaseStyle -> {FontSize -> 16}
               ],
-              (* Altrimenti, se non ci sono punti... *)
-              If[showMessage,
-                (* Messaggio di nessun organo rilevato *)
-                Column[{
-                  Style["Nessun organo tiroideo rilevato", Red, 14],
-                  Spacer[5] (* Piccolo spazio sotto il messaggio *)
-                }, Alignment -> Center],
-                (* Altrimenti (nessun punto e messaggio non attivo), non mostrare nulla *)
-                Spacer[0]
-              ]
+              (* Se non ci sono punti rilevati, mostra uno spazio vuoto in questo punto *)
+              Column[{}] (* Utilizza un Column vuoto per non mostrare nulla *)
             ]
           ],
           Spacer[25]

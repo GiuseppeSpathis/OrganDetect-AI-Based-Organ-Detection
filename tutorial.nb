@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     32966,        715]
-NotebookOptionsPosition[     12959,        272]
-NotebookOutlinePosition[     31719,        690]
-CellTagsIndexPosition[     31676,        687]
+NotebookDataLength[     33535,        725]
+NotebookOptionsPosition[     13527,        282]
+NotebookOutlinePosition[     32287,        700]
+CellTagsIndexPosition[     32244,        697]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -141,7 +141,7 @@ Cell[BoxData[
    3.955013173642239*^9}, {3.9550769756335125`*^9, 3.9550769804899864`*^9}},
  FontSize->8,
  CellLabel->
-  "In[105]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
+  "In[160]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
 
 Cell[CellGroupData[{
 
@@ -153,7 +153,7 @@ Cell[BoxData[
   RowBox[{"LaunchOrganDetectionUI", "[", "]"}]}]], "Code",
  CellChangeTimes->{3.954990756106764*^9},
  CellLabel->
-  "In[108]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+  "In[163]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
 
 Cell[BoxData[
  DynamicModuleBox[{OrganDetectionUI`Private`file$$ = "", 
@@ -164,7 +164,6 @@ Cell[BoxData[
   OrganDetectionUI`Private`detectedPoints$$ = {}, 
   OrganDetectionUI`Private`editMode$$ = False, 
   OrganDetectionUI`Private`isProcessing$$ = False, 
-  OrganDetectionUI`Private`showMessage$$ = False, 
   OrganDetectionUI`Private`updateFileState$$, 
   OrganDetectionUI`Private`organDetect$$, 
   OrganDetectionUI`Private`taskObject$$ = None}, "Null",
@@ -179,7 +178,6 @@ Cell[BoxData[
         OrganDetectionUI`Private`detectedPoints$$ = {}; 
         OrganDetectionUI`Private`fileSet$$ = False; 
         OrganDetectionUI`Private`isProcessing$$ = False; 
-        OrganDetectionUI`Private`showMessage$$ = False; 
         If[StringTrim[OrganDetectionUI`Private`file$$] == "", 
           Return[]]; If[
           FileExistsQ[OrganDetectionUI`Private`file$$], 
@@ -228,10 +226,18 @@ Cell[BoxData[
             OrganDetectionUI`Private`detectionResult$["DetectedPoints"]]; 
          OrganDetectionUI`Private`editMode$$ = False; 
          If[Length[OrganDetectionUI`Private`detectedPoints$$] == 0, 
-           OrganDetectionUI`Private`showMessage$$ = True; 
-           RunScheduledTask[
-            OrganDetectionUI`Private`showMessage$$ = False; Null, {5}]; Null]; 
-         Null]}}}]], "Output",
+           CreateDialog[
+             Panel[
+              Grid[{{
+                 Style["Nessun organo tiroideo rilevato", Red, 14]}, {
+                 Spacer[{0, 15}]}, {
+                 DefaultButton[]}}, Alignment -> {Center, Center}, 
+               Spacings -> {0, 2}], ImageSize -> 280, Alignment -> Center], 
+             WindowTitle -> "Risultato Detection", WindowSize -> {300, 100}, 
+             WindowMargins -> {{Automatic, Automatic}, {
+               Automatic, Automatic}}, 
+             WindowElements -> {"StatusArea" -> False}, Background -> White]; 
+           Null]; Null]}}}]], "Output",
  CellChangeTimes->{{3.955281098991303*^9, 3.955281121331676*^9}, 
    3.955281270137837*^9, 3.9552813023131323`*^9, {3.9552815339094267`*^9, 
    3.9552815468125*^9}, 3.9552815790928993`*^9, 3.955281684928117*^9, 
@@ -246,9 +252,13 @@ Cell[BoxData[
    3.955422697927453*^9, 3.9554227301746492`*^9}, 3.955422790579494*^9, 
    3.955423220567176*^9, 3.955423326168255*^9, 3.955423449148012*^9, {
    3.955423479634842*^9, 3.955423489781393*^9}, {3.955423548292206*^9, 
-   3.955423578450736*^9}, 3.955423681725445*^9},
+   3.955423578450736*^9}, 3.955423681725445*^9, 3.9554237743022747`*^9, 
+   3.955424127238035*^9, 3.955424195646792*^9, 3.95542424057759*^9, 
+   3.9554243284825373`*^9, 3.955424387043767*^9, 3.955424434590673*^9, 
+   3.955424557855852*^9, 3.955424617473936*^9, 3.955424736422244*^9, 
+   3.955424851240809*^9},
  CellLabel->
-  "Out[108]=",ExpressionUUID->"bae553cb-09ba-4147-9861-32794820bb8b"]
+  "Out[163]=",ExpressionUUID->"b425d51d-ff14-4437-b880-059e7c90c0ef"]
 }, Open  ]],
 
 Cell[BoxData[""], "Input",
@@ -267,13 +277,13 @@ Cell[BoxData[""], "Input",
    3.9550788591542377`*^9}},
  FontSize->8,
  CellLabel->
-  "In[109]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+  "In[164]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
 InitializationCellWarning->False,
-WindowSize->{888, 1019},
-WindowMargins->{{Automatic, 8}, {Automatic, 8}},
+WindowSize->{889, 1019},
+WindowMargins->{{Automatic, 8}, {7, Automatic}},
 Magnification:>1.5 Inherited,
 FrontEndVersion->"14.2 for Mac OS X ARM (64-bit) (December 26, 2024)",
 StyleDefinitions->Notebook[{
@@ -713,9 +723,9 @@ Cell[2810, 75, 3203, 68, 322, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0e
  InitializationGroup->True],
 Cell[CellGroupData[{
 Cell[6038, 147, 332, 8, 98, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
-Cell[6373, 157, 5503, 93, 68, "Output",ExpressionUUID->"bae553cb-09ba-4147-9861-32794820bb8b"]
+Cell[6373, 157, 6071, 103, 68, "Output",ExpressionUUID->"b425d51d-ff14-4437-b880-059e7c90c0ef"]
 }, Open  ]],
-Cell[11891, 253, 1052, 16, 34, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+Cell[12459, 263, 1052, 16, 34, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 }
 ]
