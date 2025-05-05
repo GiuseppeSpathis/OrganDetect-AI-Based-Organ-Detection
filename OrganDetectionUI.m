@@ -19,6 +19,10 @@ LaunchOrganDetectionUI::usage = "LaunchOrganDetectionUI[] avvia l'interfaccia ut
 (* Inizia la sezione privata del package *)
 
 
+(* ::Subsubsection:: *)
+(* Inizia la sezione privata del package *)
+
+
 Begin["`Private`"];
 
 (* Package OrganDetection.m *)
@@ -35,9 +39,10 @@ LaunchOrganDetectionUI[] := DynamicModule[
     errorMsg = "",
     imgPreview = None,
     originalImg = None,
-    detectedPoints = {{50, 50}, {300, 50}, {300, 200}, {50, 200}},
+    detectedPoints = {}, (* Inizializzato a lista vuota per nascondere il bottone inizialmente *)
     editMode = False,
     isProcessing = False,
+    (* Rimuovi la variabile showMessage: showMessage = False, *)
     updateFileState,
     organDetect,
     taskObject = None
@@ -51,6 +56,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
     detectedPoints = {}; (* Reset punti rilevati *)
     fileSet = False; (* Reset dello stato del file *)
     isProcessing = False;
+    (* Rimuovi il reset di showMessage: showMessage = False; *)
 
     If[StringTrim[file] == "", Return[]]; (* Esci se il percorso del file \[EGrave] vuoto *)
 
@@ -100,6 +106,29 @@ LaunchOrganDetectionUI[] := DynamicModule[
     detectedPoints = ToExpression[detectionResult["DetectedPoints"]];
     (* Mantieni editMode a False dopo il rilevamento per mostrare il risultato *)
     editMode = False;
+
+    
+(* Nuova logica: Apri una finestra di dialogo se nessun punto rilevato *)
+If[Length[detectedPoints] == 0,
+    (* Apri una nuova finestra di dialogo di notifica *)
+    CreateDialog[
+      Panel[
+        Grid[{
+          {Style["Nessun organo tiroideo rilevato!!", Red, 14]},
+          {Spacer[{0, 15}]},
+          {DefaultButton[]}
+        }, Alignment -> {Center, Center}, Spacings -> {0, 2}],
+        ImageSize -> 280,
+        Alignment -> Center
+      ],
+      WindowTitle -> "Risultato Detection",
+      WindowSize -> {300, 150},
+      WindowMargins -> {{Automatic, Automatic}, {Automatic, Automatic}},
+      WindowElements -> {"StatusArea" -> False},
+      Background -> White
+    ];
+];
+
     ];
 
   (* UI - Creazione della finestra di dialogo *)
@@ -304,6 +333,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
             "Esegui Organ Detection",
             (* Action to start processing *)
             isProcessing = True;
+            (* Rimuovi: showMessage = False; *)
             (* Use a CriticalSection wrapped in TimeConstrained to prevent UI freezing *)
             taskObject = SessionSubmit[
               TimeConstrained[
@@ -337,15 +367,23 @@ LaunchOrganDetectionUI[] := DynamicModule[
 
           Spacer[15], (* Adjusted spacing *)
 
-          (* Bottone per attivare/disattivare la modalit\[AGrave] Modifica *)
-          Button[
-            Dynamic[If[editMode, "Esci da Modifica", "Modifica Maschera"]], (* Button label changes *)
-            If[ImageQ[imgPreview], editMode = ! editMode], (* Toggle only if image is loaded *)
-            ImageSize -> {300, 50},
-            Enabled -> Dynamic[fileSet && ImageQ[imgPreview] && !isProcessing], (* Abilita solo se file valido, immagine caricata e non in elaborazione *)
-            Background -> Dynamic[If[editMode, Orange, Green]], (* Button color changes *)
-            BaseStyle -> {FontSize -> 16}
-            ],
+          (* Spazio per bottone Modifica Maschera *)
+          (* Semplifica questo blocco per mostrare solo il bottone o uno spazio vuoto *)
+          Dynamic[
+            If[Length[detectedPoints] > 0,
+              (* Bottone per attivare/disattivare la modalit\[AGrave] Modifica *)
+              Button[
+                Dynamic[If[editMode, "Esci da Modifica", "Modifica Maschera"]], (* Button label changes *)
+                If[ImageQ[imgPreview], editMode = ! editMode], (* Toggle only if image is loaded *)
+                ImageSize -> {300, 50},
+                Enabled -> Dynamic[fileSet && ImageQ[imgPreview] && !isProcessing], (* Abilita solo se file valido, immagine caricata e non in elaborazione *)
+                Background -> Dynamic[If[editMode, Orange, Green]], (* Button color changes *)
+                BaseStyle -> {FontSize -> 16}
+              ],
+              (* Se non ci sono punti rilevati, mostra uno spazio vuoto in questo punto *)
+              Column[{}] (* Utilizza un Column vuoto per non mostrare nulla *)
+            ]
+          ],
           Spacer[25]
 
 
@@ -356,10 +394,8 @@ LaunchOrganDetectionUI[] := DynamicModule[
       ],
     Background -> GrayLevel[0.95]
     ],
-    WindowTitle -> "Organ Detection Tool"
-    
-    
-    (* WindowSize -> Scaled[1.0] *)
+    WindowTitle -> "Organ Detection Tool",
+    WindowMargins -> {{500, Automatic}, {Automatic, 0}}
     ]; (* Fine CreateDialog *)
   ]; (* Fine LaunchOrganDetectionUI *)
 
