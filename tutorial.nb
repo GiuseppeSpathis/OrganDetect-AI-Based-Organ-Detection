@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     15296,        325]
-NotebookOptionsPosition[     13549,        281]
-NotebookOutlinePosition[     14047,        300]
-CellTagsIndexPosition[     14004,        297]
+NotebookDataLength[     15328,        323]
+NotebookOptionsPosition[     13581,        279]
+NotebookOutlinePosition[     14079,        298]
+CellTagsIndexPosition[     14036,        295]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -140,7 +140,8 @@ Cell[BoxData[
    3.955011990837966*^9, 3.95501199165877*^9}, {3.955013172072826*^9, 
    3.955013173642239*^9}, {3.9550769756335125`*^9, 3.9550769804899864`*^9}, {
    3.955455942359033*^9, 3.955455950078285*^9}},
- FontSize->8,ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
+ FontSize->8,
+ CellLabel->"In[1]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
 
 Cell[CellGroupData[{
 
@@ -151,8 +152,7 @@ Cell[BoxData[
     RowBox[{"l", "'"}], "interfaccia", " ", "utente"}], " ", "*)"}], "\n", 
   RowBox[{"LaunchOrganDetectionUI", "[", "]"}]}]], "Code",
  CellChangeTimes->{3.954990756106764*^9},
- CellLabel->
-  "In[163]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+ CellLabel->"In[4]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
 
 Cell[BoxData[
  DynamicModuleBox[{OrganDetectionUI`Private`file$$ = "", 
@@ -228,11 +228,11 @@ Cell[BoxData[
            CreateDialog[
              Panel[
               Grid[{{
-                 Style["Nessun organo tiroideo rilevato", Red, 14]}, {
+                 Style["Nessun organo tiroideo rilevato!!", Red, 14]}, {
                  Spacer[{0, 15}]}, {
                  DefaultButton[]}}, Alignment -> {Center, Center}, 
                Spacings -> {0, 2}], ImageSize -> 280, Alignment -> Center], 
-             WindowTitle -> "Risultato Detection", WindowSize -> {300, 100}, 
+             WindowTitle -> "Risultato Detection", WindowSize -> {300, 150}, 
              WindowMargins -> {{Automatic, Automatic}, {
                Automatic, Automatic}}, 
              WindowElements -> {"StatusArea" -> False}, Background -> White]; 
@@ -255,9 +255,8 @@ Cell[BoxData[
    3.955424127238035*^9, 3.955424195646792*^9, 3.95542424057759*^9, 
    3.9554243284825373`*^9, 3.955424387043767*^9, 3.955424434590673*^9, 
    3.955424557855852*^9, 3.955424617473936*^9, 3.955424736422244*^9, 
-   3.955424851240809*^9},
- CellLabel->
-  "Out[163]=",ExpressionUUID->"b425d51d-ff14-4437-b880-059e7c90c0ef"]
+   3.955424851240809*^9, 3.955469175174205*^9},
+ CellLabel->"Out[4]=",ExpressionUUID->"58891248-4e15-4044-ae9d-bc93f5f50a51"]
 }, Open  ]],
 
 Cell[BoxData[""], "Input",
@@ -275,8 +274,7 @@ Cell[BoxData[""], "Input",
    3.955076671572241*^9, 3.9550766891105976`*^9}, {3.9550788588851414`*^9, 
    3.9550788591542377`*^9}},
  FontSize->8,
- CellLabel->
-  "In[164]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+ CellLabel->"In[5]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
@@ -318,14 +316,14 @@ Cell[1803, 55, 440, 8, 27, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-381
 Cell[2246, 65, 561, 8, 37, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[2810, 75, 3225, 67, 335, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+Cell[2810, 75, 3248, 68, 335, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
  InitializationCell->True,
  InitializationGroup->True],
 Cell[CellGroupData[{
-Cell[6060, 146, 332, 8, 104, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
-Cell[6395, 156, 6071, 103, 50, "Output",ExpressionUUID->"b425d51d-ff14-4437-b880-059e7c90c0ef"]
+Cell[6083, 147, 327, 7, 104, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
+Cell[6413, 156, 6090, 102, 50, "Output",ExpressionUUID->"58891248-4e15-4044-ae9d-bc93f5f50a51"]
 }, Open  ]],
-Cell[12481, 262, 1052, 16, 34, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+Cell[12518, 261, 1047, 15, 34, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
 }, Open  ]]
 }
 ]
