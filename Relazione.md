@@ -1,10 +1,4 @@
 # Notes
-- Introduction -> task goal, definizione del problema, finding 2d thyroids
-- Tutorial -> the contents of this md file, update with run bash, UI introduction with tons of images
-- Approaches -> failed finetune in mathematica, successive implementation with python
-- Data processing | training -> Yolov8 x segmentazione, dataset di ecografie di 16 pazienti con relative ground truth, file division (eg. OrganDetection.m holds python-mathematica recall functions, dcm2jpg to dataset preprocessing)
-- Finetune -> 100 epoche, split 704-176 80-20, su python (reference filename), usando Colab
-- results -> nella cartella results in results.csv, descrivere csv (gpt aiuta), detection in 2d non e' perfetta rispetto alla 3d https://pubmed.ncbi.nlm.nih.gov/36830918/
 - inferenza -> pesi = best.pt, file richiamato per predizione su una nuova foto
 - evaluation -> todo
 - progetti futuri -> aumentare il dataset, detection di altri organi
@@ -14,7 +8,7 @@ Gruppo numero 1: Morgan
 MC 2024/2025
 
 
-![Giuseppe Spathis](Relazione/giuseppe.jpg)|Foto 2|Foto 3|![Emanuele Di Sante](Relazione/luizo_nerd.png)|Foto 5
+![foto 1: Giuseppe Spathis](Relazione/giuseppe.jpg)|Foto 2|Foto 3|![foto 4: Emanuele Di Sante](Relazione/luizo_nerd.png)|Foto 5
 -|-|-|-|-
 
 Giuseppe Spathis, Matteo Fontana, Federico Augelli, Emanuele di Sante, Alessandro Mencarelli
@@ -22,15 +16,17 @@ Giuseppe Spathis, Matteo Fontana, Federico Augelli, Emanuele di Sante, Alessandr
 (anno 1, curriculum C), (anno 1, curriculum A), (anno 2, curriculum A) (anno 1, cirriculum A) (anno 1, curriculum A)
 ## 1. Introduzione
 ### 1.1 Obiettivo del progetto
-Il progetto OrganDetect mira all'automatizzazione del riconoscimento della tiroide su immagini ecografiche mediante l'uso di tecnologie basate su Intelligenza Artificiale, Computer Vision, e il software Mathematica.
+Il progetto OrganDetect mira all'automatizzazione del riconoscimento della tiroide su immagini ecografiche mediante l'uso di tecnologie basate su Intelligenza Artificiale, Computer Vision, e il software Mathematica [1].
 
-![esempio di ecografia](Relazione/uno195.jpg)
+![Figura 1: esempio di ecografia](Relazione/uno195.jpg)
 
 Il progetto volge al supporto del personale medico specializzato, che tradizionalmente definisce manualmente su un'ecografia dove e' presente la tiroide. L'obbiettivo e' dunque quello di aumentare l'efficienza diagnostica e l'annotazione delle aree d'interesse, ricordando l'importanza di sviluppare questo strumento insieme alla possibilita' da parte degli esperti di apportare modifiche all'area trovata qualora fosse necessario.
 
 ### 1.2 Definizione del problema
 OrganDetect è un task di localizzazione e riconoscimento di organi in immagini, contestualizzato per la ricerca in ambito medico. 
 In particolare, si tratta di individuare una specifica area all’interno di immagini ecografiche in scala di grigi; per avere risultati ottimali il modello dovrebbe essere robusto al rumore, scarsa risoluzione, artefatti e variabilità individuale.
+
+La localizzazione di organi in un'ecografia rimane oggi un problema ancora da affrontare in particolare quando si tratta di definire tali organi a partire da una singola ecografia: Lo studio "Optimization of Thyroid Volume Determination by Stitched 3D-Ultrasound Data Sets in Patients with Structural Thyroid Disease" [2] fa uso di dati piu' completi per permettere agli strumenti utilizzati di individuare correttamente ed accuratamente la volumetria della tiroide, mentre nel nostro caso, ci limitiamo ai casi dove in input ci troviamo solamente una singola ecografia sottoforma di immagine bidimensionale.
 
 La sfida consiste quindi nel progettare un sistema che sia soprattutto robusto, affidabile ed interpretabile, lasciando al contempo il potere decisionale del risultato in output all'utente finale.
 
@@ -55,22 +51,22 @@ Infine, avviare l'applicazione aprendo in WOLFRAM MATHEMATICA 14.2.0.0 il file `
 ### 2.2 Utilizzo
 All'avvio dell'applicazione, Wolfram chiedera' l'evaluation automatica delle celle di inizializzazione. Cliccare "Si"/"Yes".
 
-![automatic evaluation prompt](Relazione/image.png)
+![figura 2:automatic evaluation prompt](Relazione/image.png)
 
 L'UI dell'applicazione apparira' dopo poco.
 ![UI](Relazione/ui.png)
 
 A questo punto fare click sul pulsante "Browse..." per selezionare l'immagine di un'ecografia di tiroide su cui eseguire l'organ detection. E' richiesto un formato in `.png`, `.jpg` o `.jpeg`.
 
-![Immagine selezionata](Relazione/selected.png)
+![figura 3: Immagine selezionata](Relazione/selected.png)
 
 Cliccare sul pulsante "Esegui Organ Detection" per avviare il processo di riconoscimento della tiroide. Una schermata di caricamento segnalera' l'inizio della valutazione dell'immagine.
 
-![elaborazione in corso](Relazione/loading.png)
+![figura 4: elaborazione in corso](Relazione/loading.png)
 
 L'output dell'immagine verra' salvata nella cartella del progetto, e mostrata nell'interfaccia. e' possibile modificare l'area individuata tramite il tasto "Modifica maschera".
 
-![output](Relazione/output.png)
+![figura 5: output](Relazione/output.png)
 
 Le opzioni di modifica incluse nel programma sono:
 - Modifica punti
@@ -78,9 +74,161 @@ Le opzioni di modifica incluse nel programma sono:
 - Rimuovi punti
 
 
-Inoltre viene data la possibilita' di salvare l'immagine con l'area trovata nell'ecografia con il tasto "Salva immagine" nella parte inferiore dello schermo.
+Inoltre viene data la possibilita' di salvare l'immagine con l'area trovata nell'ecografia con il tasto "Salva immagine" nella parte inferiore dello schermo. L'immagine verra' salvata nella cartella dell'applicativo.
 
-![UI di modifica](Relazione/modify.png)
+![figura 6: UI di modifica](Relazione/modify.png)
 
 ## 3. Approccio alla risoluzione del problema
+La strada che abbiamo scelto di percorrere per arrivare all'obiettivo e' stata quella di migliorare un modello preesistente di computer vision, YOLOv8 [3], e sottoporlo ad una fase di fine tuning con un piccolo dataset di ecografie con le relative ground truth per addestrarlo a riconoscere correttamente le aree di tiroide presenti nelle ecografie che verranno caricate nell'applicativo pianificato per l'utilizzo dall'utente finale.
+
+Originariamente, il progetto era studiato perche' fosse completamente realizzato in Mathematica, tuttavia abbiamo riscontrato diverse difficolta' nell'implementazione del processo di fine tuning del modello: diverse funzioni di mathematica utilizzate non avevano il comportamento previsto, la documentazione limitata per questa tipologia di funzioni a noi necessaria e i frequenti problemi con la scarsa verbosita' di queste funzioni durante lunghi processi di elaborazione ci hanno convinto a rivisitare il nostro approccio per la risoluzione del problema.
+
+A seguirsi della rivisitazione, il preprocessing delle immagini e il fine tuning di YOLOv8 e' stato effettuato tramite python, mentre l'UI e le funzionalita' esterne all'interazione con i pesi e con il modello di computer vision sono state realizzate in mathematica.
+
+## 4. Architettura del progetto e funzioni
+### 4.1 Descrizione dei file principali
+
+#### Moduli di Mathematica
+- **dcm2jpg.m**
+  - Contiene la funzione utility per la conversione del dataset originale da `DICOMT` in formato `JPEG`, parte del preprocessing dei dati per l'addestramento.
+  -  `ConvertDICOMToJPEGs` esegue la conversione del file su un numero specifico di slice selezionati.
+
+- **OrganDetection.m**
+  - Contiene le funzioni di collegamento tra Mathematica e Python per la detection degli organi.   
+  - `OrganDetection`: esegue la detection di organi su un'immagine fornita interfacciandosi con `inference.py`, restituendo i risultati in formato utilizzabile dall'interfaccia Mathematica.
+
+- **OrganDetectionUI.m**
+  - Gestisce la logica dell’interfaccia utente grafica in Mathematica.
+  - `LaunchOrganDetectionUI`: avvia l’interfaccia grafica per il caricamento immagini, esecuzione detection e modifica delle maschere.
+
+L'interfaccia utente gestisce la logica per la modifica dell'immagine in output dall'inferenza, riportata di seguito in pseudocodice
+
+```mathematica
+Initialize:
+  points ← detected polygon points from OrganDetection
+  mode ← "edit" | "add" | "remove" (default: "edit")
+  selectedPointIndex ← None
+  clickThreshold ← 10.0 (pixel distance for point selection)
+
+OnMouseDown(mousePosition):
+  If mousePosition is None: return
+
+  Switch mode:
+    Case "edit":
+      For each point in points:
+        If EuclideanDistance(mousePosition, point) < clickThreshold:
+          selectedPointIndex ← index of the point
+          Exit loop
+
+    Case "add":
+      If points has at least 2 vertices:
+        For each segment between points:
+          Compute perpendicular distance from mousePosition to segment
+        Insert new point into points at position of nearest segment
+
+    Case "remove":
+      If points has more than 3 vertices:
+        Find nearest point to mousePosition
+        If EuclideanDistance < clickThreshold:
+          Remove that point from points
+
+OnMouseDragged(mousePosition):
+  If selectedPointIndex is valid:
+    Move selected point to mousePosition
+
+OnMouseUp:
+  selectedPointIndex ← None
+
+```
+
+#### Notebook di Mathematica
+
+- **tutorial.nb**
+  - Notebook principale per l’utente: fornisce una guida interattiva all’uso del sistema, carica i package necessari e lancia l’interfaccia utente per la detection.
+
+#### Python ed altre risorse
+
+- **inference.py**
+  - Script Python che esegue l’inferenza del modello YOLOv8 sull'immagine fornita. Viene richiamato da Mathematica tramite le funzioni di collegamento per effettuare la detection vera e propria, utilizzando i pesi in output del fine tuning in `best.pt`.
+
+- **run.sh**
+  - Script bash per l’installazione automatica dell’ambiente Python e l’avvio dell’applicativo su sistemi Linux/Darwin.
+
+- **environment.yml**
+  - File di configurazione per Conda che specifica tutte le dipendenze Python necessarie per il corretto funzionamento del progetto.
+
+- **dataset/**
+  - Cartella che contiene il dataset di immagini ecografiche originali e le relative ground truth utilizzate per il training e la validazione del modello.
+
+- **metricheTraining/** 
+  - Cartella contenente i risultati dei test post fine-tuning, approfonditi piu' avanti.
+
+- **best.pt**
+  - File dei pesi del modello YOLOv8 ottimizzato tramite fine-tuning sul dataset specifico del progetto. Utilizzato per l’inferenza sulle nuove immagini.
+
+- **yoloSegmentation.ipynb**
+  - Notebook utilizzato per effettuare il fine-tuning di YOLOv8.
+
+## 4.2 Parametri di fine-tuning
+Il dataset originale e' stato riorganizzato in formato YOLO, con immagini e relative etichette delle maschere suddivise in set di addestramento e valori (suddivisione 80/20, risultando in 704/176 immagini rispettivamente).
+Le maschere vengono convertite in etichette di segmentazione YOLO in formato poligonale e coordinate normalizzate.
+L'unica classe rilevante ai fini del nostro addestramento e' la tiroide.
+
+Il modello base scelto per il fine-tuning è YOLOv8 small, variante di segmentazione con 100 epoche e 8 come dimensione batch.
+
+```python
+SET path_to_data_yaml ← '/content/yolo_thyroid_dataset/data.yaml'
+
+SET model_name ← 'yolov8s-seg.pt'
+
+LOAD pretrained YOLO model using model_name
+
+SET training parameters:
+    epochs ← 100
+    img_size ← 640
+    batch_size ← 8
+    run_name ← 'thyroid_seg_finetune'
+
+IF data.yaml exists:
+    PRINT "Training started"
+    CALL model.train with:
+        - data ← path_to_data_yaml
+        - epochs ← epochs
+        - imgsz ← img_size
+        - batch ← batch_size
+        - name ← run_name
+        - project ← 'YOLOv8_Thyroid_Runs'
+    PRINT "Training completed"
+ELSE:
+    PRINT error: training not started
+
+```
+
+
+Dopo l'addestramento, i pesi migliori (best.pt) vengono utilizzati per la convalida sul set di test ed i risultati salvati in `metricheTraining`.
+
+## 5. Analisi dei risultati
+Il modello YOLOv8 dopo il fine-tuning ha dimostrato importanti miglioramenti nel rilevamento e segmentazione durante le diverse epoche di addestramento. Le prestazioni sono state valutate utilizzando metriche standard di rilevamento degli oggetti, tra cui precision, recall, mean precision a soglie IoU di 0,5 (mAP@0,5) e la più restrittiva mAP@0,5:0,95, insieme alle perdite di addestramento e convalida per i task di bounding box, segmentazione e classificazione.
+
+A partire dalla prima epoca, si è registrato un calo significativo in tutte le componenti della perdita di addestramento. La perdita della bounding box è diminuita da 1,52 a 1,33, la perdita di segmentazione da 2,49 a 1,64 e la perdita di classificazione da 2,77 a 1,08 nelle prime cinque epoche. Analogamente, le perdite di convalida hanno seguito un trend decrescente costante, con la perdita della bounding box che è scesa da 3,05 a 1,44 e la perdita di segmentazione da 9,08 a 2,39. Questo modello di convergenza indica un apprendimento efficace, con un overfitting minimo, almeno per quanto riguarda il test interno del dataset.
+
+Le prestazioni del modello sono migliorate rapidamente durante le prime epoche. La precisione nel set di metriche di base (B) è aumentata dal 3,2% a quasi l'88%, mentre il recall è passato dal 2,1% a oltre il 90%. Il valore mAP@0,5 per questo set ha raggiunto il 90,8% entro l'epoca 4, suggerendo che il modello ha localizzato accuratamente le regioni tiroidee. Anche in condizioni più rigorose (mAP@0,5:0,95), le prestazioni sono migliorate dallo 0,1% al 50% nello stesso periodo.
+
+I risultati sul set di metriche secondarie (M), che potrebbero rappresentare una divisione di convalida separata, hanno rispecchiato questi miglioramenti. Il valore mAP@0,5 è salito al 96,4%, mentre il valore mAP@0,5:0,95 ha raggiunto il 48,4% entro l'epoca 5. Questi risultati confermano la robustezza del modello in diversi sottoinsiemi di dati.
+
+Al termine delle epoche, durante l'inferenza finale dello split di test, possiamo vedere nella matrice di confusione (figura 7) come il modello raggiunga una precisione elevatissima nel predirre la zona di tiroide di un'ecografia, facendo combaciare le prestazioni che abbiamo osservato nei dati durante il fine-tuning.
+
+![figura 7: matrice di confusione](metricheTraining/confusion_matrix.png)
+
+Il modello ottimizzato YOLOv8 ha raggiunto un'elevata capacità di rilevamento e segmentazione delle regioni tiroidee nelle immagini ecografiche. Il costante miglioramento delle perdite e delle metriche di valutazione nel corso delle epoche sottolinea l'idoneità di YOLOv8 ci ha segnalato ottimi risultati che hanno superato non poco le nostre aspettative.
+
+Un'osservazione da includere tuttavia e' la difficolta' del modello di individuare la tiroide in ecografie dove essa e' molto piccola o quasi assente, dove essa si confonde facilmente con il resto dell'immagine, ed e' difficilmente percettibile anche per noi non professionisti. Affronteremo questo argomento e le possibili soluzioni piu' avanti.
+
+## Inferenza
 TODO
+
+
+## Bibliografia
+[1] Wolfram Research, Inc., Mathematica, Version 14.2, Champaign, IL (2024). https://www.wolfram.com/mathematica
+[2] Seifert P, Ullrich SL, Kühnel C, Gühne F, Drescher R, Winkens T, Freesmeyer M. Optimization of Thyroid Volume Determination by Stitched 3D-Ultrasound Data Sets in Patients with Structural Thyroid Disease. Biomedicines. 2023 Jan 27;11(2):381. doi: 10.3390/biomedicines11020381. PMID: 36830918; PMCID: PMC9952922.
+[3] Jocher, G., Qiu, J., & Chaurasia, A. (2023). Ultralytics YOLO (Version 8.0.0) [Computer software]. https://github.com/ultralytics/ultralytics
