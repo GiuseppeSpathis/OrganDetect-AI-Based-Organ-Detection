@@ -26,11 +26,11 @@ Il progetto OrganDetect mira all'automatizzazione del riconoscimento della tiroi
 
 ![esempio di ecografia](Relazione/uno195.jpg)
 
-Il progetto volge al supporto del personale medico specializzato, che tradizionalmente definisce manualmente su un'ecografia dove e' presente la tiroide. L'obbiettivo e' dunque quello di aumentare l'efficienza diagnostica e l'annotazione delle aree d'interesse, ricordando l'importanza di sviluppare questo strumento insieme alla possibilita' da parte degli esperti di apportare modifiche all'area trovata qualora fosse necessario (approccio Man-In-The-Middle).
+Il progetto volge al supporto del personale medico specializzato, che tradizionalmente definisce manualmente su un'ecografia dove e' presente la tiroide. L'obbiettivo e' dunque quello di aumentare l'efficienza diagnostica e l'annotazione delle aree d'interesse, ricordando l'importanza di sviluppare questo strumento insieme alla possibilita' da parte degli esperti di apportare modifiche all'area trovata qualora fosse necessario.
 
 ### 1.2 Definizione del problema
-OrganDetect è un task di localizzazione e riconoscimento di oggetti in immagini, contestualizzato per la ricerca in ambito medico. 
-In particolare, si tratta di individuare una specifica sezione all’interno di immagini ecografiche in scala di grigi, che sia robusta al rumore, scarsa risoluzione, artefatti e variabilità individuale caratteristiche di queste immagini.
+OrganDetect è un task di localizzazione e riconoscimento di organi in immagini, contestualizzato per la ricerca in ambito medico. 
+In particolare, si tratta di individuare una specifica area all’interno di immagini ecografiche in scala di grigi; per avere risultati ottimali il modello dovrebbe essere robusto al rumore, scarsa risoluzione, artefatti e variabilità individuale.
 
 La sfida consiste quindi nel progettare un sistema che sia soprattutto robusto, affidabile ed interpretabile, lasciando al contempo il potere decisionale del risultato in output all'utente finale.
 
@@ -60,7 +60,7 @@ All'avvio dell'applicazione, Wolfram chiedera' l'evaluation automatica delle cel
 L'UI dell'applicazione apparira' dopo poco.
 ![UI](Relazione/ui.png)
 
-A questo punto fare click sul pulsante "Browse..." per selezionare un'immagine su cui eseguire l'organ detection. E' richiesto un formato in `.png`, `.jpg` o `.jpeg`.
+A questo punto fare click sul pulsante "Browse..." per selezionare l'immagine di un'ecografia di tiroide su cui eseguire l'organ detection. E' richiesto un formato in `.png`, `.jpg` o `.jpeg`.
 
 ![Immagine selezionata](Relazione/selected.png)
 
@@ -76,6 +76,8 @@ Le opzioni di modifica incluse nel programma sono:
 - Modifica punti
 - Aggiungi punti
 - Rimuovi punti
+
+
 Inoltre viene data la possibilita' di salvare l'immagine con l'area trovata nell'ecografia con il tasto "Salva immagine" nella parte inferiore dello schermo.
 
 ![UI di modifica](Relazione/modify.png)
