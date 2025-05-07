@@ -5,11 +5,11 @@
 
 (*:Title: OrganDetection *)
 (*:Context: OrganDetection` *)
-(*:Authors: Giuseppe Spathis, Federico Augelli, Emanuele Di Sante, ... *)
+(*:Authors: Giuseppe Spathis, Federico Augelli, Emanuele Di Sante, Matteo Fontana, Alessandro Mencarelli *)
 (*:Summary: Organ detection based on ultrasound images using deep learning algorithms, implemented in Wolfram Mathematica. *)
-(*:Copyright: GS 2025 da sistemare *)
+(*:Copyright: GS 2025 *)
 (*:Package Version: 1 *)
-(*:Mathematica Version: 14 ...da vedere *)
+(*:Mathematica Version: 14  *)
 (*:History: last modified 14/3/2025 ... da sistemare *)
 (*:Keywords: Organ detection, ultrasound images *)
 (*:Sources: biblio *)
@@ -20,633 +20,428 @@
 
 BeginPackage["ObjectDetection`"]
 
-(* Definition of public functions *)
-MaskToXML::usage = "pippo"
-XMLToMask::usage = "pippo"
-(*
-Normalize::usage = "Normalize[f, {x0, x1, ...}]
-	test function for normalizing functions"
-*)
-OrganDetection::usage = "Inference[f, g, h]
-	function for inference of the model"
+(* Package ObjectDetection:
+   Espone funzioni per il rilevamento di organi in immagini tramite uno script Python esterno. *)
 
-Begin["Private`"]
+(* Funzione main: rilevamento organi *)
+OrganDetection::usage = 
+  "OrganDetection[imagePath] esegue il rilevamento degli organi sull'immagine specificata.\n" <> 
+  "  - imagePath (Opzionale, String): percorso dell'immagine di input. Deve esistere. " <> 
+  "Se omesso, usa un'immagine di esempio incorporata.";
 
-(* Implementation of all function *)
-(*
-Normalize[] :=
-Module[],
-
-code...
-*)
+Begin["`Private`"]
 
 
 
 
 OrganDetection[ Optional[imageToProcessPath_String?(FileExistsQ), Null] ] := Module[
-  {condaOK, envName, ymlPath, envOK, pythonExecutablePath, inferenceResult,
-   scriptPath, modelWeightsPath, effectiveImageToProcessPath, basePath,
-   pythonSubPath}, (* Variabili locali *)
+(* Definizione della main function 'OrganDetection'.
+    - Optional[pattern, defaultValue]: Definisce un argomento opzionale.
+    - imageToProcessPath_String?(FileExistsQ): Il pattern per l'argomento.
+        - imageToProcessPath_: Nome dell'argomento.
+        - _String: Specifica che l'argomento deve essere una stringa.
+        - ?(FileExistsQ): \[CapitalEGrave] un test di pattern. Se l'argomento viene fornito, deve essere una stringa che rappresenta un percorso a un file esistente (FileExistsQ deve restituire True).
+    - Null: Se l'argomento non viene fornito o non supera il test del pattern, il suo valore sar\[AGrave] 'Null'.
+     *)
+  {condaOK, envName, ymlPath, envOK, pythonExecutablePath, inferenceResult,scriptPath, modelWeightsPath, effectiveImageToProcessPath, basePath,
+    pythonSubPath
+  (*  Dichiarazione delle variabili locali:
+      - condaOK: Flag per indicare se Conda \[EGrave] installato correttamente.
+      - envName: Nome dell'ambiente Conda da utilizzare/creare.
+      - ymlPath: Percorso al file YAML per la creazione dell'ambiente.
+      - envOK: Flag per indicare se l'ambiente Conda \[EGrave] pronto.
+      - pythonExecutablePath: Percorso all'eseguibile Python nell'ambiente.
+      - inferenceResult: Risultato dell'inferenza. 
+      - scriptPath: Percorso allo script Python di inferenza.
+      - modelWeightsPath: Percorso ai pesi del modello.
+      - effectiveImageToProcessPath: Percorso effettivo dell'immagine da processare.
+      - basePath: Percorso base per la directory dell'ambiente Conda.
+      - pythonSubPath: Sottopercorso per l'eseguibile Python (dipendente dal SO).
+      *)
+    }, 
+    
 
   envName = "yolo_inference";
+  (* Imposta il nome dell'ambiente Conda desiderato a "yolo_inference". *)
+  
+  
   ymlPath =  "environment.yml";
+  (* Imposta il nome del file YAML per la definizione dell'ambiente. *)
+  
+  
   scriptPath = "inference.py";
+  (* Imposta il nome dello script Python che eseguir\[AGrave] l'inferenza. *)
+  
+  
   modelWeightsPath = "best.pt";
+  (* Imposta il nome del file contenente i pesi del modello addestrato. *)
+  
 
-  (* Usa l'immagine passata come argomento, o un default se l'argomento \[EGrave] Null *)
   effectiveImageToProcessPath = If[imageToProcessPath === Null,
-        "uno100.jpg", (* Immagine di default *)
-        imageToProcessPath (* Immagine specificata *)
+  (* Controlla se 'imageToProcessPath' (l'argomento opzionale della funzione) \[EGrave] 'Null'. *)
+      "uno100.jpg", 
+      (* Se 'imageToProcessPath' \[EGrave] 'Null', usa "uno100.jpg" come percorso dell'immagine di default. *)
+      
+      imageToProcessPath 
+      (* Altrimenti, usa il percorso dell'immagine fornito come argomento. *)
     ];
 
-  (* 0. Controlla file necessari *)
+
+  (* 0. Controlla esistenza file necessari *)
+
   If[! FileExistsQ[ymlPath], Print["Errore: environment.yml non trovato."]; Return[$Failed]];
-  If[! FileExistsQ[scriptPath], Print["Errore: inference.py non trovato."]; Return[$Failed]];
-  If[! FileExistsQ[modelWeightsPath], Print["Errore: best.pt non trovato."]; Return[$Failed]];
-  If[! FileExistsQ[effectiveImageToProcessPath], Print["Errore: Immagine input non trovata: ", effectiveImageToProcessPath]; Return[$Failed]];
-
-  (* 1. Controlla Conda *)
-  condaOK = CheckCondaInstallation[];
-  If[! condaOK, Print["Installare Miniconda."]; Return[$Failed]];
-
-  (* 2. Controlla/Crea Ambiente *)
-  envOK = EnsureCondaEnvFromFile[envName, ymlPath];
-  If[! envOK, Print["Impossibile usare l'ambiente Conda '", envName, "'."]; Return[$Failed]];
-
-  (* 3. Trova l'eseguibile Python nell'ambiente creato/verificato *)
-  (* Assumiamo miniconda3 come base, CAMBIA SE HAI ANACONDA3 *)
-
-  pythonExecutablePath = GetUserPythonExecutable["miniconda3", envName];
-  If[FailureQ[pythonExecutablePath],
-      Print["Impossibile trovare l'eseguibile Python per l'ambiente '", envName, "'."];
-      Return[$Failed]
-  ];
+  (* Se il file 'environment.yml' non esiste, stampa un errore e termina la funzione restituendo '$Failed'. *)
   
+  If[! FileExistsQ[scriptPath], Print["Errore: inference.py non trovato."]; Return[$Failed]];
+  (* Se il file 'inference.py' non esiste, stampa un errore e termina. *)
+  
+  If[! FileExistsQ[modelWeightsPath], Print["Errore: best.pt non trovato."]; Return[$Failed]];
+  (*Se il file 'best.pt' (pesi del modello) non esiste, stampa un errore e termina. *)
+  
+  If[! FileExistsQ[effectiveImageToProcessPath], Print["Errore: Immagine input non trovata: ", effectiveImageToProcessPath]; Return[$Failed]];
+  (* Se il file immagine da processare ('effectiveImageToProcessPath') non esiste, stampa un errore e termina. *)
+
+  (* 1. Controllo installazione Conda *)
+ 
+  condaOK = CheckCondaInstallation[];
+  (* Chiama la funzione helper 'CheckCondaInstallation' per verificare se Conda \[EGrave] installato. *)
+  
+  
+  If[! condaOK, Print["Installare Miniconda."]; Return[$Failed]];
+  (* Se 'condaOK' \[EGrave] 'False' (o 'Null' interpretato come 'False'), stampa un messaggio per installare Miniconda e termina. *)
+
+  (* 2. Controllo/Creazione Ambiente conda *)
+  envOK = EnsureCondaEnvFromFile[envName, ymlPath];
+  (* Chiama la funzione helper 'EnsureCondaEnvFromFile' per assicurarsi che l'ambiente esista o per crearlo. *)
+  
+  If[! envOK, Print["Impossibile usare l'ambiente Conda '", envName, "'."]; Return[$Failed]];
+  (* Se 'envOK' \[EGrave] 'False' , stampa un errore e termina.  *)
+
+
+  
+  (* trova path di python *)
   basePath = FileNameJoin[{$HomeDirectory, "miniconda3", "envs", envName}];
+  (* Ricostruisce il percorso base dell'ambiente Conda specificato. $HomeDirectory \[EGrave] la directory home dell'utente. *)
+  
     pythonSubPath = Switch[$OperatingSystem,
+    (* Determina il sottopercorso relativo per l'eseguibile Python all'interno della cartella dell'ambiente, a seconda del sistema operativo ($OperatingSystem). *)
+    
         "Windows", "python.exe",
+        (* Su Windows, \[EGrave] "python.exe". *)
+        
         "MacOSX" | "Unix", FileNameJoin[{"bin", "python"}],
+        (* Su MacOSX o sistemi Unix-like, \[EGrave] "bin/python". *)
+        
         _, Print["OS non supportato per GetUserPythonExecutable"]; Return[$Failed]
+        (* Se il sistema operativo non \[EGrave] tra quelli elencati, stampa un errore e termina. *)
+        
     ];
     pythonExecutablePath = FileNameJoin[{basePath, pythonSubPath}];
+    (* Unisce il 'basePath' e 'pythonSubPath' per formare il percorso completo all'eseguibile Python.  *)
     
-  (*Print["Eseguibile Python per l'ambiente trovato: ", pythonExecutablePath]; *)
-
-	
-  (* 4. Esegui Inferenza usando il percorso specifico *)
-  (*Print["\nAvvio inferenza usando l'eseguibile Python specifico..."]; *)
+  
+  (* 4. Esecuzione Inferenza usando il percorso specifico *)
+ 
   inferenceResult = RunInferenceWithExecutable[
-      pythonExecutablePath, (* Passa il percorso specifico trovato *)
+  (* Chiama la funzione helper 'RunInferenceWithExecutable' per eseguire lo script Python. *)
+  
+      pythonExecutablePath, 
+      (* Passa il percorso dell'eseguibile Python determinato. *)
+      
       scriptPath,
+      (* Passa il percorso dello script di inferenza. *)
+      
       modelWeightsPath,
-      effectiveImageToProcessPath  (* Usa il percorso dell'immagine determinato *)
+      (* Passa il percorso dei pesi del modello. *)
+      
+      effectiveImageToProcessPath  
+      (* Passa il percorso dell'immagine da processare. *)
   ];
   
   
 
-  (* 5. Gestisci Risultato Inferenza *)
+  (* 5. Gestione Risultato Inferenza *)
   If[ImageQ[inferenceResult["ResultImage"]],
-    (*Print["Inferenza completata con successo!"]; *)
-    inferenceResult (* Restituisce l'immagine *)
+  (* Controlla se il campo "ResultImage" dell'associazione 'inferenceResult' (restituita da RunInferenceWithExecutable) \[EGrave] effettivamente un oggetto Immagine (ImageQ). *)
+    
+    
+    inferenceResult 
+    (* Se \[EGrave] un'immagine valida, la funzione 'OrganDetection' restituisce l'intera associazione 'inferenceResult' (che contiene l'immagine e potenzialmente altri dati come le coordinate). *)
     ,
     Print["Inferenza fallita."];
+    (* Se 'inferenceResult["ResultImage"]' non \[EGrave] un'immagine, stampa un messaggio di fallimento. *)
+    
     $Failed
+    (* E restituisce '$Failed'. *)
   ]
-]
+] (* Fine della funzione main OrganDetection  *)
 
-(* funzioni helper *)
 
+(* FUNZIONI HELPER *)
+
+(* funzione che fa l'inferenza del modello di detection lanciando il file inference.py *)
 RunInferenceWithExecutable[
     pythonExecutable_String?FileExistsQ,
-    scriptPath_String?FileExistsQ,
-    modelWeightsPath_String?FileExistsQ,
-    imageToProcessPath_String?FileExistsQ] := Module[
-    {
-     process, commandArgs, exitCode, outputLog, errorLog, outputLines,
-     savedPathLine, savedCoordinates, outputImagePath, outputCoordinates, resultImage, startTime, endTime, duration
-     },
-
-    (*Print["  \:23f3 Avvio processo Python..."]; *)
-
-    (* Definisci gli argomenti per lo script Python *)
-    (* Assicurati che questi corrispondano a quelli attesi da inference.py *)
-    commandArgs = {
-       scriptPath,
-       "--weights", modelWeightsPath,
-       "--image", imageToProcessPath
-       (* Puoi aggiungere altri argomenti qui se necessario, es: *)
-       (* , "--conf", "0.6" *)
-    };
-
-    (* Esegui il processo esterno *)
-    process = RunProcess[
-        Join[{pythonExecutable}, commandArgs]
-          ];
-   
-
-    (* Recupera output, errori e codice di uscita *)
-    exitCode = process["ExitCode"];
-    outputLog = process["StandardOutput"];
-    errorLog = process["StandardError"];
-    (*
-    Print[outputLog];
-    Print[errorLog];
-    Print[exitCode];
-    *)
-
-
-    (* Controlla se il processo \[EGrave] terminato con successo *)
-    If[exitCode =!= 0,
-        Print["\:274c Errore: Lo script Python \[EGrave] terminato con codice di uscita non zero: ", exitCode];
-        Print["   Controllare l'output e l'errore standard sopra per i dettagli."];
-        Return[$Failed]
-    ];
-
-    (* Cerca il percorso dell'immagine salvata nell'output standard *)
-    outputLines = StringSplit[outputLog, {"\n", "\r\n", "\r"}]; (* Gestisce diversi tipi di newline *)
-    savedPathLine = SelectFirst[outputLines, StringStartsQ[#, "SAVED_IMAGE_PATH:"] &, Missing["NotFound"]];
-	savedCoordinates = SelectFirst[outputLines, StringStartsQ[#, "DETECTED_POINTS:"] &, Missing["NotFound"]];
-	
-    If[MissingQ[savedPathLine],
-        Print["\:274c Errore: Impossibile trovare la riga 'SAVED_IMAGE_PATH:' nell'output dello script Python."];
-        Print["   Assicurati che lo script '", FileNameTake[scriptPath], "' stampi correttamente il percorso."];
-        Return[$Failed];
-    ];
+    (* Parametro: percorso dell'eseguibile Python; deve essere una stringa e il file deve esistere. *)
     
-    If[MissingQ[savedCoordinates],
-        Print["\:274c Errore: Impossibile trovare la riga 'DETECTED_POINTS:' nell'output dello script Python."];
-        Print["   Assicurati che lo script '", FileNameTake[scriptPath], "' stampi correttamente il percorso."];
-        Return[$Failed];
-    ];
-
-    (* Estrai il percorso del file dall'output *)
-    outputImagePath = StringTrim[savedPathLine, "SAVED_IMAGE_PATH:"];
-	outputCoordinates = StringTrim[savedCoordinates, "DETECTED_POINTS:"];
-	
-    (* Verifica finale se il file immagine esiste davvero *)
-    If[!FileExistsQ[outputImagePath],
-        Print["\:274c Errore Critico: Lo script ha indicato il percorso '", outputImagePath, "', ma il file non esiste!" ];
-        Return[$Failed];
-    ];
-
-    (* Importa l'immagine risultante *)
-    resultImage = Check[Import[outputImagePath], $Failed];
-
-    (* Controlla se l'importazione \[EGrave] andata a buon fine e se \[EGrave] un'immagine *)
-    If[FailureQ[resultImage] || !ImageQ[resultImage],
-        Print["\:274c Errore: Impossibile importare l'immagine da '", outputImagePath, "' o il risultato non \[EGrave] un'immagine."];
-        Return[$Failed];
-    ];
-
-    (*Print["\:2705 Immagine importata con successo!"]; *)
-
-     Return[<|"ResultImage" -> resultImage, "DetectedPoints" -> outputCoordinates|>] (* Restituisce l'immagine importata *)
-
-];
-
-CheckCondaInstallation[] := Module[{basePath},
-   basePath = FileNameJoin[{$HomeDirectory, "miniconda3"}];
-   Return[DirectoryQ[basePath]]
-  ]
-
-(* Funzione per verificare/creare l'ambiente Conda *)
-EnsureCondaEnvFromFile[envName_String:"yolo_inference", envYmlPath_String : "environment.yml"] := 
- Module[{minicondaPath, condaPath, envsDir, envDir, ymlExists, result},
-
-  (* Detect Miniconda install location *)
-  minicondaPath = Switch[$OperatingSystem,
-    "Windows"| "MacOSX" | "Unix", FileNameJoin[{$HomeDirectory, "miniconda3"}],
-    _, Print["Unsupported OS"]; Return[$Failed];
-  ];
-
-  condaPath = FileNameJoin[{minicondaPath, "bin", "conda"}];
-  If[$OperatingSystem === "Windows",
-   condaPath = FileNameJoin[{minicondaPath, "conda.exe"}]
-  ];
-
-  (* Environment directory *)
-  envsDir = FileNameJoin[{minicondaPath, "envs"}];
-  envDir = FileNameJoin[{envsDir, envName}];
-
-  If[DirectoryQ[envDir], Return[]];
-
-   Print["Environment '", envName, "' not found. Creating from: ", envYmlPath];
-	
-   (* Se non esiste, tenta di crearlo *)
-   Print["Ambiente '", envName, "' non trovato. Tentativo di creazione da: ", envYmlPath, " (potrebbe richiedere tempo)..."];
-   createProcess = RunProcess[{condaPath, "env", "create", "-f", envYmlPath, "-y"}];
-
-   Print["--- Output Creazione Ambiente ---"];
-   Print[createProcess["StandardOutput"]];
-   If[StringLength[createProcess["StandardError"]] > 0, Print["--- Error Creazione Ambiente ---"]; Print[createProcess["StandardError"]];];
-   Print["-------------------------------"];
-
-   If[createProcess["ExitCode"] == 0,
-    Print["Creazione ambiente '", envName, "' completata con successo."];
-    createSuccess = True,
-    Print["Errore durante la creazione dell'ambiente '", envName, "' (Exit Code: ", createProcess["ExitCode"], "). Controlla l'output/error."];
-    createSuccess = False
-   ];
-   Return[createSuccess]
-  ]
-
-(* Funzione helper per trovare l'eseguibile Python nell'ambiente specificato *)
-(* Prende il nome della cartella base di conda (es. "miniconda3") e il nome dell'ambiente *)
-GetUserPythonExecutable[condaBaseDirName_String:"miniconda3", envName_String _] := Module[
-    {basePath, pythonSubPath, fullPath},
-    basePath = FileNameJoin[{$HomeDirectory, condaBaseDirName, "envs", envName}];
-    pythonSubPath = Switch[$OperatingSystem,
-        "Windows", "python.exe",
-        "MacOSX" | "Unix", FileNameJoin[{"bin", "python"}],
-        _, Print["OS non supportato per GetUserPythonExecutable"]; Return[$Failed]
-    ];
-    fullPath = FileNameJoin[{basePath, pythonSubPath}];
-
-    (* Verifica finale se il file esiste effettivamente *)
-    If[FileExistsQ[fullPath],
-        Return[fullPath],
-        Print["Errore: Eseguibile Python NON trovato al percorso calcolato: ", fullPath];
-        Return[$Failed]
-    ]
-];
-
-
-(* Fine tuning function 
-FineTune[] :=
-Module[
+    scriptPath_String?FileExistsQ,
+    (* Parametro: percorso dello script Python; deve essere una stringa e il file deve esistere. *)
+    
+    modelWeightsPath_String?FileExistsQ,
+    (* Parametro: percorso dei pesi del modello; deve essere una stringa e il file deve esistere. *)
+    
+    imageToProcessPath_String?FileExistsQ] := Module[
+    (* Parametro: percorso dell'immagine da processare; deve essere una stringa e il file deve esistere.  *)
+    
   {
-   baseModel, trainingData, validationData, fineTunedNet, modelResource, fullNet, maskHead,
-   clsLoss, boxLoss, maskLoss, trainingNet, modelRes, detectUninit, frozenNet, protoNet
-   },
-   
-  (*ResourceRemove[ResourceObject["YOLO V8 Segment Trained on MS-COCO Data"]]*)
-  Print["downloading..."];
-  baseModel = NetModel["YOLO V8 Segment Trained on MS-COCO Data", "UninitializedEvaluationNet"];
+    process, commandArgs, exitCode, outputLog, outputLines,
+    (* Dichiarazione delle variabili locali:
+        - process: Oggetto che rappresenta il processo esterno avviato.
+        - commandArgs: Lista degli argomenti da passare allo script Python.
+        - exitCode: Codice di uscita del processo Python.
+        - outputLog: Output standard (stdout) dello script Python.
+        - outputLines: 'outputLog' diviso in una lista di righe. *)
+        
+    savedPathLine, savedCoordinates, outputImagePath, outputCoordinates, resultImage
+    (* Altre variabili locali:
+        - savedPathLine: Riga dall'output contenente "SAVED_IMAGE_PATH:".
+        - savedCoordinates: Riga dall'output contenente "DETECTED_POINTS:".
+        - outputImagePath: Percorso effettivo dell'immagine salvata dallo script Python.
+        - outputCoordinates: Stringa delle coordinate rilevate.
+        - resultImage: Oggetto Immagine importato da 'outputImagePath'.
+         *)
+    },
 
-Print[Information[baseModel]];
-Print[NetGraph[baseModel]];
 
-decoderLayer = NetExtract[baseModel, "Decoder"];
+  (* Definisci gli argomenti per lo script Python *)
+  commandArgs = {
+  (* Crea una lista di stringhe che saranno gli argomenti per lo script Python. *)
+      scriptPath,
+      (* Il primo argomento \[EGrave] lo script stesso. inference.py *)
+      "--weights", modelWeightsPath,
+      (* Argomento per specificare i pesi del modello. *)
+      
+      "--image", imageToProcessPath
+      (* Argomento per specificare l'immagine di input. *)
+  };
 
-Print[NetGraph[decoderLayer]];
+
+
+  process = RunProcess[
+  (* Avvia un processo esterno. *)
+      Join[{pythonExecutable}, commandArgs]
+      (* Il comando da eseguire \[EGrave] formato unendo il percorso dell'eseguibile Python con la lista degli argomenti ('commandArgs'). *)
+        ];
   
-(* Verifica se il caricamento \[EGrave] andato a buon fine *)
-If[FailureQ[baseModel],
-    Print["Errore: Impossibile caricare il modello base YOLO V8."];
-    Throw[$Failed]; (* Interrompi l'esecuzione se il modello non carica *)
-];
-Print["Base model loaded successfully."];
 
 
-(* --- Prepara i dati usando la tua funzione --- *)
-Print["Preparing datasets..."];
-{trainingData, validationData} = PreprocessingForFineTuning[];
-
-
-
-(* Verifica che i set non siano vuoti *)
-If[Length[trainingData] == 0 || Length[validationData] == 0,
-    Print["Errore: Uno dei set di dati (training o validation) \[EGrave] vuoto dopo il preprocessing."];
-    Throw[$Failed];
-];
-Print["Datasets ready."];
-
-
-(* --- Esegui il Fine-Tuning --- *)
-Print["Starting fine-tuning for 100 epochs..."];
-
-(*Print[trainingData, validationData]*)
-
-(* Imposta un seed per NetTrain se desideri riproducibilit\[AGrave] anche nell'addestramento *)
-SeedRandom[5678];
-
-
-
-
-fineTunedNet = NetTrain[
-  baseModel,
-  trainingData,
-  All,
-  ValidationSet -> validationData,
-  BatchSize -> 4,
-  MaxTrainingRounds -> 50,
-  LearningRate -> 0.0001,
-  TargetDevice -> "CPU"
-];
-Print["Fine-tuning process completed."];
-
-(* Verifica se NetTrain ha prodotto un risultato valido *)
-If[FailureQ[fineTunedNet],
-    Print["Errore: NetTrain non \[EGrave] riuscito a completare l'addestramento."];
-    {
- {Print[Internal`$LastInternalFailure];}
-}
-    Throw[$Failed];
-];
-
-Print["Fine-tuned model created successfully!"];
-Print["Il modello fine-tuned \[EGrave] ora disponibile nella variabile 'fineTunedNet'."];
-]
-*)
-
-
-(* Defnition of auxiliary functions *)
-(*
-AuxFunction[] := 
-Module[]
-*)
-(*
-MaskToXML[maskPath_String, xmlPath_String] := Module[
-  {img, grayImg, binImg, whitePixelCoordsYX, whitePixelCoordsXY, xml, doc},
-
-  Print["Attempting to import: ", maskPath];
-  img = Import[maskPath];
-  {width, height} = ImageDimensions[img];
-  (* Check if import was successful *)
-  If[!ImageQ[img],
-    Print["Error: Failed to import image or not a valid image object from ", maskPath];
-    Return[$Failed]; (* Esce dalla funzione se l'import fallisce *)
+  exitCode = process["ExitCode"];
+  (* Ottiene il codice di uscita del processo. 0 solitamente indica successo. *)
+  
+  
+   outputLog = process["StandardOutput"];
+  (* Ottiene l'intero output standard del processo come una singola stringa. *)
+  
+  
+  (* Controlla se il processo \[EGrave] terminato con successo *)
+  If[exitCode =!= 0,
+  (* Se il codice di uscita \[EGrave] diverso da 0 (indica un errore) *)
+  
+      Print["\:274c Errore: Lo script Python \[EGrave] terminato con codice di uscita non zero: ", exitCode];
+      (* Stampa un messaggio di errore con il codice di uscita. *)
+      
+      Return[$Failed]
+      (* Termina la funzione e restituisce '$Failed'. *)
   ];
 
-  Print["Image imported successfully. Converting to grayscale..."];
-  grayImg = ColorConvert[img, "Grayscale"];
-
-  Print["Binarizing image..."];
-  (* Assicurati che Binarize produca pixel 0 (neri) e 1 (bianchi) *)
-  binImg = Binarize[grayImg, 0.5]; (* Puoi aggiustare la soglia 0.5 se necessario *)
-
-  Print["Finding white pixel coordinates (value = 1)..."];
-  (* PixelValuePositions restituisce le coordinate come {riga, colonna}, che corrisponde a {y, x} *)
-  whitePixelCoordsYX = PixelValuePositions[binImg, 1];
-
-  (* Controlla se sono stati trovati pixel bianchi *)
-  If[whitePixelCoordsYX === {},
-     Print["Warning: No white pixels (value=1) found after binarization in ", maskPath];
-     (* Crea una annotazione XML vuota se non ci sono pixel bianchi *)
-     xml = XMLElement["annotation", {}, {}];
-  ,
-     (* Se sono stati trovati pixel bianchi *)
-     Print[Length[whitePixelCoordsYX], " white pixels found."];
-
-     (* Converte la lista da {y, x} a {x, y} per l'XML *)
-     (* Usiamo Reverse per ogni coppia {y,x} -> {x,y} *)
-     (*whitePixelCoordsXY = Reverse /@ whitePixelCoordsYX;*)
-     whitePixelCoordsXY = whitePixelCoordsYX;
-
-     Print["Generating XML structure for pixel coordinates..."];
-     xml = XMLElement["annotation", {}, { (* Un solo elemento annotation *)
-       XMLElement["object", {}, {         (* Un solo elemento object *)
-         XMLElement["pointcloud", {},     (* Sostituisce <polygon> con <pointcloud> *)
-           Table[ (* Crea un elemento <pt> per ogni pixel bianco *)
-             XMLElement["pt", {}, {
-               XMLElement["x", {}, {ToString[Round[p[[1]]]]}], (* x \[EGrave] la colonna *)
-               XMLElement["y", {}, {ToString[Round[height-p[[2]]]]}]  (* y \[EGrave] la riga *)
-             }],
-             {p, whitePixelCoordsXY} (* Itera sulla lista di coordinate {x, y} *)
-           ]
-         ]
-       }]
-     }];
-   ]; (* Fine del blocco If whitePixelCoordsYX === {} *)
 
 
-  Print["Exporting XML to: ", xmlPath];
-  doc = ExportString[xml, "XML", "ElementFormatting" -> Automatic];
-  Export[xmlPath, doc, "Text"];
-  Print["XML Export complete."];
-
-]
-XMLToMask[xmlPath_String, imageWidth_Integer?Positive, imageHeight_Integer?Positive, outputImagePath_String] := Module[
-  {xmlObj, rootXMLElement, ptElements, coordsXYStr, coordsXY, coordsYX, rules, imgData, maskImage, validCoords},
-
-  Print["Checking file existence for: ", xmlPath];
-  Print["File exists: ", FileExistsQ[xmlPath]];
-
-  If[!FileExistsQ[xmlPath],
-     Print["Error: File does not exist at path: ", xmlPath];
-     Return[$Failed];
+(* Cerca il percorso dell'immagine salvata nell'output standard *)
+  outputLines = StringSplit[outputLog, {"\n", "\r\n", "\r"}]; (* Gestisce diversi tipi di newline *)
+  (* Divide la stringa 'outputLog' in una lista di righe, gestendo diversi formati di "a capo". *)
+  
+  
+  
+  savedPathLine = SelectFirst[outputLines, Function[line, StringStartsQ[line, "SAVED_IMAGE_PATH:"]], Missing["NotFound"]];
+(* Cerca la prima riga in 'outputLines' che inizia con la stringa "SAVED_IMAGE_PATH:".
+    - Function[line, StringStartsQ[line, "SAVED_IMAGE_PATH:"]]: Funzione esplicita. 'line' \[EGrave] l'argomento che rappresenta la riga corrente.
+    - Missing["NotFound"]: Valore da restituire se nessuna riga soddisfa la condizione. *)
+  
+  savedCoordinates = SelectFirst[outputLines, Function[line, StringStartsQ[line, "DETECTED_POINTS:"]], Missing["NotFound"]];
+(* Similmente, cerca la prima riga che inizia con "DETECTED_POINTS:". *)
+  
+  
+	
+  If[MissingQ[savedPathLine],
+  (* Controlla se 'savedPathLine' \[EGrave] 'Missing["NotFound"]' (cio\[EGrave] la riga non \[EGrave] stata trovata). *)
+  
+      Print["\:274c Errore: Impossibile trovare la riga 'SAVED_IMAGE_PATH:' nell'output dello script Python."];
+      (* Stampa un messaggio di errore. *)
+      
+      Return[$Failed];
+      (* Termina e restituisce '$Failed'. *)
+  ];
+  
+  If[MissingQ[savedCoordinates],
+  (* Controlla se 'savedCoordinates' \[EGrave] 'Missing["NotFound"]'. *)
+  
+      Print["\:274c Errore: Impossibile trovare la riga 'DETECTED_POINTS:' nell'output dello script Python."];
+      (*Stampa un messaggio di errore. *)
+          
+      Return[$Failed];
+      (* Termina e restituisce '$Failed'. *)
   ];
 
-  Print["Importing XML from: ", xmlPath];
-  xmlObj = Import[xmlPath, "XMLObject"];
+  (* Estrai il percorso del file dall'output *)
+  outputImagePath = StringTrim[savedPathLine, "SAVED_IMAGE_PATH:"];
+  (* Rimuove il prefisso "SAVED_IMAGE_PATH:" dalla stringa 'savedPathLine' per ottenere il percorso puro dell'immagine. *)
+  
+  outputCoordinates = StringTrim[savedCoordinates, "DETECTED_POINTS:"];
+  (* Rimuove il prefisso "DETECTED_POINTS:" da 'savedCoordinates' per ottenere la stringa delle coordinate. *)
+  
+	
+  (* Verifica finale se il file immagine esiste davvero *)
+  If[!FileExistsQ[outputImagePath],
+  (* Controlla se il file immagine specificato da 'outputImagePath' NON esiste. *)
+  
+      Print["\:274c Errore Critico: Lo script ha indicato il percorso '", outputImagePath, "', ma il file non esiste!" ];
+      (* Stampa un messaggio di errore critico. *)
+      
+      Return[$Failed];
+      (* Termina e restituisce '$Failed'. *)
+  ];
+
+
+  (* Importa l'immagine risultante *)
+  resultImage = Check[Import[outputImagePath], $Failed];
+  (* Tenta di importare l'immagine dal percorso 'outputImagePath'. Se 'Import' fallisce, 'Check' fa s\[IGrave] che 'resultImage' diventi '$Failed'. *)
+
+
+  If[FailureQ[resultImage] || !ImageQ[resultImage],
+  (* Controlla se 'resultImage' \[EGrave] un oggetto 'Failure' (come '$Failed') o se non \[EGrave] un oggetto Immagine valido (ImageQ). *)
+  
+      Print["\:274c Errore: Impossibile importare l'immagine da '", outputImagePath, "' o il risultato non \[EGrave] un'immagine."];
+      (* Stampa un messaggio di errore. *)
+      
+      Return[$Failed];
+      (* Termina e restituisce '$Failed'. *)
+  ];
 
  
 
+    Return[<|"ResultImage" -> resultImage, "DetectedPoints" -> outputCoordinates|>] 
+    (* Restituisce un'Associazione (simile a un dizionario/oggetto).
+        - "ResultImage" -> resultImage: Associa la chiave "ResultImage" all'immagine importata.
+        - "DetectedPoints" -> outputCoordinates: Associa la chiave "DetectedPoints" alla stringa delle coordinate.
+        *)
+]; 
 
-  (* Controlla se Import ha restituito la struttura XMLObject["Document"] attesa *)
-  (* La struttura \[EGrave] XMLObject["Document"][prolog, rootElement, epilog] *)
-  (* Verifichiamo che il rootElement sia un XMLElement *)
-  If[!MatchQ[xmlObj, XMLObject["Document"][_, _XMLElement, _]],
-     Print["Error: Failed to import XML or unexpected XMLObject structure from ", xmlPath ];
-     Return[$Failed];
+(* piccola funzione helper che serve a controllare se miniconda \[EAcute] installato in locale
+	variabili locali:
+	- basePath rappresenta il path base in cui \[EGrave] installato miniconda nel file system
+*)
+CheckCondaInstallation[] := Module[{basePath},
+	
+    basePath = FileNameJoin[{$HomeDirectory, "miniconda3"}];
+    (* Costruisce un percorso ipotetico per la directory base di Miniconda (assumendo si chiami "miniconda3" e sia nella home dell'utente). *)
+    
+    
+    Return[DirectoryQ[basePath]]
+    (* Restituisce 'True' se 'basePath' \[EGrave] una directory esistente, 'False' altrimenti. *)
+    
+  ] 
+
+(* Funzione helper per verificare/creare l'ambiente Conda *)
+
+EnsureCondaEnvFromFile[envName_String:"yolo_inference", envYmlPath_String : "environment.yml"] := 
+(* Definizione della funzione helper 'EnsureCondaEnvFromFile'.
+    - envName_String:"yolo_inference": Parametro nome ambiente, stringa, di default \[EAcute] "yolo_inference".
+    - envYmlPath_String : "environment.yml": Parametro percorso file YML, stringa, di default \[EAcute] "environment.yml". *)
+    
+  Module[{minicondaPath, condaPath, envsDir, envDir, createProcess, createSuccess},
+  (* Dichiarazione delle variabili locali:
+        - minicondaPath: percorso base dell\[CloseCurlyQuote]installazione Miniconda (in home directory)
+        - condaPath:    percorso completo all\[CloseCurlyQuote]eseguibile 'conda'
+        - envsDir:      directory che contiene tutti gli ambienti Conda
+        - envDir:       directory specifica per l\[CloseCurlyQuote]ambiente 'envName'
+        - createProcess: risultati del processo esterno lanciato da RunProcess
+        - createSuccess: Flag Boolean che indica se la creazione dell\[CloseCurlyQuote]ambiente \[EGrave] andata a buon fine
+    *)
+
+
+  minicondaPath = Switch[$OperatingSystem,
+  (* Determina il percorso base di Miniconda in base al sistema operativo. *)
+  
+    "Windows"| "MacOSX" | "Unix", FileNameJoin[{$HomeDirectory, "miniconda3"}],
+    (* Per i sistemi supportati, assume "miniconda3" nella home directory. *)
+    
+    _, Print["Unsupported OS"]; Return[$Failed];
+    (* Se il SO non \[EGrave] supportato, stampa errore e termina. *)
   ];
 
-  (* Estrai il vero elemento radice XML (es. <annotation>...) *)
-  (* \[CapitalEGrave] il secondo elemento della struttura XMLObject["Document"] *)
-  rootXMLElement = xmlObj[[2]];
-
-  Print["Extracting pixel coordinates from XML root element..."];
-  (* Cerca gli elementi <pt> all'interno dell'elemento radice estratto *)
-  ptElements = Cases[rootXMLElement,
-    XMLElement["pt", _, {XMLElement["x", _, {x_String}], XMLElement["y", _, {y_String}]}],
-    Infinity (* Cerca a qualsiasi profondit\[AGrave] *)
+  condaPath = FileNameJoin[{minicondaPath, "bin", "conda"}];
+  (* Costruisce il percorso all'eseguibile 'conda' per sistemi non Windows. *)
+  
+  If[$OperatingSystem === "Windows",
+  (* Se il sistema operativo \[EGrave] Windows... *)
+  
+    condaPath = FileNameJoin[{minicondaPath, "conda.exe"}]
+    (* ...il percorso all'eseguibile \[EGrave] direttamente sotto 'minicondaPath' e si chiama 'conda.exe'.
+     Nota: su Windows, spesso si trova in "Scripts/conda.exe" o "condabin/conda.bat" a seconda della versione/setup di Conda. *)
   ];
 
-  (* --- Il resto del codice da qui in poi rimane invariato --- *)
 
-  (* Controlla se sono stati trovati elementi <pt> *)
-  If[ptElements === {},
-     Print["Warning: No <pt> elements with <x> and <y> found in XML file: ", xmlPath];
-     imgData = ConstantArray[0, {imageHeight, imageWidth}];
-     validCoords = 0;
-  ,
-     (* Estrai le coppie di stringhe {x, y} *)
-     coordsXYStr = ptElements /. XMLElement["pt", _, {XMLElement["x", _, {x_String}], XMLElement["y", _, {y_String}]}] -> {x, y};
 
-     (* Converti le stringhe in numeri (coordinate x, y) *)
-     coordsXY = Quiet @ Check[ToExpression[#], $Failed] & /@ coordsXYStr;
-     coordsXY = DeleteCases[coordsXY, {$Failed, _} | {_, $Failed} | $Failed];
-
-     (* Converti in coordinate {riga, colonna} == {y, x} intere *)
-     coordsYX = {Round[#[[2]]], Round[#[[1]]]} & /@ coordsXY;
-
-     (* Filtra le coordinate per assicurarsi che siano dentro i limiti *)
-     coordsYX = Select[coordsYX, (1 <= #[[1]] <= imageHeight && 1 <= #[[2]] <= imageWidth) &];
-     validCoords = Length[coordsYX];
-
-     If[validCoords == 0,
-        Print["Warning: No valid coordinates found within image bounds [", imageWidth, "x", imageHeight, "] after filtering."];
-        imgData = ConstantArray[0, {imageHeight, imageWidth}];
-     ,
-        Print[validCoords, " valid pixel coordinates extracted."];
-        (* Crea le regole per SparseArray: {riga, colonna} -> valore (1 per bianco) *)
-        rules = (# -> 1) & /@ coordsYX;
-        Print["Creating image data (Width=", imageWidth, ", Height=", imageHeight, ")..."];
-        imgData = SparseArray[rules, {imageHeight, imageWidth}, 0];
-     ]
-  ];
-
-  Print["Converting data to Image object..."];
-  maskImage = Image[imgData];
+  envsDir = FileNameJoin[{minicondaPath, "envs"}];
+  (* Percorso alla directory che contiene tutti gli ambienti Conda. *)
+  
+  envDir = FileNameJoin[{envsDir, envName}];
+  (* Percorso specifico per l'ambiente 'envName'. *)
   
 
-  Print["Exporting image to: ", outputImagePath];
-  Export[outputImagePath, maskImage, "JPG"];
-  Print["Image export complete."];
+  If[DirectoryQ[envDir], Return[True]]; 
+  (* Se la directory dell'ambiente ('envDir') esiste gi\[AGrave], la funzione termina immediatamente restituendo 'True'. 
+  Questo significa che l'ambiente \[EGrave] considerato esistente e utilizzabile. *)
 
-  Return[maskImage];
-
-]
-
-
-PreprocessingForFineTuning[] :=
- Module[
-  {
-   imageDir, maskDir, imageFiles, maskFiles,
-   getId, imageIDs, maskIDs,
-   imagePaths, maskPaths, numTraining,
-   commonIDs, classNames, numClasses, listToSample,
-   inputImageSize, dataList, dataset, trainingData, validationData
-   },
-
-  (* Define directories *)
-  imageDir = "dataset/originali01";
-  maskDir = "dataset/groundtruth01";
-  Print["Current Directory: ", Directory[]]; (* Check working directory *)
-  Print["Image Directory: ", ExpandFileName[imageDir]]; (* Check absolute path *)
-  Print["Mask Directory: ", ExpandFileName[maskDir]];   (* Check absolute path *)
-
-
-  (* Find files *)
-  imageFiles = FileNames["uno*.jpg", imageDir];
-  Print["Found ", Length[imageFiles], " image files. First 5: ", Take[imageFiles, 5]]; (* DEBUG *)
-  maskFiles = FileNames["unogt*.jpg", maskDir];
-  Print["Found ", Length[maskFiles], " mask files. First 5: ", Take[maskFiles, 5]]; (* DEBUG *)
-
-  (* Function to extract numeric ID from filename *)
-  getId[file_, prefix_] :=
-   StringReplace[
-    FileBaseName[file],
-    {prefix -> "", ".jpg" -> ""} (* Ensure .jpg is removed correctly *)
-   ];
-
-  (* Extract IDs *)
-  imageIDs = getId[#, "uno"] & /@ imageFiles;
-  Print["Extracted ", Length[imageIDs], " image IDs. First 10: ", Take[imageIDs, 10]]; (* DEBUG *)
-  maskIDs = getId[#, "unogt"] & /@ maskFiles;
-  Print["Extracted ", Length[maskIDs], " mask IDs. First 10: ", Take[maskIDs, 10]]; (* DEBUG *)
-
-
-  (* Build associations: ID -> full path *)
-  imagePaths = AssociationThread[imageIDs, imageFiles];
-  maskPaths = AssociationThread[maskIDs, maskFiles];
-
-  (* Match on common numeric IDs *)
-  commonIDs = Intersection[Keys[imagePaths], Keys[maskPaths]];
-  Print["Found ", Length[commonIDs], " common IDs. First 10: ", Take[commonIDs, 10]]; (* CRITICAL DEBUG *)
-
-  (* === If Length[commonIDs] is 0 here, the rest will fail === *)
-  If[Length[commonIDs] == 0,
-     Print["Error: No common IDs found between images and masks. Cannot proceed."];
-     Return[$Failed]; (* Stop execution *)
-  ];
-
-
-  (* Define classes *)
-  classNames = {"background", "tiroide"};
-  numClasses = Length[classNames]; (* Usually numClasses = number of actual classes + background *)
-                 (* Check if NetTrain needs numClasses or numClasses+1 depending on background handling *)
-
-
-  (* Set input image size for preprocessing (adjust as needed) *)
-  inputImageSize = {640, 640};
-
-  (* Create the list of preprocessed samples *)
-  Print["Preprocessing samples..."];
-  dataList = Table[
-     Check[ (* Added Check to see if preprocessSample fails *)
-        preprocessSample[imagePaths[id], maskPaths[id], inputImageSize],
-        $FailedPreprocess],
-     {id, commonIDs}
-  ];
-  Print["Preprocessing complete. dataList length: ", Length[dataList]]; (* DEBUG *)
-  Print["Number of failed preprocess steps: ", Count[dataList, $FailedPreprocess]]; (* DEBUG *)
-  dataList = DeleteCases[dataList, $FailedPreprocess]; (* Remove failed samples *)
-  Print["dataList length after removing failures: ", Length[dataList]]; (* DEBUG *)
-
-  (* === If dataList is empty here (e.g., all preprocess failed), the rest will fail === *)
-   If[Length[dataList] == 0,
-     Print["Error: dataList is empty after preprocessing. Cannot proceed."];
-     Return[$Failed]; (* Stop execution *)
-  ];
-
-
-  (* Create dataset object *)
-  dataset = Dataset[dataList];
-  Print["Dataset created. Length: ", Length[dataset]]; (* DEBUG *)
-
-
-Print["Converting dataset to Normal list before sampling..."];
-listToSample = Normal[dataset];
-Print["Length of listToSample: ", Length[listToSample]];
-Print["Dimensions of listToSample: ", Dimensions[listToSample]];
-
-numTraining = Floor[0.8 * Length[listToSample]];
-trainingData = RandomSample[listToSample, numTraining];
-
-validationData = Complement[listToSample, trainingData];
-
-Print["RandomSample completed successfully."]; (* Add confirmation *)
-
-  Print["Numero campioni training: ", Length[trainingData]];
-  Print["Numero campioni validation: ", Length[validationData]];
-
-  (* Return something useful, e.g., the split datasets *)
-  (*<|"Training" -> trainingData, "Validation" -> validationData|>                          Cambio perche import non corretto*)
-  {trainingData, validationData}
- ]
- preprocessSample[imgFile_, maskFile_, inputImageSize_] := Module[{img, mask, targetData, comp,
- bboxList,boundingBox, xmin, ymin, xmax, ymax, classNames, classIndex},
-   img = Import[imgFile];
-   mask = Import[maskFile];
-   mask = ColorConvert[mask, "Grayscale"];
+  (* Se non esiste l'ambiente, tenta di crearlo *)
    
-   mask = Binarize[mask];
-
-   (* Ridimensiona se necessario *)
-   img = ImageResize[img, inputImageSize];
-   mask = ImageResize[mask, inputImageSize, Resampling -> "Nearest"]; (* Usa Nearest per non alterare gli indici! *)
-   (* etichetta le componenti con MorphologicalComponents *)
-	comp      = MorphologicalComponents[mask];
-	(* misuro la bounding\[Hyphen]box della componente \[OpenCurlyDoubleQuote]1\[CloseCurlyDoubleQuote]  *)
-	bboxList  = ComponentMeasurements[comp, "BoundingBox"];
-	(* bboxList \[EGrave] tipo {{1 -> {l,b,w,h}}}, ne estraggo i valori *)
-	{{xmin, ymin}, {xmax, ymax}} = First[bboxList][[2]];
-	xmin = Round[xmin];
-	ymin = Round[ymin];
-	xmax = Round[xmax];
-	ymax = Round[ymax];
-
-	(* e costruisci il Rectangle *)
-	boundingBox = Rectangle[{xmin, ymin}, {xmax, ymax}];
-	   
-	classNames = {"background", "tiroide"};
-	classIndex = Position[classNames, "tiroide"][[1, 1]];
-	<|
-  "Input"  -> img,
-  "Target" -> <|
-     "Boxes"   -> {{xmin,ymin,xmax,ymax}},
-     "Classes" -> {classIndex},
-     "Masks" -> {mask}
-  |>
-|>
-
-
-
-   (* Restituisci l'associazione per NetTrain 
-    <|"Input" -> img, "Target" -> mask|>*)
+    Print["Ambiente '", envName, "' non trovato. Tentativo di creazione da: ", envYmlPath, " (potrebbe richiedere tempo)..."];
+    (* Stampa un messaggio che informa l'utente che l'ambiente non \[EGrave] stato trovato e si tenter\[AGrave] di crearlo. *)
     
-];*)
+    
+    createProcess = RunProcess[{condaPath, "env", "create", "-f", envYmlPath, "-y"}];
+    (* Esegue il comando 'conda env create' per creare l'ambiente dal file YML specificato.
+        - "-f envYmlPath": Specifica il file di ambiente.
+        - "-y": Risponde automaticamente 's\[IGrave]' a eventuali prompt. *)
+
+    Print["--- Output Creazione Ambiente ---"];
+    
+    Print[createProcess["StandardOutput"]];
+  
+    If[StringLength[createProcess["StandardError"]] > 0, Print["--- Error Creazione Ambiente ---"]; Print[createProcess["StandardError"]];];
+    (* Se c'\[EGrave] output di errore, stampa un'intestazione e l'errore stesso. *)
+    
+    Print["-------------------------------"];
+   
+
+    If[createProcess["ExitCode"] == 0,
+    (* Se il codice di uscita del processo di creazione \[EGrave] 0 (successo) *)
+    
+    Print["Creazione ambiente '", envName, "' completata con successo."];
+    (* Stampa un messaggio di successo. *)
+    createSuccess = True,
+    (* Imposta 'createSuccess' a 'True'. *)
+    
+    Print["Errore durante la creazione dell'ambiente '", envName, "' (Exit Code: ", createProcess["ExitCode"], "). Controlla l'output/error."];
+    (* Altrimenti (se il codice di uscita non \[EGrave] 0), stampa un messaggio di errore. *)
+    
+    createSuccess = False
+    (* Imposta 'createSuccess' a 'False'. *)
+    
+    ];
+    Return[createSuccess]
+    (* Restituisce lo stato di successo ('True' o 'False') della creazione. *)
+  ] 
 
 
 
