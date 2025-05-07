@@ -1,14 +1,10 @@
-# Notes
-- inferenza -> pesi = best.pt, file richiamato per predizione su una nuova foto
-- evaluation -> todo
-- progetti futuri -> aumentare il dataset, detection di altri organi
-# OrganDetect: AI Based Organ Detection
+# OrganDetect: AI Based Tyroid Organ Detection on Grayscale Echographs
 Gruppo numero 1: Morgan
 
 MC 2024/2025
 
 
-![foto 1: Giuseppe Spathis](Relazione/giuseppe.jpg)|Foto 2|Foto 3|![foto 4: Emanuele Di Sante](Relazione/luizo_nerd.png)|Foto 5
+![foto 1: Giuseppe Spathis](Relazione/giuseppe.jpg)|![foto 2: Matteo Fontana](Relazione/mat.png)|Foto 3|![foto 4: Emanuele Di Sante](Relazione/luizo_nerd.png)|![foto 5: Alessandro Menachelli](Relazione/ale.png)
 -|-|-|-|-
 
 Giuseppe Spathis, Matteo Fontana, Federico Augelli, Emanuele di Sante, Alessandro Mencarelli
@@ -81,7 +77,7 @@ Inoltre viene data la possibilita' di salvare l'immagine con l'area trovata nell
 ## 3. Approccio alla risoluzione del problema
 La strada che abbiamo scelto di percorrere per arrivare all'obiettivo e' stata quella di migliorare un modello preesistente di computer vision, YOLOv8 [3], e sottoporlo ad una fase di fine tuning con un piccolo dataset di ecografie con le relative ground truth per addestrarlo a riconoscere correttamente le aree di tiroide presenti nelle ecografie che verranno caricate nell'applicativo pianificato per l'utilizzo dall'utente finale.
 
-Originariamente, il progetto era studiato perche' fosse completamente realizzato in Mathematica, tuttavia abbiamo riscontrato diverse difficolta' nell'implementazione del processo di fine tuning del modello: diverse funzioni di mathematica utilizzate non avevano il comportamento previsto, la documentazione limitata per questa tipologia di funzioni a noi necessaria e i frequenti problemi con la scarsa verbosita' di queste funzioni durante lunghi processi di elaborazione ci hanno convinto a rivisitare il nostro approccio per la risoluzione del problema.
+Originariamente, il progetto era studiato perche' fosse completamente realizzato in Mathematica, tuttavia abbiamo riscontrato diverse difficolta' nell'implementazione del processo di fine tuning del modello: diverse funzioni di mathematica utilizzate non avevano il comportamento previsto, la documentazione limitata per questa tipologia di funzioni a noi necessaria, l'impossibilita' di eseguire alcune operazioni necessarie per il training del modello e i frequenti problemi con la scarsa verbosita' di queste funzioni durante lunghi processi di elaborazione ci hanno convinto a rivisitare il nostro approccio per la risoluzione del problema.
 
 A seguirsi della rivisitazione, il preprocessing delle immagini e il fine tuning di YOLOv8 e' stato effettuato tramite python, mentre l'UI e le funzionalita' esterne all'interazione con i pesi e con il modello di computer vision sono state realizzate in mathematica.
 
@@ -150,6 +146,7 @@ OnMouseUp:
 
 - **inference.py**
   - Script Python che esegue l’inferenza del modello YOLOv8 sull'immagine fornita. Viene richiamato da Mathematica tramite le funzioni di collegamento per effettuare la detection vera e propria, utilizzando i pesi in output del fine tuning in `best.pt`.
+  - Contiene la funzionalita' di mappatura
 
 - **run.sh**
   - Script bash per l’installazione automatica dell’ambiente Python e l’avvio dell’applicativo su sistemi Linux/Darwin.
@@ -164,12 +161,12 @@ OnMouseUp:
   - Cartella contenente i risultati dei test post fine-tuning, approfonditi piu' avanti.
 
 - **best.pt**
-  - File dei pesi del modello YOLOv8 ottimizzato tramite fine-tuning sul dataset specifico del progetto. Utilizzato per l’inferenza sulle nuove immagini.
+  - File dei pesi del modello YOLOv8 ottimizzato tramite fine-tuning sul dataset specifico del progetto. Utilizzato per l’inferenza sulle nuove immagini richieste tramite l'ui implementata.
 
 - **yoloSegmentation.ipynb**
   - Notebook utilizzato per effettuare il fine-tuning di YOLOv8.
 
-## 4.2 Parametri di fine-tuning
+### 4.2 Parametri di fine-tuning
 Il dataset originale e' stato riorganizzato in formato YOLO, con immagini e relative etichette delle maschere suddivise in set di addestramento e valori (suddivisione 80/20, risultando in 704/176 immagini rispettivamente).
 Le maschere vengono convertite in etichette di segmentazione YOLO in formato poligonale e coordinate normalizzate.
 L'unica classe rilevante ai fini del nostro addestramento e' la tiroide.
@@ -224,11 +221,26 @@ Il modello ottimizzato YOLOv8 ha raggiunto un'elevata capacità di rilevamento e
 
 Un'osservazione da includere tuttavia e' la difficolta' del modello di individuare la tiroide in ecografie dove essa e' molto piccola o quasi assente, dove essa si confonde facilmente con il resto dell'immagine, ed e' difficilmente percettibile anche per noi non professionisti. Affronteremo questo argomento e le possibili soluzioni piu' avanti.
 
-## Inferenza
-TODO
+## 6. Sviluppi futuri
+La ricerca condotta ha mostrato ottimi risultati nei task prestabiliti, e crediamo sia quindi un'ottima strada quella di proseguire in questa direzione,pertanto i possibili sviluppi futuri proposti dal nostro team sono un fine-tuning con un dataset di maggiori dimensioni, includendo un crescente numero ecografie di diversi pazienti per addestrare il modello ad uno spettro piu' ampio di dati che renda la rilevazione piu' robusta, un sistema avanzato di rilevazione organi esterni alla tiroide, dove sia possibile selezionare l'organo d'interesse. Questo richiedera' un importante quantita' di dati (ecografie e relative ground truth) per il training di ogni relativo d'organo.
 
 
 ## Bibliografia
 [1] Wolfram Research, Inc., Mathematica, Version 14.2, Champaign, IL (2024). https://www.wolfram.com/mathematica
 [2] Seifert P, Ullrich SL, Kühnel C, Gühne F, Drescher R, Winkens T, Freesmeyer M. Optimization of Thyroid Volume Determination by Stitched 3D-Ultrasound Data Sets in Patients with Structural Thyroid Disease. Biomedicines. 2023 Jan 27;11(2):381. doi: 10.3390/biomedicines11020381. PMID: 36830918; PMCID: PMC9952922.
 [3] Jocher, G., Qiu, J., & Chaurasia, A. (2023). Ultralytics YOLO (Version 8.0.0) [Computer software]. https://github.com/ultralytics/ultralytics
+
+## Glossario
+
+- Foto 1: Immagine profilo di Giuseppe spathis
+- Foto 2: Immagine profilo di Matteo Fontana
+- Foto 3: Immagine profilo di Federico Augelli
+- Foto 4: Immagine profilo di Emanuele di Sante
+- Foto 5: Immagine profilo di Alessandro Mencarelli
+- Figura 1: Esempio di ecografia
+- Figura 2: Automatic evaluation prompt
+- Figura 3: Immagine selezionata nella UI
+- Figura 4: Elaborazione in corso dell'inferenza
+- Figura 5: Output dell'inferenza
+- Figura 6: UI di modifica
+- Figura 7: Matrice di confusione
