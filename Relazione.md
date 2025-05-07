@@ -4,7 +4,7 @@ Gruppo numero 1: Morgan
 MC 2024/2025
 
 
-![foto 1: Giuseppe Spathis](Relazione/giuseppe.jpg)|![foto 2: Matteo Fontana](Relazione/mat.png)|Foto 3|![foto 4: Emanuele Di Sante](Relazione/luizo_nerd.png)|![foto 5: Alessandro Menachelli](Relazione/ale.png)
+![foto 1: Giuseppe Spathis](Relazione/giuseppe.jpg)|![foto 2: Matteo Fontana](Relazione/mat.png)|![foto 3: Federico Augelli](Relazione/fede.png)|![foto 4: Emanuele Di Sante](Relazione/luizo_nerd.png)|![foto 5: Alessandro Menachelli](Relazione/ale.png)
 -|-|-|-|-
 
 Giuseppe Spathis, Matteo Fontana, Federico Augelli, Emanuele di Sante, Alessandro Mencarelli
