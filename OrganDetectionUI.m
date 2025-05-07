@@ -19,17 +19,10 @@ LaunchOrganDetectionUI::usage = "LaunchOrganDetectionUI[] avvia l'interfaccia ut
 (* Inizia la sezione privata del package *)
 
 
-(* ::Subsubsection:: *)
-(* Inizia la sezione privata del package *)
-
-
 Begin["`Private`"];
 
 (* Package OrganDetection.m *)
 Get["OrganDetection.m"];
-(* Carica il package di rilevamento effettivo *)
-(* Assicurati che OrganDetection.m sia in un percorso accessibile da Mathematica *)
-(* Quiet[<< OrganDetection.m, Print["Errore: Impossibile caricare OrganDetection.m. Assicurati che sia nel $Path di Mathematica."]; Abort[]]; *)
 
 (* Definizione della funzione pubblica che crea e lancia la UI *)
 LaunchOrganDetectionUI[] := DynamicModule[
@@ -42,13 +35,13 @@ LaunchOrganDetectionUI[] := DynamicModule[
     detectedPoints = {}, (* Inizializzato a lista vuota per nascondere il bottone inizialmente *)
     editMode = False,
     isProcessing = False,
-    (* Rimuovi la variabile showMessage: showMessage = False, *)
     updateFileState,
     organDetect,
     taskObject = None
   },
 
-  (* Funzione di aggiornamento dello stato del file *)
+
+(* Funzione di aggiornamento dello stato dell'immagine *)
   updateFileState[newFile_String] := (
     file = newFile;
     errorMsg = "";
@@ -70,7 +63,7 @@ LaunchOrganDetectionUI[] := DynamicModule[
               originalImg = importedContent;
               fileSet = True;,
               errorMsg = "File non \[EGrave] un'immagine PNG/JPG valida.";
-              imgPreview = None; (* Assicura reset anche qui *)
+              imgPreview = None;
               originalImg = None;
               ],
             errorMsg = "Errore durante l'importazione dell'immagine.";
@@ -90,46 +83,40 @@ LaunchOrganDetectionUI[] := DynamicModule[
     If[errorMsg =!= "", fileSet = False]; (* Aggiorna fileSet se c'\[EGrave] stato un errore *)
     );
 
-  (* Funzione di rilevamento degli organi *)
-  (* Questa funzione ora chiama quella definita nel package OrganDetection.m *)
-  organDetect[imagePath_String] := Module[{detectionResult},
-    (* Qui si assume che OrganDetection.m definisca una funzione globale OrganDetection[] *)
-    (* Se il nome \[EGrave] diverso, aggiornalo qui *)
 
+ (* Funzione di rilevamento degli organi *)
+  organDetect[imagePath_String] := Module[{detectionResult},
     detectionResult = Check[
       OrganDetection[imagePath],
       "Errore durante l'esecuzione di OrganDetection."
-      ];
-
-    (* Aggiorna imgPreview con il risultato del rilevamento *)
+     ];
+    (* Aggiorna imgPreview con la nuova immagine, ovvero, il risultato del rilevamento *)
     imgPreview = detectionResult["ResultImage"];
     detectedPoints = ToExpression[detectionResult["DetectedPoints"]];
-    (* Mantieni editMode a False dopo il rilevamento per mostrare il risultato *)
+    (* Si mantiene editMode a False dopo il rilevamento per mostrare il risultato *)
     editMode = False;
+	(* Questo blocco apre una finestra di dialogo per notificare la mancata rilevazione di tiroidi. *)
+	If[Length[detectedPoints] == 0,
+	    (* Funzione che apre una nuova finestra di dialogo con l'utente. *)
+	    CreateDialog[
+	      Panel[
+	        Grid[{
+	          {Style["Nessun organo tiroideo rilevato!!", Red, 14]},
+	          {Spacer[{0, 15}]},
+	          {DefaultButton[]}
+	        }, Alignment -> {Center, Center}, Spacings -> {0, 2}],
+	        ImageSize -> 280,
+	        Alignment -> Center
+	      ],
+	      WindowTitle -> "Risultato Detection",
+	      WindowSize -> {300, 150},
+	      WindowMargins -> {{Automatic, Automatic}, {Automatic, Automatic}},
+	      WindowElements -> {"StatusArea" -> False},
+	      Background -> White
+	    ];
+	];
+	];
 
-    
-(* Nuova logica: Apri una finestra di dialogo se nessun punto rilevato *)
-If[Length[detectedPoints] == 0,
-    (* Apri una nuova finestra di dialogo di notifica *)
-    CreateDialog[
-      Panel[
-        Grid[{
-          {Style["Nessun organo tiroideo rilevato!!", Red, 14]},
-          {Spacer[{0, 15}]},
-          {DefaultButton[]}
-        }, Alignment -> {Center, Center}, Spacings -> {0, 2}],
-        ImageSize -> 280,
-        Alignment -> Center
-      ],
-      WindowTitle -> "Risultato Detection",
-      WindowSize -> {300, 150},
-      WindowMargins -> {{Automatic, Automatic}, {Automatic, Automatic}},
-      WindowElements -> {"StatusArea" -> False},
-      Background -> White
-    ];
-];
-
-    ];
 
   (* UI - Creazione della finestra di dialogo *)
   CreateDialog[
@@ -331,16 +318,14 @@ If[Length[detectedPoints] == 0,
           (* Bottone per eseguire il rilevamento *)
           Button[
             "Esegui Organ Detection",
-            (* Action to start processing *)
             isProcessing = True;
-            (* Rimuovi: showMessage = False; *)
-            (* Use a CriticalSection wrapped in TimeConstrained to prevent UI freezing *)
+            (* Uso la CriticalSection dentro TimeConstrained per evitare situazioni di UI freeze. *)
             taskObject = SessionSubmit[
               TimeConstrained[
                 CriticalSection[{},
-                  organDetect[file]; (* Run the detection *)
+                  organDetect[file]; (* Avvio detection *)
                 ],
-                300, (* Time limit - 5 minutes *)
+                300, (* tempo massimo di detection = 5 minuti *)
                 (isProcessing = False;
                  MessageDialog["L'operazione ha impiegato troppo tempo ed \[EGrave] stata interrotta."])
               ],
@@ -350,7 +335,7 @@ If[Length[detectedPoints] == 0,
             ];,
             ImageSize -> {300, 50},
             Enabled -> Dynamic[fileSet && !isProcessing], (* Abilita solo se un file valido \[EGrave] selezionato E non in elaborazione *)
-            Background -> Dynamic[If[isProcessing, Gray, LightBlue]], (* Change color when disabled *)
+            Background -> Dynamic[If[isProcessing, Gray, LightBlue]],
             BaseStyle -> {FontSize -> 16}
             ],
 
@@ -361,43 +346,38 @@ If[Length[detectedPoints] == 0,
                 TextCell["Elaborazione in corso...", Italic, 14],
                 ProgressIndicator[Appearance -> "Indeterminate"]
                 }, Alignment -> Center],
-              Spacer[0] (* Sostituisce Nothing con un elemento visibile ma vuoto *)
+              Spacer[0]
               ]
             ],
 
-          Spacer[15], (* Adjusted spacing *)
-
+          Spacer[15],
           (* Spazio per bottone Modifica Maschera *)
-          (* Semplifica questo blocco per mostrare solo il bottone o uno spazio vuoto *)
           Dynamic[
             If[Length[detectedPoints] > 0,
               (* Bottone per attivare/disattivare la modalit\[AGrave] Modifica *)
               Button[
-                Dynamic[If[editMode, "Esci da Modifica", "Modifica Maschera"]], (* Button label changes *)
-                If[ImageQ[imgPreview], editMode = ! editMode], (* Toggle only if image is loaded *)
+                Dynamic[If[editMode, "Esci da Modifica", "Modifica Maschera"]], (* Check sulla modalit\[AGrave] del bottone *)
+                If[ImageQ[imgPreview], editMode = ! editMode], (* attiva solo se l'immagine \[EGrave] stata caricata *)
                 ImageSize -> {300, 50},
                 Enabled -> Dynamic[fileSet && ImageQ[imgPreview] && !isProcessing], (* Abilita solo se file valido, immagine caricata e non in elaborazione *)
-                Background -> Dynamic[If[editMode, Orange, Green]], (* Button color changes *)
+                Background -> Dynamic[If[editMode, Orange, Green]],
                 BaseStyle -> {FontSize -> 16}
               ],
-              (* Se non ci sono punti rilevati, mostra uno spazio vuoto in questo punto *)
-              Column[{}] (* Utilizza un Column vuoto per non mostrare nulla *)
+              Column[{}] (* Utilizzo un Column vuoto per non mostrare nulla *)
             ]
           ],
           Spacer[25]
-
-
           },
         Alignment -> Center
         ],
-      Alignment -> {Center, Center} (* Opzione per Item *)
+      Alignment -> {Center, Center} 
       ],
     Background -> GrayLevel[0.95]
     ],
     WindowTitle -> "Organ Detection Tool",
     WindowMargins -> {{500, Automatic}, {Automatic, 0}}
     ]; (* Fine CreateDialog *)
-  ]; (* Fine LaunchOrganDetectionUI *)
+]; (* Fine LaunchOrganDetectionUI *)
 
 (* Fine della sezione privata *)
 End[];
