@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     15350,        323]
-NotebookOptionsPosition[     13603,        279]
-NotebookOutlinePosition[     14101,        298]
-CellTagsIndexPosition[     14058,        295]
+NotebookDataLength[      7053,        171]
+NotebookOptionsPosition[      5524,        131]
+NotebookOutlinePosition[      6030,        150]
+CellTagsIndexPosition[      5987,        147]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -76,49 +76,25 @@ Cell[TextData[StyleBox["(anno 1, curriculum C), (anno 1, curriculum A), (anno \
 Cell[BoxData[
  RowBox[{
   RowBox[{"(*", " ", 
-   RowBox[{"::", "Package", "::"}], " ", "*)"}], "\n", 
-  RowBox[{"(*", " ", 
-   RowBox[{"OrganDetectionNotebook", ".", "nb"}], " ", "*)"}], "\n", "\n", 
-  RowBox[{"(*", " ", 
    RowBox[{
-    RowBox[{
-    "Rimuovi", " ", "la", " ", "cache", " ", "delle", " ", "definizioni", " ",
-      "precedenti"}], ",", " ", 
-    RowBox[{"se", " ", "necessario", " ", 
-     RowBox[{"(", 
-      RowBox[{"utile", " ", "durante", " ", "lo", " ", "sviluppo"}], 
-      ")"}]}]}], " ", "*)"}], "\n", 
-  RowBox[{"(*", " ", 
-   RowBox[{
-    RowBox[{"Remove", "[", "\"\<OrganDetectionUI`*\>\"", "]"}], ";"}], " ", 
-   "*)"}], "\n", 
-  RowBox[{"(*", " ", 
-   RowBox[{
-    RowBox[{"Remove", "[", "\"\<OrganDetectionUI`Private`*\>\"", "]"}], ";"}],
-    " ", "*)"}], "\n", "\n", 
-  RowBox[{"(*", " ", 
-   RowBox[{
-    RowBox[{
-    "Imposta", " ", "la", " ", "directory", " ", "di", " ", "lavoro", " ", 
-     "sulla", " ", "cartella", " ", "contenente", " ", "i", " ", 
-     RowBox[{"file", " ", ".", "m"}]}], ",", " ", 
-    RowBox[{"se", " ", "necessario"}]}], " ", "*)"}], "\n", 
+   "Imposta", " ", "la", " ", "directory", " ", "di", " ", "lavoro", " ", 
+    "sulla", " ", "cartella", " ", "del", " ", "notebook", " ", "contenente", 
+    " ", "i", " ", 
+    RowBox[{"file", " ", ".", "m"}]}], "*)"}], "\n", 
   RowBox[{
    RowBox[{
     RowBox[{"SetDirectory", "[", 
-     RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ";"}], "\n", "\n", "\n", 
-   
+     RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ";"}], "\n", "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+    "Carica", " ", "il", " ", "package", " ", "della", " ", "UI", " ", "e", " ",
+      "della", " ", "detection", " ", 
+     RowBox[{"dell", "'"}], "organo"}], " ", "*)"}], "\n", 
    RowBox[{
     RowBox[{"Get", "[", "\"\<OrganDetection.m\>\"", "]"}], ";"}], "\n", 
-   RowBox[{"(*", " ", 
-    RowBox[{"Carica", " ", "il", " ", "package", " ", "della", " ", "UI"}], 
-    " ", "*)"}], "\n", 
-   RowBox[{"(*", " ", 
-    RowBox[{"Assicurati", " ", "che", " ", 
-     RowBox[{"OrganDetectionUI", ".", "m"}], " ", "sia", " ", "nella", " ", 
-     "stessa", " ", "cartella", " ", "del", " ", "notebook", " ", "o", " ", 
-     "nel", " ", "$Path"}], " ", "*)"}], "\n", 
-   RowBox[{"<<", " ", "OrganDetectionUI.m"}]}]}]], "Code",
+   RowBox[{
+    RowBox[{"Get", "[", "\"\<OrganDetectionUI.m\>\"", "]"}], ";"}], 
+   "\n"}]}]], "Code",
  InitializationCell->True,
  InitializationGroup->True,
  CellChangeTimes->{
@@ -139,11 +115,9 @@ Cell[BoxData[
    3.955008937379737*^9}, {3.955009053602071*^9, 3.955009063925407*^9}, {
    3.955011990837966*^9, 3.95501199165877*^9}, {3.955013172072826*^9, 
    3.955013173642239*^9}, {3.9550769756335125`*^9, 3.9550769804899864`*^9}, {
-   3.955455942359033*^9, 3.955455950078285*^9}},
- FontSize->8,
- CellLabel->"In[1]:=",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
-
-Cell[CellGroupData[{
+   3.955455942359033*^9, 3.955455950078285*^9}, {3.955710000959364*^9, 
+   3.9557100420622406`*^9}, {3.955710076536274*^9, 3.9557100922798424`*^9}},
+ FontSize->8,ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8"],
 
 Cell[BoxData[
  RowBox[{
@@ -152,137 +126,15 @@ Cell[BoxData[
     RowBox[{"l", "'"}], "interfaccia", " ", "utente"}], " ", "*)"}], "\n", 
   RowBox[{"LaunchOrganDetectionUI", "[", "]"}]}]], "Code",
  CellChangeTimes->{3.954990756106764*^9},
- CellLabel->"In[4]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
-
-Cell[BoxData[
- DynamicModuleBox[{OrganDetectionUI`Private`file$$ = "", 
-  OrganDetectionUI`Private`fileSet$$ = False, 
-  OrganDetectionUI`Private`errorMsg$$ = "", 
-  OrganDetectionUI`Private`imgPreview$$ = None, 
-  OrganDetectionUI`Private`originalImg$$ = None, 
-  OrganDetectionUI`Private`detectedPoints$$ = {}, 
-  OrganDetectionUI`Private`editMode$$ = False, 
-  OrganDetectionUI`Private`isProcessing$$ = False, 
-  OrganDetectionUI`Private`updateFileState$$, 
-  OrganDetectionUI`Private`organDetect$$, 
-  OrganDetectionUI`Private`taskObject$$ = None}, "Null",
-  DynamicModuleValues:>{{
-    DownValues[OrganDetectionUI`Private`updateFileState$$] = {HoldPattern[
-         OrganDetectionUI`Private`updateFileState$$[
-          Pattern[OrganDetectionUI`Private`newFile$, 
-           Blank[String]]]] :> (
-        OrganDetectionUI`Private`file$$ = OrganDetectionUI`Private`newFile$; 
-        OrganDetectionUI`Private`errorMsg$$ = ""; 
-        OrganDetectionUI`Private`imgPreview$$ = None; 
-        OrganDetectionUI`Private`detectedPoints$$ = {}; 
-        OrganDetectionUI`Private`fileSet$$ = False; 
-        OrganDetectionUI`Private`isProcessing$$ = False; 
-        If[StringTrim[OrganDetectionUI`Private`file$$] == "", 
-          Return[]]; If[
-          FileExistsQ[OrganDetectionUI`Private`file$$], 
-          Module[{OrganDetectionUI`Private`ext$ = ToLowerCase[
-              FileExtension[OrganDetectionUI`Private`file$$]], 
-            OrganDetectionUI`Private`importedContent$}, If[
-             StringMatchQ[OrganDetectionUI`Private`ext$, 
-              Alternatives["png", "jpg", "jpeg"]], 
-             Check[OrganDetectionUI`Private`importedContent$ = 
-                Import[OrganDetectionUI`Private`file$$]; If[
-                 ImageQ[OrganDetectionUI`Private`importedContent$], 
-                 OrganDetectionUI`Private`imgPreview$$ = 
-                  OrganDetectionUI`Private`importedContent$; 
-                 OrganDetectionUI`Private`originalImg$$ = 
-                  OrganDetectionUI`Private`importedContent$; 
-                 OrganDetectionUI`Private`fileSet$$ = True; Null, 
-                 OrganDetectionUI`Private`errorMsg$$ = 
-                  "File non \[EGrave] un'immagine PNG/JPG valida."; 
-                 OrganDetectionUI`Private`imgPreview$$ = None; 
-                 OrganDetectionUI`Private`originalImg$$ = None; Null], 
-               OrganDetectionUI`Private`errorMsg$$ = 
-                "Errore durante l'importazione dell'immagine."; 
-               OrganDetectionUI`Private`imgPreview$$ = None; 
-               OrganDetectionUI`Private`originalImg$$ = None; Null]; Null, 
-             OrganDetectionUI`Private`errorMsg$$ = 
-              "Tipo file non supportato (solo .png, .jpg, .jpeg)."; 
-             OrganDetectionUI`Private`imgPreview$$ = None; 
-             OrganDetectionUI`Private`originalImg$$ = None; Null]; Null], 
-          OrganDetectionUI`Private`errorMsg$$ = "File non trovato."; 
-          OrganDetectionUI`Private`imgPreview$$ = None; 
-          OrganDetectionUI`Private`originalImg$$ = None; Null]; 
-        If[OrganDetectionUI`Private`errorMsg$$ =!= "", 
-          OrganDetectionUI`Private`fileSet$$ = False]; Null)}}, {
-    DownValues[OrganDetectionUI`Private`organDetect$$] = {HoldPattern[
-         OrganDetectionUI`Private`organDetect$$[
-          Pattern[OrganDetectionUI`Private`imagePath$, 
-           Blank[String]]]] :> 
-       Module[{OrganDetectionUI`Private`detectionResult$}, 
-         OrganDetectionUI`Private`detectionResult$ = Check[
-            ObjectDetection`OrganDetection[
-            OrganDetectionUI`Private`imagePath$], 
-            "Errore durante l'esecuzione di OrganDetection."]; 
-         OrganDetectionUI`Private`imgPreview$$ = 
-          OrganDetectionUI`Private`detectionResult$["ResultImage"]; 
-         OrganDetectionUI`Private`detectedPoints$$ = ToExpression[
-            OrganDetectionUI`Private`detectionResult$["DetectedPoints"]]; 
-         OrganDetectionUI`Private`editMode$$ = False; 
-         If[Length[OrganDetectionUI`Private`detectedPoints$$] == 0, 
-           CreateDialog[
-             Panel[
-              Grid[{{
-                 Style["Nessun organo tiroideo rilevato!!", Red, 14]}, {
-                 Spacer[{0, 15}]}, {
-                 DefaultButton[]}}, Alignment -> {Center, Center}, 
-               Spacings -> {0, 2}], ImageSize -> 280, Alignment -> Center], 
-             WindowTitle -> "Risultato Detection", WindowSize -> {300, 150}, 
-             WindowMargins -> {{Automatic, Automatic}, {
-               Automatic, Automatic}}, 
-             WindowElements -> {"StatusArea" -> False}, Background -> White]; 
-           Null]; Null]}}}]], "Output",
- CellChangeTimes->{{3.955281098991303*^9, 3.955281121331676*^9}, 
-   3.955281270137837*^9, 3.9552813023131323`*^9, {3.9552815339094267`*^9, 
-   3.9552815468125*^9}, 3.9552815790928993`*^9, 3.955281684928117*^9, 
-   3.9552819409773073`*^9, {3.9552820177669*^9, 3.955282092430031*^9}, 
-   3.9552821297841787`*^9, 3.955282204853148*^9, 3.955282393994763*^9, 
-   3.955282591162077*^9, {3.955282722445615*^9, 3.955282740835518*^9}, {
-   3.95542074631496*^9, 3.955420785450674*^9}, 3.955420821488641*^9, 
-   3.955421424230976*^9, 3.9554215305485487`*^9, {3.955421601494665*^9, 
-   3.955421620945938*^9}, {3.955421669474121*^9, 3.9554216991077347`*^9}, 
-   3.9554217411119204`*^9, {3.955421775649706*^9, 3.95542181280855*^9}, 
-   3.955421846490926*^9, 3.955422007020713*^9, 3.955422051531575*^9, {
-   3.955422697927453*^9, 3.9554227301746492`*^9}, 3.955422790579494*^9, 
-   3.955423220567176*^9, 3.955423326168255*^9, 3.955423449148012*^9, {
-   3.955423479634842*^9, 3.955423489781393*^9}, {3.955423548292206*^9, 
-   3.955423578450736*^9}, 3.955423681725445*^9, 3.9554237743022747`*^9, 
-   3.955424127238035*^9, 3.955424195646792*^9, 3.95542424057759*^9, 
-   3.9554243284825373`*^9, 3.955424387043767*^9, 3.955424434590673*^9, 
-   3.955424557855852*^9, 3.955424617473936*^9, 3.955424736422244*^9, 
-   3.955424851240809*^9, 3.955616289983037*^9, 3.955617011621386*^9},
- CellLabel->"Out[4]=",ExpressionUUID->"23963538-d0b8-416e-9125-ddbfb03568a5"]
-}, Open  ]],
-
-Cell[BoxData[""], "Input",
- CellChangeTimes->{{3.9533543590677166`*^9, 3.953354409860489*^9}, {
-   3.953603643969675*^9, 3.953603644419939*^9}, {3.953603702832714*^9, 
-   3.95360388536203*^9}, {3.9536182992528553`*^9, 3.9536183046858826`*^9}, {
-   3.9536184287872543`*^9, 3.953618434017023*^9}, {3.953618603413994*^9, 
-   3.9536186590348797`*^9}, 3.9536189924103928`*^9, {3.953620299438652*^9, 
-   3.953620306514595*^9}, {3.9536203725685863`*^9, 3.9536204004775143`*^9}, {
-   3.9536213455724907`*^9, 3.953621350229328*^9}, {3.953985790016202*^9, 
-   3.953985802156034*^9}, {3.9539858353888903`*^9, 3.953985839591661*^9}, {
-   3.9545628421352425`*^9, 3.9545628533780365`*^9}, {3.954677351724141*^9, 
-   3.9546773530648403`*^9}, {3.954677478552121*^9, 3.954677480290784*^9}, {
-   3.9550005166753635`*^9, 3.9550005424044437`*^9}, 3.955023253634687*^9, {
-   3.955076671572241*^9, 3.9550766891105976`*^9}, {3.9550788588851414`*^9, 
-   3.9550788591542377`*^9}},
- FontSize->8,
- CellLabel->"In[5]:=",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+ CellLabel->"In[12]:=",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"]
 }, Open  ]]
 },
 InitializationCellEvaluation->True,
 InitializationCellWarning->False,
-WindowSize->{890, 602},
-WindowMargins->{{Automatic, 207}, {Automatic, 34}},
+WindowSize->{1440, 747.75},
+WindowMargins->{{-6, Automatic}, {Automatic, -6}},
 Magnification:>1.5 Inherited,
-FrontEndVersion->"14.2 for Mac OS X ARM (64-bit) (December 26, 2024)",
+FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (December 26, 2024)",
 StyleDefinitions->"Default.nb",
 ExpressionUUID->"07f45638-d88c-4efd-919a-f5ca70f97309"
 ]
@@ -316,18 +168,12 @@ Cell[1803, 55, 440, 8, 27, "Author",ExpressionUUID->"78fad76d-2c59-488e-a333-381
 Cell[2246, 65, 561, 8, 37, "Text",ExpressionUUID->"0f600f28-f76c-4d81-99bb-0adf37b5827e",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[2810, 75, 3248, 68, 333, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
+Cell[2810, 75, 2367, 44, 173, "Code",ExpressionUUID->"4722122a-b9ba-4ce0-aaea-0eca9acc54d8",
  InitializationCell->True,
  InitializationGroup->True],
-Cell[CellGroupData[{
-Cell[6083, 147, 327, 7, 104, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"],
-Cell[6413, 156, 6112, 102, 50, "Output",ExpressionUUID->"23963538-d0b8-416e-9125-ddbfb03568a5"]
-}, Open  ]],
-Cell[12540, 261, 1047, 15, 34, "Input",ExpressionUUID->"293914fd-3896-654c-9a8b-51fcb730c0fd"]
+Cell[5180, 121, 328, 7, 101, "Code",ExpressionUUID->"f05835f0-7644-456c-96d5-ef28f426bdf8"]
 }, Open  ]]
 }
 ]
 *)
-
-(* End of internal cache information *)
 
