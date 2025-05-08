@@ -77,7 +77,7 @@ Inoltre viene data la possibilita' di salvare l'immagine con l'area trovata nell
 ## 3. Approccio alla risoluzione del problema
 La strada che abbiamo scelto di percorrere per arrivare all'obiettivo e' stata quella di migliorare un modello preesistente di computer vision, YOLOv8 [3], e sottoporlo ad una fase di fine tuning con un piccolo dataset di ecografie con le relative ground truth per addestrarlo a riconoscere correttamente le aree di tiroide presenti nelle ecografie che verranno caricate nell'applicativo pianificato per l'utilizzo dall'utente finale.
 
-### Primo approccio: fine tuning all'interno di Mathematica
+### 3.1 Primo approccio: fine tuning all'interno di Mathematica
 Originariamente, il progetto era studiato perche' fosse completamente realizzato in Mathematica, tuttavia abbiamo riscontrato diverse difficolta' nell'implementazione del processo di fine tuning del modello.
 Nello specifico, le operazioni necessarie per il corretto funzionamento del *fine-tune* richiedevano un riadattamento dell'ultimo layer modello **YOLO-V8**, affinchè fosse *compliant* alle esigenze del progetto. E quindi stata definita la classe di predizione <span style="color:red">tiroide</span> al posto delle classiche 80 classi di *YOLO*.
 Il dataset era così creato:
@@ -141,7 +141,7 @@ Le ragioni di questo mancato funzionamento del modello possono essere molteplici
 
 La documentazione online riguardo quest'argomento è deficitante e limitata soltanto all'inferenza del modello anziché il fine-tuning. La mancanza di informazioni unita alla scarsa verbosità degli output forniti da *Mathematica* ha suggerito un approccio diverso.
 
-### Secondo approccio: preprocessing e fine tuning con python
+### 3.2 Secondo approccio: preprocessing e fine tuning con python
 A seguirsi della rivisitazione, il preprocessing delle immagini e il fine tuning di YOLOv8 e' stato effettuato tramite python, mentre l'UI e le funzionalita' esterne all'interazione con i pesi e con il modello di computer vision sono state realizzate in mathematica.
 
 ## 4. Architettura del progetto e funzioni
