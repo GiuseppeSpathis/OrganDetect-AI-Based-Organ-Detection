@@ -276,7 +276,7 @@ Dopo l'addestramento, i pesi migliori (best.pt) vengono utilizzati per la conval
 
 ## 5. Analisi dei risultati
 
-### 5.1 analisi dei risultati della fase di training
+### 5.1 Analisi dei risultati della fase di training
 Il modello YOLOv8 dopo il fine-tuning ha dimostrato importanti miglioramenti nel rilevamento e segmentazione durante le diverse epoche di addestramento. Le prestazioni sono state valutate utilizzando metriche standard di rilevamento degli oggetti, tra cui precision, recall, mean precision a soglie IoU di 0,5 (mAP@0,5) e la più restrittiva mAP@0,5:0,95, insieme alle loss di training e validation per i task di bounding box, segmentazione e classificazione.
 
 A partire dalla prima epoca, si è registrato un calo significativo in tutte le componenti della loss di training. La loss relativa alla bounding box è diminuita da 1,52 a 1,33, la loss di segmentazione da 2,49 a 1,64 e la loss di classificazione da 2,77 a 1,08 nelle prime cinque epoche. Analogamente, le loss di validation hanno seguito un trend decrescente costante, con la loss della bounding box che è scesa da 3,05 a 1,44 e la loss di segmentazione da 9,08 a 2,39. Questo trend di convergenza indica un apprendimento efficace, con un overfitting minimo, almeno per quanto riguarda il test interno del dataset.
