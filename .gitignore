@@ -5,3 +5,5 @@ dataset
 data
 FineTune.m
 tutorial_finetune.nb
+!Relazione/*
+!metricheTraining/*

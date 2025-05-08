@@ -4,7 +4,7 @@ Gruppo numero 1: Morgan
 MC 2024/2025
 
 
-![foto 1: Giuseppe Spathis](Relazione/giuseppe.jpg)|![foto 2: Matteo Fontana](Relazione/mat.png)|![foto 3: Federico Augelli](Relazione/fede.png)|![foto 4: Emanuele Di Sante](Relazione/luizo_nerd.png)|![foto 5: Alessandro Menachelli](Relazione/ale.png)
+![foto 1: Giuseppe Spathis](Relazione/giuseppe.jpg)|![foto 2: Matteo Fontana](Relazione/mat.png)|![foto 3: Federico Augelli](Relazione/fede.jpg)|![foto 4: Emanuele Di Sante](Relazione/luizo_nerd.png)|![foto 5: Alessandro Menachelli](Relazione/ale.png)
 -|-|-|-|-
 
 Giuseppe Spathis, Matteo Fontana, Federico Augelli, Emanuele di Sante, Alessandro Mencarelli
@@ -146,7 +146,7 @@ OnMouseUp:
 
 - **inference.py**
   - Script Python che esegue l’inferenza del modello YOLOv8 sull'immagine fornita. Viene richiamato da Mathematica tramite le funzioni di collegamento per effettuare la detection vera e propria, utilizzando i pesi in output del fine tuning in `best.pt`.
-  - Contiene la funzionalita' di mappatura
+  - Contiene la funzionalita' di mappatura del risultato dell'inferenza in coordinate che l'UI sviluppata come parte del pacchetto interpretera' per creare l'apposita' maschera editabile.
 
 - **run.sh**
   - Script bash per l’installazione automatica dell’ambiente Python e l’avvio dell’applicativo su sistemi Linux/Darwin.
