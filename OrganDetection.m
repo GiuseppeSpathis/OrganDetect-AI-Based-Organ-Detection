@@ -10,7 +10,7 @@
 (*:Copyright: GS 2025 *)
 (*:Package Version: 1 *)
 (*:Mathematica Version: 14  *)
-(*:History: last modified 14/3/2025 ... da sistemare *)
+(*:History: last modified 8/5/2025 *)
 (*:Keywords: Organ detection, ultrasound images *)
 (*:Sources: biblio *)
 (*:Limitations: this is for educational purposes only. *)
