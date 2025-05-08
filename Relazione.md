@@ -269,7 +269,6 @@ IF data.yaml exists:
     PRINT "Training completed"
 ELSE:
     PRINT error: training not started
-
 ```
 
 
