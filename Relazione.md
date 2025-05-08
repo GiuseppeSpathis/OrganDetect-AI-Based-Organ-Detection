@@ -275,6 +275,8 @@ ELSE:
 Dopo l'addestramento, i pesi migliori (best.pt) vengono utilizzati per la convalida sul validation set ed i risultati salvati in `metricheTraining`.
 
 ## 5. Analisi dei risultati
+
+### 5.1 analisi dei risultati della fase di training
 Il modello YOLOv8 dopo il fine-tuning ha dimostrato importanti miglioramenti nel rilevamento e segmentazione durante le diverse epoche di addestramento. Le prestazioni sono state valutate utilizzando metriche standard di rilevamento degli oggetti, tra cui precision, recall, mean precision a soglie IoU di 0,5 (mAP@0,5) e la più restrittiva mAP@0,5:0,95, insieme alle loss di training e validation per i task di bounding box, segmentazione e classificazione.
 
 A partire dalla prima epoca, si è registrato un calo significativo in tutte le componenti della loss di training. La loss relativa alla bounding box è diminuita da 1,52 a 1,33, la loss di segmentazione da 2,49 a 1,64 e la loss di classificazione da 2,77 a 1,08 nelle prime cinque epoche. Analogamente, le loss di validation hanno seguito un trend decrescente costante, con la loss della bounding box che è scesa da 3,05 a 1,44 e la loss di segmentazione da 9,08 a 2,39. Questo trend di convergenza indica un apprendimento efficace, con un overfitting minimo, almeno per quanto riguarda il test interno del dataset.
@@ -287,7 +289,17 @@ Al termine del training, come si evince nella matrice di confusione (figura 7), 
 
 Il modello ottimizzato YOLOv8 ha raggiunto un'elevata capacità di rilevamento e segmentazione delle regioni tiroidee nelle immagini ecografiche. Il costante miglioramento della loss e delle metriche di valutazione nel corso del training ha superato non poco le nostre aspettative.
 
+
+
 Un'osservazione da includere tuttavia è la difficoltà del modello di individuare la tiroide in ecografie dove essa é molto piccola o quasi assente oppure dove si confonde facilmente con il resto dell'immagine, ed è difficilmente percettibile per noi non professionisti. Affronteremo questo argomento e le possibili soluzioni più avanti.
+
+### 5.1 analisi dei risultati della fase di test
+
+Per verificare la capacità di generalizzazione del modello fine-tuned, le metriche dalla fase di training sono state confrontate con la valutazione del modello su un dataset esterno di testing di 330 immagini. Si è notato un calo delle prestazioni generali nel passaggio ai dati di test: la metrica mAP@0.5 è scesa significativamente da circa 0.91 (validazione) a 0.71, mentre la più restrittiva mAP@0.5:0.95 è diminuita in modo meno marcato da 0.50 a 0.44. Il calo più evidente e preoccupante si è verificato nella recall, che è crollata da oltre 0.90 (sul set di validazione) a solo 0.44 sul test set, indicando che il modello ora identifica meno della metà dell'oggetto target che riusciva a trovare nei dati di validazione. Al contrario, la precision sul test set è rimasta molto alta, raggiungendo il valore di 0.975.
+
+Questa combinazione di un drastico calo della recall e un calo delle mAP, a fronte di una precision che rimane elevata, suggerisce fortemente che il modello ha generalizzato in modo non ottimale e potrebbe essere andato in overfitting sui dati di training/validazione. In pratica, il modello sembra essere diventato molto 'cauto' sui dati nuovi: fa pochissimi errori quando predice la tiroide (alta precisione), ma lo fa al costo di mancare o ignorare gran parte delle aree che effettivamente appartengono alla tiroide (bassa recall).
+
+È vero però che, oltre all'ipotesi dell'overfitting, i risultati osservati sul set di test potrebbero essere influenzati significativamente dalle caratteristiche di questo specifico set di dati. Infatti, un dataset di test composto da 330 immagini, pur essendo utile, potrebbe non essere statisticamente enorme e, cosa più importante, potrebbe contenere tipi di rumore, artefatti, variazioni anatomiche o condizioni di acquisizione che non erano presenti o erano sottorappresentati nel dataset di training/validazione rientrando quindi in un problema di domain shift.
 
 ## 6. Sviluppi futuri
 La ricerca condotta ha mostrato ottimi risultati nei task prestabiliti, e crediamo sia quindi un'ottima strada quella di proseguire in questa direzione,pertanto i possibili sviluppi futuri proposti dal nostro team sono un fine-tuning con un dataset di maggiori dimensioni, includendo un crescente numero di ecografie di diversi pazienti per addestrare il modello ad uno spettro piú ampio di dati che renda la rilevazione più robusta.
