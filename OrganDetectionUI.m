@@ -162,11 +162,11 @@ LaunchOrganDetectionUI[] := DynamicModule[
                 Column[{
                   Style["Anteprima: (Clicca per ingrandire)", Italic, 16],
                   Button[
-                    Dynamic[Image[imgPreview, ImageSize -> 353]], (* Wrapped Image with Dynamic *)
+                    Dynamic[Image[imgPreview, ImageSize -> 353]], +
                     CreateDialog[
                       Image[imgPreview, ImageSize -> Full],
                       WindowTitle -> "Anteprima Ingrandita - " <> FileNameTake[file],
-                      WindowSize -> Automatic, WindowResizable -> True, WindowCentered -> True
+                      WindowSize -> Automatic
                       ],
                     Appearance -> None, BaseStyle -> {}
                     ]
