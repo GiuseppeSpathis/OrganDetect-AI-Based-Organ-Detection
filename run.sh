@@ -1,13 +1,17 @@
 #!/bin/bash
 
+# Setta l'ambiente per l'esecuzione del codice
 set -e
+
+# Controlla il tipo di sistema operativo e architettura
 OS_TYPE=$(uname -s)
 ARCH=$(uname -m)
 
+# Stampa informazioni sul sistema
 INSTALL_DIR="$HOME/miniconda3"
 CONDA_SH="$INSTALL_DIR/miniconda.sh"
 
-# Install conda if not already installed
+# Installa Miniconda se non è già installato
 if ! command -v conda &> /dev/null; then
     echo "Conda is not installed. Installing Miniconda..."
 
@@ -30,18 +34,18 @@ else
     echo "Conda is installed, proceeding with the script."
 fi
 
-# Initialize Conda
+# Inizializza Conda
 echo "Initializing Conda..."
 source "$INSTALL_DIR/etc/profile.d/conda.sh"
 conda init bash || true
 source ~/.bashrc || true
 
-# Create environment from environment.yml (if it doesn't already exist)
+# Crea l'ambiente Conda e controlla se esiste già
 echo "Creating Conda environment from environment.yml..."
 conda activate base
 conda env create -f environment.yml || echo "Environment may already exist."
 
-# Open tutorial.nb with the appropriate command based on OS
+# Apri il notebook di Mathematica. Se viene aperto con un sistema operativo diverso da MacOS o Linux, mostra un messaggio di errore.
 echo "Attempting to open tutorial.nb..."
 if [[ "$OS_TYPE" == "Darwin" ]]; then
     open tutorial.nb

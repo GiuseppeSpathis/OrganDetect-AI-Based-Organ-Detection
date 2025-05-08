@@ -77,8 +77,71 @@ Inoltre viene data la possibilita' di salvare l'immagine con l'area trovata nell
 ## 3. Approccio alla risoluzione del problema
 La strada che abbiamo scelto di percorrere per arrivare all'obiettivo e' stata quella di migliorare un modello preesistente di computer vision, YOLOv8 [3], e sottoporlo ad una fase di fine tuning con un piccolo dataset di ecografie con le relative ground truth per addestrarlo a riconoscere correttamente le aree di tiroide presenti nelle ecografie che verranno caricate nell'applicativo pianificato per l'utilizzo dall'utente finale.
 
-Originariamente, il progetto era studiato perche' fosse completamente realizzato in Mathematica, tuttavia abbiamo riscontrato diverse difficolta' nell'implementazione del processo di fine tuning del modello: diverse funzioni di mathematica utilizzate non avevano il comportamento previsto, la documentazione limitata per questa tipologia di funzioni a noi necessaria, l'impossibilita' di eseguire alcune operazioni necessarie per il training del modello e i frequenti problemi con la scarsa verbosita' di queste funzioni durante lunghi processi di elaborazione ci hanno convinto a rivisitare il nostro approccio per la risoluzione del problema.
+### Primo approccio: fine tuning all'interno di Mathematica
+Originariamente, il progetto era studiato perche' fosse completamente realizzato in Mathematica, tuttavia abbiamo riscontrato diverse difficolta' nell'implementazione del processo di fine tuning del modello.
+Nello specifico, le operazioni necessarie per il corretto funzionamento del *fine-tune* richiedevano un riadattamento dell'ultimo layer modello **YOLO-V8**, affinchè fosse *compliant* alle esigenze del progetto. E quindi stata definita la classe di predizione <span style="color:red">tiroide</span> al posto delle classiche 80 classi di *YOLO*.
+Il dataset era così creato:
+Il modello è stato definito tramite la funzione *built-in* `NetModel`:
+```mathematica
+baseModel = NetModel["YOLO V8 Segment Trained on MS-COCO Data", "UninitializedEvaluationNet"];
+```
+Successivamente è stato eseguito il preprocessing delle immagini. Ogni istanza del dataset era nella forma:
+```mathematica
+<|
+    "Input" -> img,
+    "Target" -> <|
+      "Boxes" -> {{xmin, ymin, xmax, ymax}},
+      "Classes" -> {classIndex},
+      "Masks" -> {binaryMask}
+    |>
+|>
+```
+Dove `Input` sono le immagini fornite in input, `Target` l'output del modello.
 
+Infine sono stati definiti i parametri per il *fine-tune* del modello:
+```mathematica
+trainingOptions = {
+    BatchSize -> 4,
+    MaxTrainingRounds -> 50,
+    LearningRate -> 0.0001,
+    TargetDevice -> "CPU",    (* Use "GPU" if available *)
+    RandomSeeding -> 42
+  };
+```
+Ed è stato definto il processo di *fine-tuning*:
+```mathematica
+  fineTunedNet = Check[
+    NetTrain[
+      baseModel,
+      trainingData,
+      All,
+      ValidationSet -> validationData,
+      Sequence @@ trainingOptions
+    ],
+    $Failed
+  ];
+```
+Ogni prova e modifica del codice da questo punto in poi è stata segnata dalla comparsa di questo errore:
+`Part 4 of NeuralNetworksNetPath[Inputs,Input1] does not exist, An unknown internal error occurred`
+Seguito da un errore interno più spefico:
+```
+Last internal error: Unreachable
+Function MXNetLinkNDArraySetConstant encountered an unreachable expression. The LHS was MXNetLinkNDArraySetConstant[Missing[KeyAbsent,.Nodes.Net.Nodes.Detect.Nodes.proto.Nodes.Bn_1.Arrays.Biases],0.].
+```
+
+Il primo errore suggerisce che `NetTrain` non riesce a capire la struttura interna del modello (o dell'input fornito al modello) e fallisce nell'esecuzione.
+Il secondo errore è molto più specifico e conferma che alcuni parametri nei metadata forniti a `NetTrain` sono mancanti (o forse non inizializzati). L'import del modello è quindi stato cambiato eliminando la definizione `UninitializedEvaluationNet`. Anche queste modifiche non hanno sortito alcun cambiamento nella natura degli errori restituiti dal *Fine-Tuning*.
+
+Successivamente si è provato a inizializzare manualmente la rete tramite la *built-in* `NetInitialize[baseModel];`, aluni parametri normalmente riconosciuti automaticamente da *YOLO* sono stati definiti in maniera *Hard Coded* come la **Loss Function**.
+Il persistere degli errori ha messo in luce come i parametri da definire manualmente fossero molti di più (non solo input e output) e che determinarli manualmente necessitava di una conoscenza approfondita del modello *YOLO*.
+Le ragioni di questo mancato funzionamento del modello possono essere molteplici tra i quali:
+1. Incompatibilità della versione di *Mathematica* utilizzata con il modello *Yolo*
+2. Impossibilità di eseguire il *fine tuning* direttamente all'interno di *Mathematica*
+3. Errore interno alla rete dovuto alla mancata definizione manuale di qualche parametro
+
+La documentazione online riguardo quest'argomento è deficitante e limitata soltanto all'inferenza del modello anziché il fine-tuning. La mancanza di informazioni unita alla scarsa verbosità degli output forniti da *Mathematica* ha suggerito un approccio diverso.
+
+### Secondo approccio: preprocessing e fine tuning con python
 A seguirsi della rivisitazione, il preprocessing delle immagini e il fine tuning di YOLOv8 e' stato effettuato tramite python, mentre l'UI e le funzionalita' esterne all'interazione con i pesi e con il modello di computer vision sono state realizzate in mathematica.
 
 ## 4. Architettura del progetto e funzioni
