@@ -3,21 +3,21 @@
 # Setta l'ambiente per l'esecuzione del codice
 set -e
 
-# Controlla il tipo di sistema operativo e architettura
+# Controlla il tipo di sistema operativo e architettura. I sistemi operativi supportati sono MacOS (sia x86_64 che arm64) e Linux (x86_64).
 OS_TYPE=$(uname -s)
 ARCH=$(uname -m)
 
 # Stampa informazioni sul sistema
-INSTALL_DIR="$HOME/miniconda3"
-CONDA_SH="$INSTALL_DIR/miniconda.sh"
-CONDA_BIN="$INSTALL_DIR/bin/conda"
+INSTALL_DIR="$HOME/miniconda3" # directory d'installazione di Miniconda
+CONDA_SH="$INSTALL_DIR/miniconda.sh" # file di installazione di Miniconda
+CONDA_BIN="$INSTALL_DIR/bin/conda" # percorso del binario di Conda
 
 # Installa Miniconda se non è già installato
 #if ! command -v conda &> /dev/null ; then
-if [[ ! -f "$CONDA_BIN" ]]; then
+if [[ ! -f "$CONDA_BIN" ]]; then # Controlla se il binary di Conda esiste
     echo "Conda is not installed. Installing Miniconda..."
 
-    mkdir -p "$INSTALL_DIR"
+    mkdir -p "$INSTALL_DIR" # Crea la directory di installazione se non esiste
 
     if [[ "$OS_TYPE" == "Darwin" && "$ARCH" == "arm64" ]]; then
         curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o "$CONDA_SH"
@@ -44,8 +44,8 @@ if [[ ! -f "$CONDA_BIN" ]]; then
         exit 1
     fi
 
-    bash "$CONDA_SH" -b -u -p "$INSTALL_DIR"
-    rm "$CONDA_SH"
+    bash "$CONDA_SH" -b -u -p "$INSTALL_DIR" # Installa Miniconda
+    rm "$CONDA_SH" # Rimuovi il file di installazione
 else
     echo "Conda is installed, proceeding with the script."
 fi
